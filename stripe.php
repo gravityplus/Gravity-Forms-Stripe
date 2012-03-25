@@ -42,6 +42,11 @@ else if ( isset( $network_plugin ) ) {
 define( 'GRAVITYFORMS_STRIPE_FILE', $gravityforms_stripe_file );
 define( 'GRAVITYFORMS_STRIPE_PATH', WP_PLUGIN_DIR.'/'.basename( dirname( $gravityforms_stripe_file ) ) );
 
+add_action('wp_print_scripts', 'load_stripe_js');
+add_action('admin_print_scripts', 'load_stripe_js');
+function load_stripe_js() {
+    wp_enqueue_script('stripe-js', 'https://js.stripe.com/v1/', array('jquery') );
+}
 
 add_action('init',  array('GFStripe', 'init'));
 
@@ -309,11 +314,11 @@ class GFStripe {
             "stripe_trial_amount" => "<h6>" . __("Trial Amount", "gravityforms-stripe") . "</h6>" . __("Enter the trial period amount or leave it blank for a free trial.", "gravityforms-stripe"),
             "stripe_trial_period" => "<h6>" . __("Trial Recurring Times", "gravityforms-stripe") . "</h6>" . __("Select the number of billing occurrences or payments in the trial period.", "gravityforms-stripe"),
 
-            "stripe_api" => "<h6>" . __("API", "gravityforms-stripe") . "</h6>" . __("Select the Stripe API you would like to use. Select 'Live' to use your Live API key. Select 'Test' to use your Test API key.", "gravityforms-stripe"),
-						"stripe_test_secret_key" => "<h6>" . __("API Secret Key (Test)", "gravityforms-stripe") . "</h6>" . __("Enter the API Test Secret Key for your Stripe account.", "gravityforms-stripe"),
-						"stripe_test_publishable_key" => "<h6>" . __("API Publishable Key (Test)", "gravityforms-stripe") . "</h6>" . __("Enter the API Test Publishable Key for your Stripe account.", "gravityforms-stripe"),
-						"stripe_live_secret_key" => "<h6>" . __("API Secret Key (Live)", "gravityforms-stripe") . "</h6>" . __("Enter the API Live Secret Key for your Stripe account.", "gravityforms-stripe"),
-						"stripe_live_publishable_key" => "<h6>" . __("API Publishable Key (Live)", "gravityforms-stripe") . "</h6>" . __("Enter the API Live Publishable Key for your Stripe account.", "gravityforms-stripe"),
+            "stripe_api" => "<h6>" . __("API", "gravityforms-stripe") . "</h6>" . __("Select the Stripe API you would like to use. Select 'Live' to use your Live API keys. Select 'Test' to use your Test API keys.", "gravityforms-stripe"),
+						"stripe_test_secret_key" => "<h6>" . __("API Test Secret Key", "gravityforms-stripe") . "</h6>" . __("Enter the API Test Secret Key for your Stripe account.", "gravityforms-stripe"),
+						"stripe_test_publishable_key" => "<h6>" . __("API Test Publishable Key", "gravityforms-stripe") . "</h6>" . __("Enter the API Test Publishable Key for your Stripe account.", "gravityforms-stripe"),
+						"stripe_live_secret_key" => "<h6>" . __("API Live Secret Key", "gravityforms-stripe") . "</h6>" . __("Enter the API Live Secret Key for your Stripe account.", "gravityforms-stripe"),
+						"stripe_live_publishable_key" => "<h6>" . __("API Live Publishable Key", "gravityforms-stripe") . "</h6>" . __("Enter the API Live Publishable Key for your Stripe account.", "gravityforms-stripe"),
             "stripe_conditional" => "<h6>" . __("Stripe Condition", "gravityforms-stripe") . "</h6>" . __("When the Stripe condition is enabled, form submissions will only be sent to Stripe when the condition is met. When disabled all form submissions will be sent to Stripe.", "gravityforms-stripe")
 
         );
@@ -408,7 +413,8 @@ class GFStripe {
 
 
                         $settings = GFStripeData::get_feeds();
-                        if(!self::is_valid_key()){
+												$is_valid = self::is_valid_key();
+                        if(!$is_valid[0]){
                             ?>
                             <tr>
                                 <td colspan="4" style="padding:20px;">
@@ -541,13 +547,23 @@ class GFStripe {
             $settings = get_option("gf_stripe_settings");
         }
 
-        $is_valid = self::is_valid_key();
+				$is_valid = self::is_valid_key();
 
-        $message = "";
-        if($is_valid)
-            $message = "Valid API keys.";
-        else if(!empty($settings["transaction_key"]))
-            $message = "Invalid API keys. Please try again.";
+        $message = array();
+        if( $is_valid[0] )
+            $message[0] = "Valid API key.";
+        else {
+					foreach ( $is_valid[1] as $key => $value ) {
+						if( !empty( $settings[$key] ) ) {
+							if ( !$value ) {
+								$message[1][$key] = "Invalid API key. Please try again.";
+							}
+							else {
+								$message[1][$key] = "Valid API key.";
+							}
+						}
+					}
+				}
 
 
         ?>
@@ -580,36 +596,36 @@ class GFStripe {
                     <th scope="row" nowrap="nowrap"><label for="gf_stripe_test_secret_key"><?php _e("Test Secret Key", "gravityforms-stripe"); ?> <?php gform_tooltip("stripe_test_secret_key") ?></label> </th>
                     <td width="88%">
                         <input class="size-1" id="gf_stripe_test_secret_key" name="gf_stripe_test_secret_key" value="<?php echo esc_attr(rgar($settings,"test_secret_key")) ?>" />
-                        <img src="<?php echo self::get_base_url() ?>/images/<?php echo $is_valid ? "tick.png" : "stop.png" ?>" border="0" alt="<?php $message ?>" title="<?php echo $message ?>" style="display:<?php echo empty($message) ? 'none;' : 'inline;' ?>" />
+                        <img src="<?php echo self::get_base_url() ?>/images/<?php echo $is_valid[1]['test_secret_key'] ? "tick.png" : "stop.png" ?>" border="0" alt="<?php array_key_exists( 0, $message ) ? $message[0] : $message[1]['test_secret_key']  ?>" title="<?php echo array_key_exists( 0, $message ) ? $message[0] : $message[1]['test_secret_key'] ?>" style="display:<?php echo ( empty($message[0]) && empty($message[1]['test_secret_key']) ) ? 'none;' : 'inline;' ?>" />
                         <br/>
-                        <small><?php _e("You can find your <strong>Test Secret Key</strong> by clicking on 'Your Account' in the top right corner of the Stripe Merchant Interface. Choose 'Account Settings' then 'API Keys'. Your API keys will be displayed.", "gravityforms-stripe") ?></small>
+                        <small><?php _e("You can find your <strong>Test Secret Key</strong> by clicking on 'Your Account' in the top right corner of the Stripe Account Dashboard. Choose 'Account Settings' then 'API Keys'. Your API keys will be displayed.", "gravityforms-stripe") ?></small>
                     </td>
                 </tr>
 							<tr>
 							                    <th scope="row" nowrap="nowrap"><label for="gf_stripe_test_publishable_key"><?php _e("Test Publishable Key", "gravityforms-stripe"); ?> <?php gform_tooltip("stripe_test_publishable_key") ?></label> </th>
 							                    <td width="88%">
 							                        <input class="size-1" id="gf_stripe_test_publishable_key" name="gf_stripe_test_publishable_key" value="<?php echo esc_attr(rgar($settings,"test_publishable_key")) ?>" />
-							                        <img src="<?php echo self::get_base_url() ?>/images/<?php echo $is_valid ? "tick.png" : "stop.png" ?>" border="0" alt="<?php $message ?>" title="<?php echo $message ?>" style="display:<?php echo empty($message) ? 'none;' : 'inline;' ?>" />
+							                        <img src="<?php echo self::get_base_url() ?>/images/<?php echo $is_valid[1]['test_publishable_key'] ? "tick.png" : "stop.png" ?>" border="0" alt="<?php array_key_exists( 0, $message ) ? $message[0] : $message[1]['test_publishable_key'] ?>" title="<?php echo array_key_exists( 0, $message ) ? $message[0] : $message[1]['test_publishable_key'] ?>" style="display:<?php echo ( empty($message[0]) && empty($message[1]['test_publishable_key']) ) ? 'none;' : 'inline;' ?>" />
 							                        <br/>
-							                        <small><?php _e("You can find your <strong>Test Secret Key</strong> by clicking on 'Your Account' in the top right corner of the Stripe Merchant Interface. Choose 'Account Settings' then 'API Keys'. Your API keys will be displayed.", "gravityforms-stripe") ?></small>
+							                        <small><?php _e("You can find your <strong>Test Publishable Key</strong> by clicking on 'Your Account' in the top right corner of the Stripe Account Dashboard. Choose 'Account Settings' then 'API Keys'. Your API keys will be displayed.", "gravityforms-stripe") ?></small>
 							                    </td>
 							                </tr>
 							<tr>
 							                    <th scope="row" nowrap="nowrap"><label for="gf_stripe_live_secret_key"><?php _e("Live Secret Key", "gravityforms-stripe"); ?> <?php gform_tooltip("stripe_live_secret_key") ?></label> </th>
 							                    <td width="88%">
 							                        <input class="size-1" id="gf_stripe_live_secret_key" name="gf_stripe_live_secret_key" value="<?php echo esc_attr(rgar($settings,"live_secret_key")) ?>" />
-							                        <img src="<?php echo self::get_base_url() ?>/images/<?php echo $is_valid ? "tick.png" : "stop.png" ?>" border="0" alt="<?php $message ?>" title="<?php echo $message ?>" style="display:<?php echo empty($message) ? 'none;' : 'inline;' ?>" />
+							                        <img src="<?php echo self::get_base_url() ?>/images/<?php echo $is_valid[1]['live_secret_key'] ? "tick.png" : "stop.png" ?>" border="0" alt="<?php array_key_exists( 0, $message ) ? $message[0] : $message[1]['live_secret_key'] ?>" title="<?php echo array_key_exists( 0, $message ) ? $message[0] : $message[1]['live_secret_key'] ?>" style="display:<?php echo ( empty($message[0]) && empty($message[1]['live_secret_key']) ) ? 'none;' : 'inline;' ?>" />
 							                        <br/>
-							                        <small><?php _e("You can find your <strong>live Secret Key</strong> by clicking on 'Your Account' in the top right corner of the Stripe Merchant Interface. Choose 'Account Settings' then 'API Keys'. Your API keys will be displayed.", "gravityforms-stripe") ?></small>
+							                        <small><?php _e("You can find your <strong>Live Secret Key</strong> by clicking on 'Your Account' in the top right corner of the Stripe Account Dashboard. Choose 'Account Settings' then 'API Keys'. Your API keys will be displayed.", "gravityforms-stripe") ?></small>
 							                    </td>
 							                </tr>
 							<tr>
 														                    <th scope="row" nowrap="nowrap"><label for="gf_stripe_live_publishable_key"><?php _e("Live Publishable Key", "gravityforms-stripe"); ?> <?php gform_tooltip("stripe_live_publishable_key") ?></label> </th>
 														                    <td width="88%">
 														                        <input class="size-1" id="gf_stripe_live_publishable_key" name="gf_stripe_live_publishable_key" value="<?php echo esc_attr(rgar($settings,"live_publishable_key")) ?>" />
-														                        <img src="<?php echo self::get_base_url() ?>/images/<?php echo $is_valid ? "tick.png" : "stop.png" ?>" border="0" alt="<?php $message ?>" title="<?php echo $message ?>" style="display:<?php echo empty($message) ? 'none;' : 'inline;' ?>" />
+														                        <img src="<?php echo self::get_base_url() ?>/images/<?php echo $is_valid[1]['live_publishable_key'] ? "tick.png" : "stop.png" ?>" border="0" alt="<?php array_key_exists( 0, $message ) ? $message[0] : $message[1]['live_publishable_key'] ?>" title="<?php echo array_key_exists( 0, $message ) ? $message[0] : $message[1]['live_publishable_key'] ?>" style="display:<?php echo ( empty($message[0]) && empty($message[1]['live_publishable_key']) ) ? 'none;' : 'inline;' ?>" />
 														                        <br/>
-														                        <small><?php _e("You can find your <strong>live Secret Key</strong> by clicking on 'Your Account' in the top right corner of the Stripe Merchant Interface. Choose 'Account Settings' then 'API Keys'. Your API keys will be displayed.", "gravityforms-stripe") ?></small>
+														                        <small><?php _e("You can find your <strong>Live Publishable Key</strong> by clicking on 'Your Account' in the top right corner of the Stripe Account Dashboard. Choose 'Account Settings' then 'API Keys'. Your API keys will be displayed.", "gravityforms-stripe") ?></small>
 														                    </td>
 														                </tr>
 
@@ -681,30 +697,65 @@ class GFStripe {
     private static function is_valid_key(){
 			$api_login = self::include_api();
 			$settings = get_option("gf_stripe_settings");
-      $mode = rgar($settings, "mode");
-			switch ( $mode ) {
-				case 'test':
-					Stripe::setApiKey($settings['stripe_test_secret_key']);
-					$response = Stripe_Charge::all();
-					if ( $response->error ) {
-						echo $response->type . $response->message;
-						return false;
-					}
-					break;
-				case 'live':
-					Stripe::setApiKey($settings['stripe_test_live_key']);
-					$response = Stripe_Charge::all();
-					if ( $response->error ) {
-						echo $response->type . $response->message;
-						return false;
-					}
-					break;
-				default:
-					echo 'Mode is not properly set on the settings page';
-					return false;
-			}
 
-			return true;
+			/*$visaPrefixList[] =  "4539";
+			$visaPrefixList[] =  "4556";
+			$visaPrefixList[] =  "4916";
+			$visaPrefixList[] =  "4532";
+			$visaPrefixList[] =  "4929";
+			$visaPrefixList[] =  "40240071";
+			$visaPrefixList[] =  "4485";
+			$visaPrefixList[] =  "4716";
+			$visaPrefixList[] =  "4";*/
+
+			$year = date('Y')+1;
+
+				$valid_keys = array( 'test_secret_key' => false,
+											'test_publishable_key' => false,
+											'live_secret_key' => false,
+											'live_publishable_key' => false
+										);
+				$valid = false;
+				$flag_false = 0;
+				foreach ( $valid_keys as $key => $value ) {
+					if ( !empty( $settings[$key] ) ) {
+						try {
+							Stripe::setApiKey($settings[$key]);
+							//if ( rgar($settings, "mode") == 'test' ) {
+								$card_num = credit_card_number($visaPrefixList, 16, 1);
+								$response = Stripe_Token::create(array(
+						    	"card" => array(
+						    	"number" => '4242424242424242',
+						    	"exp_month" => 3,
+						    	"exp_year" => $year,
+						    	"cvc" => 314
+						  		),
+						    	"currency" => "usd"));
+
+							$valid_keys[$key] = true;
+						}
+						catch (Exception $e) {
+							$class = get_class( $e );
+							if ( $class == 'Stripe_CardError' ) {
+								$valid_keys[$key] = true;
+							}
+							else {
+								$flag_false++;
+							}
+						}
+					}
+					else {
+						$flag_false++;
+					}
+				}
+
+				if ( $flag_false == 0 ) {
+					$valid = true;
+				}
+
+
+				return array( $valid, $valid_keys );
+
 
     }
 
@@ -2823,5 +2874,83 @@ function rgblank($text){
     return empty($text) && strval($text) != "0";
 }
 }
+
+/*
+PHP credit card number generator
+Copyright (C) 2006 Graham King graham@darkcoding.net
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+*/
+
+
+/*
+'prefix' is the start of the CC number as a string, any number of digits.
+'length' is the length of the CC number to generate. Typically 13 or 16
+*/
+/*function completed_number($prefix, $length) {
+
+    $ccnumber = $prefix;
+
+    # generate digits
+
+    while ( strlen($ccnumber) < ($length - 1) ) {
+        $ccnumber .= rand(0,9);
+    }
+
+    # Calculate sum
+
+    $sum = 0;
+    $pos = 0;
+
+    $reversedCCnumber = strrev( $ccnumber );
+
+    while ( $pos < $length - 1 ) {
+
+        $odd = $reversedCCnumber[ $pos ] * 2;
+        if ( $odd > 9 ) {
+            $odd -= 9;
+        }
+
+        $sum += $odd;
+
+        if ( $pos != ($length - 2) ) {
+
+            $sum += $reversedCCnumber[ $pos +1 ];
+        }
+        $pos += 2;
+    }
+
+    # Calculate check digit
+
+    $checkdigit = (( floor($sum/10) + 1) * 10 - $sum) % 10;
+    $ccnumber .= $checkdigit;
+
+    return $ccnumber;
+}
+
+function credit_card_number($prefixList, $length, $howMany) {
+
+    for ($i = 0; $i < $howMany; $i++) {
+
+        $ccnumber = $prefixList[ array_rand($prefixList) ];
+        $result[] = completed_number($ccnumber, $length);
+    }
+
+    return $result;
+}*/
+
+
 
 ?>
