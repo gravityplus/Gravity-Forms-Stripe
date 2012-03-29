@@ -70,7 +70,7 @@ class GFStripe {
     public static function init(){
         self::$log = self::create_logger();
 
-        self::setup_cron();
+        //self::setup_cron();
 
         if(basename($_SERVER['PHP_SELF']) == "plugins.php") {
 
@@ -135,7 +135,7 @@ class GFStripe {
 
                 add_action('wp_ajax_gf_stripe_update_feed_active', array('GFStripe', 'update_feed_active'));
                 add_action('wp_ajax_gf_select_stripe_form', array('GFStripe', 'select_stripe_form'));
-                add_action('wp_ajax_gf_cancel_stripe_subscription', array('GFStripe', 'cancel_stripe_subscription'));
+                //add_action('wp_ajax_gf_cancel_stripe_subscription', array('GFStripe', 'cancel_stripe_subscription'));
 
             }
             else if(RGForms::get("page") == "gf_settings"){
@@ -155,7 +155,12 @@ class GFStripe {
             //loading data class
             require_once( GRAVITYFORMS_STRIPE_PATH . "/data.php");
 
+					//remove SSL credit card warnings since credit card information never hits the server
+					add_filter("gform_field_content", array('GFStripe', 'remove_ssl_warning'), 10, 5);
+					add_filter("gform_field_css_class", array('GFStripe', 'remove_ssl_warning_class'), 10, 3);
+
             //handling post submission.
+						add_filter('gform_get_form_filter',array("GFStripe", "create_card_token"), 10, 1);
             add_filter('gform_validation',array("GFStripe", "stripe_validation"), 10, 4);
             add_action('gform_after_submission',array("GFStripe", "stripe_after_submission"), 10, 2);
 
@@ -685,28 +690,18 @@ class GFStripe {
         <?php
     }
 
-    private static function get_api_login($is_sandbox=false){
+    /*private static function get_api_login($is_sandbox=false){
         $settings = get_option("gf_stripe_settings");
         $api = array();
         $api["login_id"] = $is_sandbox ? rgar($settings, "sandbox_login_id") : rgar($settings, "login_id");
         $api["transaction_key"] = $is_sandbox ? rgar($settings, "sandbox_transaction_key") : rgar($settings, "transaction_key");
 
         return $api;
-    }
+    }*/
 
     private static function is_valid_key(){
 			$api_login = self::include_api();
 			$settings = get_option("gf_stripe_settings");
-
-			/*$visaPrefixList[] =  "4539";
-			$visaPrefixList[] =  "4556";
-			$visaPrefixList[] =  "4916";
-			$visaPrefixList[] =  "4532";
-			$visaPrefixList[] =  "4929";
-			$visaPrefixList[] =  "40240071";
-			$visaPrefixList[] =  "4485";
-			$visaPrefixList[] =  "4716";
-			$visaPrefixList[] =  "4";*/
 
 			$year = date('Y')+1;
 
@@ -721,8 +716,6 @@ class GFStripe {
 					if ( !empty( $settings[$key] ) ) {
 						try {
 							Stripe::setApiKey($settings[$key]);
-							//if ( rgar($settings, "mode") == 'test' ) {
-								$card_num = credit_card_number($visaPrefixList, 16, 1);
 								$response = Stripe_Token::create(array(
 						    	"card" => array(
 						    	"number" => '4242424242424242',
@@ -759,37 +752,30 @@ class GFStripe {
 
     }
 
-    private static function get_login_id(){
+    private static function get_test_secret_key(){
         $settings = get_option("gf_stripe_settings");
-        $login_id = $settings["login_id"];
-        return $login_id;
+        $test_secret_key = $settings["test_secret_key"];
+        return $test_secret_key;
     }
 
-    private static function get_transaction_key(){
-        $settings = get_option("gf_stripe_settings");
-        $transaction_key = $settings["transaction_key"];
-        return $transaction_key;
-    }
+		private static function get_test_publishable_key(){
+	        $settings = get_option("gf_stripe_settings");
+	        $test_publishable_key = $settings["test_publishable_key"];
+	        return $test_publishable_key;
+	  }
 
-    private static function get_aim(){
-        self::include_api();
-        $settings = get_option("gf_stripe_settings");
-        $is_test = rgar($settings, "mode") == "test";
+		private static function get_live_secret_key(){
+	        $settings = get_option("gf_stripe_settings");
+	        $live_secret_key = $settings["live_secret_key"];
+	        return $live_secret_key;
+	  }
 
-        $aim = new AuthorizeNetAIM($settings["login_id"], $settings["transaction_key"]);
-        $aim->setSandbox($is_sandbox);
-        return $aim;
-    }
+		private static function get_live_publishable_key(){
+		        $settings = get_option("gf_stripe_settings");
+		        $live_publishable_key = $settings["live_publishable_key"];
+		        return $live_publishable_key;
+		}
 
-    private static function get_arb(){
-        self::include_api();
-        $settings = get_option("gf_stripe_settings");
-        $is_sandbox = rgar($settings, "mode") == "test";
-
-        $arb = new AuthorizeNetARB($settings["login_id"], $settings["transaction_key"]);
-        $arb->setSandbox($is_sandbox);
-        return $arb;
-    }
 
     private static function include_api(){
         if(!class_exists('Stripe'))
@@ -810,21 +796,21 @@ class GFStripe {
     private static function stats_page(){
         ?>
         <style>
-          .authorizenet_graph_container{clear:both; padding-left:5px; min-width:789px; margin-right:50px;}
-        .authorizenet_message_container{clear: both; padding-left:5px; text-align:center; padding-top:120px; border: 1px solid #CCC; background-color: #FFF; width:100%; height:160px;}
-        .authorizenet_summary_container {margin:30px 60px; text-align: center; min-width:740px; margin-left:50px;}
-        .authorizenet_summary_item {width:160px; background-color: #FFF; border: 1px solid #CCC; padding:14px 8px; margin:6px 3px 6px 0; display: -moz-inline-stack; display: inline-block; zoom: 1; *display: inline; text-align:center;}
-        .authorizenet_summary_value {font-size:20px; margin:5px 0; font-family:Georgia,"Times New Roman","Bitstream Charter",Times,serif}
-        .authorizenet_summary_title {}
-        #authorizenet_graph_tooltip {border:4px solid #b9b9b9; padding:11px 0 0 0; background-color: #f4f4f4; text-align:center; -moz-border-radius: 4px; -webkit-border-radius: 4px; border-radius: 4px; -khtml-border-radius: 4px;}
-        #authorizenet_graph_tooltip .tooltip_tip {width:14px; height:14px; background-image:url(<?php echo self::get_base_url() ?>/images/tooltip_tip.png); background-repeat: no-repeat; position: absolute; bottom:-14px; left:68px;}
+          .stripe_graph_container{clear:both; padding-left:5px; min-width:789px; margin-right:50px;}
+        .stripe_message_container{clear: both; padding-left:5px; text-align:center; padding-top:120px; border: 1px solid #CCC; background-color: #FFF; width:100%; height:160px;}
+        .stripe_summary_container {margin:30px 60px; text-align: center; min-width:740px; margin-left:50px;}
+        .stripe_summary_item {width:160px; background-color: #FFF; border: 1px solid #CCC; padding:14px 8px; margin:6px 3px 6px 0; display: -moz-inline-stack; display: inline-block; zoom: 1; *display: inline; text-align:center;}
+        .stripe_summary_value {font-size:20px; margin:5px 0; font-family:Georgia,"Times New Roman","Bitstream Charter",Times,serif}
+        .stripe_summary_title {}
+        #stripe_graph_tooltip {border:4px solid #b9b9b9; padding:11px 0 0 0; background-color: #f4f4f4; text-align:center; -moz-border-radius: 4px; -webkit-border-radius: 4px; border-radius: 4px; -khtml-border-radius: 4px;}
+        #stripe_graph_tooltip .tooltip_tip {width:14px; height:14px; background-image:url(<?php echo self::get_base_url() ?>/images/tooltip_tip.png); background-repeat: no-repeat; position: absolute; bottom:-14px; left:68px;}
 
-        .authorizenet_tooltip_date {line-height:130%; font-weight:bold; font-size:13px; color:#21759B;}
-        .authorizenet_tooltip_sales {line-height:130%;}
-        .authorizenet_tooltip_revenue {line-height:130%;}
-            .authorizenet_tooltip_revenue .authorizenet_tooltip_heading {}
-            .authorizenet_tooltip_revenue .authorizenet_tooltip_value {}
-            .authorizenet_trial_disclaimer {clear:both; padding-top:20px; font-size:10px;}
+        .stripe_tooltip_date {line-height:130%; font-weight:bold; font-size:13px; color:#21759B;}
+        .stripe_tooltip_sales {line-height:130%;}
+        .stripe_tooltip_revenue {line-height:130%;}
+            .stripe_tooltip_revenue .stripe_tooltip_heading {}
+            .stripe_tooltip_revenue .stripe_tooltip_value {}
+            .stripe_trial_disclaimer {clear:both; padding-top:20px; font-size:10px;}
         </style>
         <script type="text/javascript" src="<?php echo self::get_base_url() ?>/flot/jquery.flot.min.js"></script>
         <script type="text/javascript" src="<?php echo self::get_base_url() ?>/js/currency.js"></script>
@@ -858,17 +844,17 @@ class GFStripe {
 
                 if(!$chart_info["series"]){
                     ?>
-                    <div class="authorizenet_message_container"><?php _e("No payments have been made yet.", "gravityforms-stripe") ?> <?php echo $config["meta"]["trial_period_enabled"] && empty($config["meta"]["trial_amount"]) ? " **" : ""?></div>
+                    <div class="stripe_message_container"><?php _e("No payments have been made yet.", "gravityforms-stripe") ?> <?php echo $config["meta"]["trial_period_enabled"] && empty($config["meta"]["trial_amount"]) ? " **" : ""?></div>
                     <?php
                 }
                 else{
                     ?>
-                    <div class="authorizenet_graph_container">
+                    <div class="stripe_graph_container">
                         <div id="graph_placeholder" style="width:100%;height:300px;"></div>
                     </div>
 
                     <script type="text/javascript">
-                        var authorizenet_graph_tooltips = <?php echo $chart_info["tooltips"]?>;
+                        var stripe_graph_tooltips = <?php echo $chart_info["tooltips"]?>;
                         jQuery.plot(jQuery("#graph_placeholder"), <?php echo $chart_info["series"] ?>, <?php echo $chart_info["options"] ?>);
                         jQuery(window).resize(function(){
                             jQuery.plot(jQuery("#graph_placeholder"), <?php echo $chart_info["series"] ?>, <?php echo $chart_info["options"] ?>);
@@ -888,20 +874,20 @@ class GFStripe {
                                 if (!previousPoint || previousPoint[0] != item.datapoint[0]) {
                                     previousPoint = item.datapoint;
 
-                                    jQuery("#authorizenet_graph_tooltip").remove();
+                                    jQuery("#stripe_graph_tooltip").remove();
                                     var x = item.datapoint[0].toFixed(2),
                                         y = item.datapoint[1].toFixed(2);
 
-                                    showTooltip(item.pageX, item.pageY, authorizenet_graph_tooltips[item.dataIndex]);
+                                    showTooltip(item.pageX, item.pageY, stripe_graph_tooltips[item.dataIndex]);
                                 }
                             }
                             else {
-                                jQuery("#authorizenet_graph_tooltip").remove();
+                                jQuery("#stripe_graph_tooltip").remove();
                                 previousPoint = null;
                             }
                         }
                         function showTooltip(x, y, contents) {
-                            jQuery('<div id="authorizenet_graph_tooltip">' + contents + '<div class="tooltip_tip"></div></div>').css( {
+                            jQuery('<div id="stripe_graph_tooltip">' + contents + '<div class="tooltip_tip"></div></div>').css( {
                                 position: 'absolute',
                                 display: 'none',
                                 opacity: 0.90,
@@ -954,28 +940,28 @@ class GFStripe {
 
                 $total_revenue = empty($transaction_totals["payment"]["revenue"]) ? 0 : $transaction_totals["payment"]["revenue"];
                 ?>
-                <div class="authorizenet_summary_container">
-                    <div class="authorizenet_summary_item">
-                        <div class="authorizenet_summary_title"><?php _e("Total Revenue", "gravityforms-stripe")?></div>
-                        <div class="authorizenet_summary_value"><?php echo GFCommon::to_money($total_revenue) ?></div>
+                <div class="stripe_summary_container">
+                    <div class="stripe_summary_item">
+                        <div class="stripe_summary_title"><?php _e("Total Revenue", "gravityforms-stripe")?></div>
+                        <div class="stripe_summary_value"><?php echo GFCommon::to_money($total_revenue) ?></div>
                     </div>
-                    <div class="authorizenet_summary_item">
-                        <div class="authorizenet_summary_title"><?php echo $chart_info["revenue_label"]?></div>
-                        <div class="authorizenet_summary_value"><?php echo $chart_info["revenue"] ?></div>
+                    <div class="stripe_summary_item">
+                        <div class="stripe_summary_title"><?php echo $chart_info["revenue_label"]?></div>
+                        <div class="stripe_summary_value"><?php echo $chart_info["revenue"] ?></div>
                     </div>
-                    <div class="authorizenet_summary_item">
-                        <div class="authorizenet_summary_title"><?php echo $sales_label?></div>
-                        <div class="authorizenet_summary_value"><?php echo $total_sales ?></div>
+                    <div class="stripe_summary_item">
+                        <div class="stripe_summary_title"><?php echo $sales_label?></div>
+                        <div class="stripe_summary_value"><?php echo $total_sales ?></div>
                     </div>
-                    <div class="authorizenet_summary_item">
-                        <div class="authorizenet_summary_title"><?php echo $chart_info["sales_label"] ?></div>
-                        <div class="authorizenet_summary_value"><?php echo $chart_info["sales"] ?></div>
+                    <div class="stripe_summary_item">
+                        <div class="stripe_summary_title"><?php echo $chart_info["sales_label"] ?></div>
+                        <div class="stripe_summary_value"><?php echo $chart_info["sales"] ?></div>
                     </div>
                 </div>
                 <?php
                 if(!$chart_info["series"] && $config["meta"]["trial_period_enabled"] && empty($config["meta"]["trial_amount"])){
                     ?>
-                    <div class="authorizenet_trial_disclaimer"><?php _e("** Free trial transactions will only be reflected in the graph after the first payment is made (i.e. after trial period ends)", "gravityforms-stripe") ?></div>
+                    <div class="stripe_trial_disclaimer"><?php _e("** Free trial transactions will only be reflected in the graph after the first payment is made (i.e. after trial period ends)", "gravityforms-stripe") ?></div>
                     <?php
                 }
                 ?>
@@ -1006,7 +992,7 @@ class GFStripe {
 
         $results = $wpdb->get_results("SELECT CONVERT_TZ(t.date_created, '+00:00', '" . $tz_offset . "') as date, sum(t.amount) as amount_sold, sum(is_renewal) as renewals, sum(is_renewal=0) as new_sales
                                         FROM {$wpdb->prefix}rg_lead l
-                                        INNER JOIN {$wpdb->prefix}rg_authorizenet_transaction t ON l.id = t.entry_id
+                                        INNER JOIN {$wpdb->prefix}rg_stripe_transaction t ON l.id = t.entry_id
                                         WHERE form_id={$config["form_id"]} AND t.transaction_type='payment'
                                         GROUP BY date(date)
                                         ORDER BY payment_date desc
@@ -1030,13 +1016,13 @@ class GFStripe {
                 $data .="[{$timestamp},{$result->amount_sold}],";
 
                 if($config["meta"]["type"] == "subscription"){
-                    $sales_line = " <div class='authorizenet_tooltip_subscription'><span class='authorizenet_tooltip_heading'>" . __("New Subscriptions", "gravityforms-stripe") . ": </span><span class='authorizenet_tooltip_value'>" . $result->new_sales . "</span></div><div class='authorizenet_tooltip_subscription'><span class='authorizenet_tooltip_heading'>" . __("Renewals", "gravityforms-stripe") . ": </span><span class='authorizenet_tooltip_value'>" . $result->renewals . "</span></div>";
+                    $sales_line = " <div class='stripe_tooltip_subscription'><span class='stripe_tooltip_heading'>" . __("New Subscriptions", "gravityforms-stripe") . ": </span><span class='stripe_tooltip_value'>" . $result->new_sales . "</span></div><div class='stripe_tooltip_subscription'><span class='stripe_tooltip_heading'>" . __("Renewals", "gravityforms-stripe") . ": </span><span class='stripe_tooltip_value'>" . $result->renewals . "</span></div>";
                 }
                 else{
-                    $sales_line = "<div class='authorizenet_tooltip_sales'><span class='authorizenet_tooltip_heading'>" . __("Orders", "gravityforms-stripe") . ": </span><span class='authorizenet_tooltip_value'>" . $result->new_sales . "</span></div>";
+                    $sales_line = "<div class='stripe_tooltip_sales'><span class='stripe_tooltip_heading'>" . __("Orders", "gravityforms-stripe") . ": </span><span class='stripe_tooltip_value'>" . $result->new_sales . "</span></div>";
                 }
 
-                $tooltips .= "\"<div class='authorizenet_tooltip_date'>" . GFCommon::format_date($result->date, false, "", false) . "</div>{$sales_line}<div class='authorizenet_tooltip_revenue'><span class='authorizenet_tooltip_heading'>" . __("Revenue", "gravityforms-stripe") . ": </span><span class='authorizenet_tooltip_value'>" . GFCommon::to_money($result->amount_sold) . "</span></div>\",";
+                $tooltips .= "\"<div class='stripe_tooltip_date'>" . GFCommon::format_date($result->date, false, "", false) . "</div>{$sales_line}<div class='stripe_tooltip_revenue'><span class='stripe_tooltip_heading'>" . __("Revenue", "gravityforms-stripe") . ": </span><span class='stripe_tooltip_value'>" . GFCommon::to_money($result->amount_sold) . "</span></div>\",";
             }
             $data = substr($data, 0, strlen($data)-1);
             $tooltips = substr($tooltips, 0, strlen($tooltips)-1);
@@ -1077,7 +1063,7 @@ class GFStripe {
 
             $results = $wpdb->get_results("SELECT yearweek(CONVERT_TZ(t.date_created, '+00:00', '" . $tz_offset . "')) week_number, sum(t.amount) as amount_sold, sum(is_renewal) as renewals, sum(is_renewal=0) as new_sales
                                             FROM {$wpdb->prefix}rg_lead l
-                                            INNER JOIN {$wpdb->prefix}rg_authorizenet_transaction t ON l.id = t.entry_id
+                                            INNER JOIN {$wpdb->prefix}rg_stripe_transaction t ON l.id = t.entry_id
                                             WHERE form_id={$config["form_id"]} AND t.transaction_type='payment'
                                             GROUP BY week_number
                                             ORDER BY week_number desc
@@ -1096,13 +1082,13 @@ class GFStripe {
                     $data .="[{$result->week_number},{$result->amount_sold}],";
 
                     if($config["meta"]["type"] == "subscription"){
-                        $sales_line = " <div class='authorizenet_tooltip_subscription'><span class='authorizenet_tooltip_heading'>" . __("New Subscriptions", "gravityforms-stripe") . ": </span><span class='authorizenet_tooltip_value'>" . $result->new_sales . "</span></div><div class='authorizenet_tooltip_subscription'><span class='authorizenet_tooltip_heading'>" . __("Renewals", "gravityforms-stripe") . ": </span><span class='authorizenet_tooltip_value'>" . $result->renewals . "</span></div>";
+                        $sales_line = " <div class='stripe_tooltip_subscription'><span class='stripe_tooltip_heading'>" . __("New Subscriptions", "gravityforms-stripe") . ": </span><span class='stripe_tooltip_value'>" . $result->new_sales . "</span></div><div class='stripe_tooltip_subscription'><span class='stripe_tooltip_heading'>" . __("Renewals", "gravityforms-stripe") . ": </span><span class='stripe_tooltip_value'>" . $result->renewals . "</span></div>";
                     }
                     else{
-                        $sales_line = "<div class='authorizenet_tooltip_sales'><span class='authorizenet_tooltip_heading'>" . __("Orders", "gravityforms-stripe") . ": </span><span class='authorizenet_tooltip_value'>" . $result->new_sales . "</span></div>";
+                        $sales_line = "<div class='stripe_tooltip_sales'><span class='stripe_tooltip_heading'>" . __("Orders", "gravityforms-stripe") . ": </span><span class='stripe_tooltip_value'>" . $result->new_sales . "</span></div>";
                     }
 
-                    $tooltips .= "\"<div class='authorizenet_tooltip_date'>" . substr($result->week_number, 0, 4) . ", " . __("Week",  "gravityforms-stripe") . " " . substr($result->week_number, strlen($result->week_number)-2, 2) . "</div>{$sales_line}<div class='authorizenet_tooltip_revenue'><span class='authorizenet_tooltip_heading'>" . __("Revenue", "gravityforms-stripe") . ": </span><span class='authorizenet_tooltip_value'>" . GFCommon::to_money($result->amount_sold) . "</span></div>\",";
+                    $tooltips .= "\"<div class='stripe_tooltip_date'>" . substr($result->week_number, 0, 4) . ", " . __("Week",  "gravityforms-stripe") . " " . substr($result->week_number, strlen($result->week_number)-2, 2) . "</div>{$sales_line}<div class='stripe_tooltip_revenue'><span class='stripe_tooltip_heading'>" . __("Revenue", "gravityforms-stripe") . ": </span><span class='stripe_tooltip_value'>" . GFCommon::to_money($result->amount_sold) . "</span></div>\",";
                 }
                 $data = substr($data, 0, strlen($data)-1);
                 $tooltips = substr($tooltips, 0, strlen($tooltips)-1);
@@ -1144,7 +1130,7 @@ class GFStripe {
 
             $results = $wpdb->get_results("SELECT date_format(CONVERT_TZ(t.date_created, '+00:00', '" . $tz_offset . "'), '%Y-%m-02') date, sum(t.amount) as amount_sold, sum(is_renewal) as renewals, sum(is_renewal=0) as new_sales
                                             FROM {$wpdb->prefix}rg_lead l
-                                            INNER JOIN {$wpdb->prefix}rg_authorizenet_transaction t ON l.id = t.entry_id
+                                            INNER JOIN {$wpdb->prefix}rg_stripe_transaction t ON l.id = t.entry_id
                                             WHERE form_id={$config["form_id"]} AND t.transaction_type='payment'
                                             group by date
                                             order by date desc
@@ -1165,13 +1151,13 @@ class GFStripe {
                     $data .="[{$timestamp},{$result->amount_sold}],";
 
                     if($config["meta"]["type"] == "subscription"){
-                        $sales_line = " <div class='authorizenet_tooltip_subscription'><span class='authorizenet_tooltip_heading'>" . __("New Subscriptions", "gravityforms-stripe") . ": </span><span class='authorizenet_tooltip_value'>" . $result->new_sales . "</span></div><div class='authorizenet_tooltip_subscription'><span class='authorizenet_tooltip_heading'>" . __("Renewals", "gravityforms-stripe") . ": </span><span class='authorizenet_tooltip_value'>" . $result->renewals . "</span></div>";
+                        $sales_line = " <div class='stripe_tooltip_subscription'><span class='stripe_tooltip_heading'>" . __("New Subscriptions", "gravityforms-stripe") . ": </span><span class='stripe_tooltip_value'>" . $result->new_sales . "</span></div><div class='stripe_tooltip_subscription'><span class='stripe_tooltip_heading'>" . __("Renewals", "gravityforms-stripe") . ": </span><span class='stripe_tooltip_value'>" . $result->renewals . "</span></div>";
                     }
                     else{
-                        $sales_line = "<div class='authorizenet_tooltip_sales'><span class='authorizenet_tooltip_heading'>" . __("Orders", "gravityforms-stripe") . ": </span><span class='authorizenet_tooltip_value'>" . $result->new_sales . "</span></div>";
+                        $sales_line = "<div class='stripe_tooltip_sales'><span class='stripe_tooltip_heading'>" . __("Orders", "gravityforms-stripe") . ": </span><span class='stripe_tooltip_value'>" . $result->new_sales . "</span></div>";
                     }
 
-                    $tooltips .= "\"<div class='authorizenet_tooltip_date'>" . GFCommon::format_date($result->date, false, "F, Y", false) . "</div>{$sales_line}<div class='authorizenet_tooltip_revenue'><span class='authorizenet_tooltip_heading'>" . __("Revenue", "gravityforms-stripe") . ": </span><span class='authorizenet_tooltip_value'>" . GFCommon::to_money($result->amount_sold) . "</span></div>\",";
+                    $tooltips .= "\"<div class='stripe_tooltip_date'>" . GFCommon::format_date($result->date, false, "F, Y", false) . "</div>{$sales_line}<div class='stripe_tooltip_revenue'><span class='stripe_tooltip_heading'>" . __("Revenue", "gravityforms-stripe") . ": </span><span class='stripe_tooltip_value'>" . GFCommon::to_money($result->amount_sold) . "</span></div>\",";
                 }
                 $data = substr($data, 0, strlen($data)-1);
                 $tooltips = substr($tooltips, 0, strlen($tooltips)-1);
@@ -1224,12 +1210,12 @@ class GFStripe {
         require_once(GFCommon::get_base_path() . "/currency.php");
         ?>
         <style>
-            #authorizenet_submit_container{clear:both;}
-            .authorizenet_col_heading{padding-bottom:2px; border-bottom: 1px solid #ccc; font-weight:bold; width:120px;}
-            .authorizenet_field_cell {padding: 6px 17px 0 0; margin-right:15px;}
+            #stripe_submit_container{clear:both;}
+            .stripe_col_heading{padding-bottom:2px; border-bottom: 1px solid #ccc; font-weight:bold; width:120px;}
+            .stripe_field_cell {padding: 6px 17px 0 0; margin-right:15px;}
 
-            .authorizenet_validation_error{ background-color:#FFDFDF; margin-top:4px; margin-bottom:6px; padding-top:6px; padding-bottom:6px; border:1px dotted #C89797;}
-            .authorizenet_validation_error span {color: red;}
+            .stripe_validation_error{ background-color:#FFDFDF; margin-top:4px; margin-bottom:6px; padding-top:6px; padding-bottom:6px; border:1px dotted #C89797;}
+            .stripe_validation_error span {color: red;}
             .left_header{float:left; width:200px;}
             .margin_vertical_10{margin: 10px 0; padding-left:5px;}
             .margin_vertical_30{margin: 30px 0; padding-left:5px;}
@@ -1255,7 +1241,7 @@ class GFStripe {
         <?php
 
         //getting setting id (0 when creating a new one)
-        $id = !empty($_POST["authorizenet_setting_id"]) ? $_POST["authorizenet_setting_id"] : absint($_GET["id"]);
+        $id = !empty($_POST["stripe_setting_id"]) ? $_POST["stripe_setting_id"] : absint($_GET["id"]);
         $config = empty($id) ? array("meta" => array(), "is_active" => true) : GFStripeData::get_feed($id);
         $is_validation_error = false;
 
@@ -1264,41 +1250,41 @@ class GFStripe {
 
             $config["form_id"] = absint(rgpost("gf_stripe_form"));
             $config["meta"]["type"] = rgpost("gf_stripe_type");
-            $config["meta"]["enable_receipt"] = rgpost('gf_stripe_enable_receipt');
+            //$config["meta"]["enable_receipt"] = rgpost('gf_stripe_enable_receipt');
             $config["meta"]["update_post_action"] = rgpost('gf_stripe_update_action');
 
-            // authorizenet conditional
-            $config["meta"]["authorizenet_conditional_enabled"] = rgpost('gf_stripe_conditional_enabled');
-            $config["meta"]["authorizenet_conditional_field_id"] = rgpost('gf_stripe_conditional_field_id');
-            $config["meta"]["authorizenet_conditional_operator"] = rgpost('gf_stripe_conditional_operator');
-            $config["meta"]["authorizenet_conditional_value"] = rgpost('gf_stripe_conditional_value');
+            // stripe conditional
+            $config["meta"]["stripe_conditional_enabled"] = rgpost('gf_stripe_conditional_enabled');
+            $config["meta"]["stripe_conditional_field_id"] = rgpost('gf_stripe_conditional_field_id');
+            $config["meta"]["stripe_conditional_operator"] = rgpost('gf_stripe_conditional_operator');
+            $config["meta"]["stripe_conditional_value"] = rgpost('gf_stripe_conditional_value');
 
             //recurring fields
-            $config["meta"]["recurring_amount_field"] = rgpost("gf_stripe_recurring_amount");
+            /*$config["meta"]["recurring_amount_field"] = rgpost("gf_stripe_recurring_amount");
             $config["meta"]["billing_cycle_number"] = rgpost("gf_stripe_billing_cycle_number");
             $config["meta"]["billing_cycle_type"] = rgpost("gf_stripe_billing_cycle_type");
             $config["meta"]["recurring_times"] = rgpost("gf_stripe_recurring_times");
             $config["meta"]["trial_period_enabled"] = rgpost('gf_stripe_trial_period');
             $config["meta"]["trial_amount"] = rgpost('gf_stripe_trial_amount');
             $config["meta"]["trial_period_number"] = rgpost('gf_stripe_trial_period_number');
-            $config["meta"]["recurring_retry"] = rgpost('gf_stripe_recurring_retry');
+            $config["meta"]["recurring_retry"] = rgpost('gf_stripe_recurring_retry');*/
 
             //-----------------
 
             $customer_fields = self::get_customer_fields();
             $config["meta"]["customer_fields"] = array();
             foreach($customer_fields as $field){
-                $config["meta"]["customer_fields"][$field["name"]] = $_POST["authorizenet_customer_field_{$field["name"]}"];
+                $config["meta"]["customer_fields"][$field["name"]] = $_POST["stripe_customer_field_{$field["name"]}"];
             }
 
-            $config = apply_filters('gform_authorizenet_save_config', $config);
+            $config = apply_filters('gform_stripe_save_config', $config);
 
-            $is_validation_error = apply_filters("gform_authorizenet_config_validation", false, $config);
+            $is_validation_error = apply_filters("gform_stripe_config_validation", false, $config);
 
             if(!$is_validation_error){
                 $id = GFStripeData::update_feed($id, $config["form_id"], $config["is_active"], $config["meta"]);
                 ?>
-                <div class="updated fade" style="padding:6px"><?php echo sprintf(__("Feed Updated. %sback to list%s", "gravityforms-stripe"), "<a href='?page=gf_authorizenet'>", "</a>") ?></div>
+                <div class="updated fade" style="padding:6px"><?php echo sprintf(__("Feed Updated. %sback to list%s", "gravityforms-stripe"), "<a href='?page=gf_stripe'>", "</a>") ?></div>
                 <?php
             }
             else{
@@ -1310,9 +1296,9 @@ class GFStripe {
         $settings = get_option("gf_stripe_settings");
         ?>
         <form method="post" action="">
-            <input type="hidden" name="authorizenet_setting_id" value="<?php echo $id ?>" />
+            <input type="hidden" name="stripe_setting_id" value="<?php echo $id ?>" />
 
-            <div class="margin_vertical_10 <?php echo $is_validation_error ? "authorizenet_validation_error" : "" ?>">
+            <div class="margin_vertical_10 <?php echo $is_validation_error ? "stripe_validation_error" : "" ?>">
                 <?php
                 if($is_validation_error){
                     ?>
@@ -1322,26 +1308,19 @@ class GFStripe {
                 ?>
             </div> <!-- / validation message -->
 
-            <?php
-            if($settings["arb_configured"]=="on") {
-            ?>
+
             <div class="margin_vertical_10">
-                <label class="left_header" for="gf_stripe_type"><?php _e("Transaction Type", "gravityforms-stripe"); ?> <?php gform_tooltip("authorizenet_transaction_type") ?></label>
+                <label class="left_header" for="gf_stripe_type"><?php _e("Transaction Type", "gravityforms-stripe"); ?> <?php gform_tooltip("stripe_transaction_type") ?></label>
 
                 <select id="gf_stripe_type" name="gf_stripe_type" onchange="SelectType(jQuery(this).val());">
                     <option value=""><?php _e("Select a transaction type", "gravityforms-stripe") ?></option>
                     <option value="product" <?php echo rgar($config['meta'], 'type') == "product" ? "selected='selected'" : "" ?>><?php _e("Products and Services", "gravityforms-stripe") ?></option>
-                    <option value="subscription" <?php echo rgar($config['meta'], 'type') == "subscription" ? "selected='selected'" : "" ?>><?php _e("Subscriptions", "gravityforms-stripe") ?></option>
+                    <!--<option value="subscription" <?php echo rgar($config['meta'], 'type') == "subscription" ? "selected='selected'" : "" ?>><?php _e("Subscriptions", "gravityforms-stripe") ?></option>-->
                 </select>
             </div>
-            <?php } else {$config["meta"]["type"]= "product" ?>
 
-                  <input id="gf_stripe_type" type="hidden" name="gf_stripe_type" value="product">
-
-
-            <?php } ?>
-            <div id="authorizenet_form_container" valign="top" class="margin_vertical_10" <?php echo empty($config["meta"]["type"]) ? "style='display:none;'" : "" ?>>
-                <label for="gf_stripe_form" class="left_header"><?php _e("Gravity Form", "gravityforms-stripe"); ?> <?php gform_tooltip("authorizenet_gravity_form") ?></label>
+            <div id="stripe_form_container" valign="top" class="margin_vertical_10" <?php echo empty($config["meta"]["type"]) ? "style='display:none;'" : "" ?>>
+                <label for="gf_stripe_form" class="left_header"><?php _e("Gravity Form", "gravityforms-stripe"); ?> <?php gform_tooltip("stripe_gravity_form") ?></label>
 
                 <select id="gf_stripe_form" name="gf_stripe_form" onchange="SelectForm(jQuery('#gf_stripe_type').val(), jQuery(this).val(), '<?php echo rgar($config, 'id') ?>');">
                     <option value=""><?php _e("Select a form", "gravityforms-stripe"); ?> </option>
@@ -1361,7 +1340,7 @@ class GFStripe {
                     ?>
                 </select>
                 &nbsp;&nbsp;
-                <img src="<?php echo GFStripe::get_base_url() ?>/images/loading.gif" id="authorizenet_wait" style="display: none;"/>
+                <img src="<?php echo GFStripe::get_base_url() ?>/images/loading.gif" id="stripe_wait" style="display: none;"/>
 
                 <div id="gf_stripe_invalid_product_form" class="gf_stripe_invalid_form"  style="display:none;">
                     <?php _e("The form selected does not have any Product fields. Please add a Product field to the form and try again.", "gravityforms-stripe") ?>
@@ -1370,18 +1349,18 @@ class GFStripe {
                     <?php _e("The form selected does not have a credit card field. Please add a credit card field to the form and try again.", "gravityforms-stripe") ?>
                 </div>
             </div>
-            <div id="authorizenet_field_group" valign="top" <?php echo strlen(rgars($config,"meta/type")) == 0 || empty($config["form_id"]) ? "style='display:none;'" : "" ?>>
+            <div id="stripe_field_group" valign="top" <?php echo strlen(rgars($config,"meta/type")) == 0 || empty($config["form_id"]) ? "style='display:none;'" : "" ?>>
 
-                <div id="authorizenet_field_container_subscription" class="authorizenet_field_container" valign="top" <?php echo rgars($config,"meta/type") != "subscription" ? "style='display:none;'" : ""?>>
+                <!--<div id="stripe_field_container_subscription" class="stripe_field_container" valign="top" <?php echo rgars($config,"meta/type") != "subscription" ? "style='display:none;'" : ""?>>
                     <div class="margin_vertical_10">
-                        <label class="left_header" for="gf_stripe_recurring_amount"><?php _e("Recurring Amount", "gravityforms-stripe"); ?> <?php gform_tooltip("authorizenet_recurring_amount") ?></label>
+                        <label class="left_header" for="gf_stripe_recurring_amount"><?php _e("Recurring Amount", "gravityforms-stripe"); ?> <?php gform_tooltip("stripe_recurring_amount") ?></label>
                         <select id="gf_stripe_recurring_amount" name="gf_stripe_recurring_amount">
                             <?php echo self::get_product_options($form, $config["meta"]["recurring_amount_field"]) ?>
                         </select>
                     </div>
 
                     <div class="margin_vertical_10">
-                        <label class="left_header" for="gf_stripe_billing_cycle_number"><?php _e("Billing Cycle", "gravityforms-stripe"); ?> <?php gform_tooltip("authorizenet_billing_cycle") ?></label>
+                        <label class="left_header" for="gf_stripe_billing_cycle_number"><?php _e("Billing Cycle", "gravityforms-stripe"); ?> <?php gform_tooltip("stripe_billing_cycle") ?></label>
                         <select id="gf_stripe_billing_cycle_number" name="gf_stripe_billing_cycle_number">
                             <?php
                             for($i=1; $i<=100; $i++){
@@ -1392,13 +1371,13 @@ class GFStripe {
                             ?>
                         </select>&nbsp;
                         <select id="gf_stripe_billing_cycle_type" name="gf_stripe_billing_cycle_type" onchange="SetPeriodNumber('#gf_stripe_billing_cycle_number', jQuery(this).val());">
-                            <option value="D" <?php echo $config["meta"]["billing_cycle_type"] == "D" ? "selected='selected'" : "" ?>><?php _e("day(s)", "gravityforms-stripe") ?></option>
-                            <option value="M" <?php echo $config["meta"]["billing_cycle_type"] == "M" || strlen($config["meta"]["billing_cycle_type"]) == 0 ? "selected='selected'" : "" ?>><?php _e("month(s)", "gravityforms-stripe") ?></option>
+                            <option value="M" <?php echo $config["meta"]["billing_cycle_type"] == "M" ? "selected='selected'" : "" ?>><?php _e("month(s)", "gravityforms-stripe") ?></option>
+                            <option value="Y" <?php echo $config["meta"]["billing_cycle_type"] == "Y" || strlen($config["meta"]["billing_cycle_type"]) == 0 ? "selected='selected'" : "" ?>><?php _e("year(s)", "gravityforms-stripe") ?></option>
                         </select>
                     </div>
 
                     <div class="margin_vertical_10">
-                        <label class="left_header" for="gf_stripe_recurring_times"><?php _e("Recurring Times", "gravityforms-stripe"); ?> <?php gform_tooltip("authorizenet_recurring_times") ?></label>
+                        <label class="left_header" for="gf_stripe_recurring_times"><?php _e("Recurring Times", "gravityforms-stripe"); ?> <?php gform_tooltip("stripe_recurring_times") ?></label>
                         <select id="gf_stripe_recurring_times" name="gf_stripe_recurring_times">
                             <option><?php _e("Infinite", "gravityforms-stripe") ?></option>
                             <?php
@@ -1414,18 +1393,18 @@ class GFStripe {
                     </div>
 
                     <div class="margin_vertical_10">
-                        <label class="left_header" for="gf_stripe_trial_period"><?php _e("Trial Period", "gravityforms-stripe"); ?> <?php gform_tooltip("authorizenet_trial_period_enable") ?></label>
-                        <input type="checkbox" name="gf_stripe_trial_period" id="gf_stripe_trial_period" value="1" onclick="if(jQuery(this).is(':checked')) jQuery('#authorizenet_trial_period_container').show('slow'); else jQuery('#authorizenet_trial_period_container').hide('slow');" <?php echo rgars($config,"meta/trial_period_enabled") ? "checked='checked'" : ""?> />
+                        <label class="left_header" for="gf_stripe_trial_period"><?php _e("Trial Period", "gravityforms-stripe"); ?> <?php gform_tooltip("stripe_trial_period_enable") ?></label>
+                        <input type="checkbox" name="gf_stripe_trial_period" id="gf_stripe_trial_period" value="1" onclick="if(jQuery(this).is(':checked')) jQuery('#stripe_trial_period_container').show('slow'); else jQuery('#stripe_trial_period_container').hide('slow');" <?php echo rgars($config,"meta/trial_period_enabled") ? "checked='checked'" : ""?> />
                         <label class="inline" for="gf_stripe_trial_period"><?php _e("Enable", "gravityforms-stripe"); ?></label>
                     </div>
 
-                    <div id="authorizenet_trial_period_container" <?php echo rgars($config,"meta/trial_period_enabled") ? "" : "style='display:none;'" ?>>
+                    <div id="stripe_trial_period_container" <?php echo rgars($config,"meta/trial_period_enabled") ? "" : "style='display:none;'" ?>>
                         <div class="margin_vertical_10">
-                            <label class="left_header" for="gf_stripe_trial_amount"><?php _e("Trial Amount", "gravityforms-stripe"); ?> <?php gform_tooltip("authorizenet_trial_amount") ?></label>
+                            <label class="left_header" for="gf_stripe_trial_amount"><?php _e("Trial Amount", "gravityforms-stripe"); ?> <?php gform_tooltip("stripe_trial_amount") ?></label>
                             <input type="text" name="gf_stripe_trial_amount" id="gf_stripe_trial_amount" value="<?php echo $config["meta"]["trial_amount"] ?>" onchange="FormatCurrency(this);"/>
                         </div>
                         <div class="margin_vertical_10">
-                            <label class="left_header" for="gf_stripe_trial_period_number"><?php _e("Trial Recurring Times", "gravityforms-stripe"); ?> <?php gform_tooltip("authorizenet_trial_period") ?></label>
+                            <label class="left_header" for="gf_stripe_trial_period_number"><?php _e("Trial Recurring Times", "gravityforms-stripe"); ?> <?php gform_tooltip("stripe_trial_period") ?></label>
                             <select id="gf_stripe_trial_period_number" name="gf_stripe_trial_period_number">
                                 <?php
                                 for($i=1; $i<=99; $i++){
@@ -1438,12 +1417,12 @@ class GFStripe {
                         </div>
 
                     </div>
-                </div>
+                </div>-->
 
                 <div class="margin_vertical_10">
-                    <label class="left_header"><?php _e("Billing Information", "gravityforms-stripe"); ?> <?php gform_tooltip("authorizenet_customer") ?></label>
+                    <label class="left_header"><?php _e("Billing Information", "gravityforms-stripe"); ?> <?php gform_tooltip("stripe_customer") ?></label>
 
-                    <div id="authorizenet_customer_fields">
+                    <div id="stripe_customer_fields">
                         <?php
                             if(!empty($form))
                                 echo self::get_customer_information($form, $config);
@@ -1453,46 +1432,46 @@ class GFStripe {
 
 
                 <div class="margin_vertical_10">
-                    <label class="left_header"><?php _e("Options", "gravityforms-stripe"); ?> <?php gform_tooltip("authorizenet_options") ?></label>
+                    <label class="left_header"><?php _e("Options", "gravityforms-stripe"); ?> <?php gform_tooltip("stripe_options") ?></label>
 
                     <ul style="overflow:hidden;">
-                        <li id="authorizenet_enable_receipt">
+                        <!--<li id="stripe_enable_receipt">
                             <input type="checkbox" name="gf_stripe_enable_receipt" id="gf_stripe_enable_receipt" <?php echo rgar($config["meta"], 'enable_receipt') ? "checked='checked'"  : "value='1'" ?> />
-                            <label class="inline" for="gf_stripe_enable_receipt"><?php _e("Send Stripe email receipt.", "gravityforms-stripe"); ?> <?php gform_tooltip("authorizenet_disable_user_notification") ?></label>
-                        </li>
+                            <label class="inline" for="gf_stripe_enable_receipt"><?php _e("Send Stripe email receipt.", "gravityforms-stripe"); ?> <?php gform_tooltip("stripe_disable_user_notification") ?></label>
+                        </li>-->
                         <?php
                         $display_post_fields = !empty($form) ? GFCommon::has_post_field($form["fields"]) : false;
                         ?>
-                        <li id="authorizenet_post_update_action" <?php echo $display_post_fields && $config["meta"]["type"] == "subscription" ? "" : "style='display:none;'" ?>>
-                            <input type="checkbox" name="gf_stripe_update_post" id="gf_stripe_update_post" value="1" <?php echo rgar($config["meta"],"update_post_action") ? "checked='checked'" : ""?> onclick="var action = this.checked ? 'draft' : ''; jQuery('#gf_authorizenet_update_action').val(action);" />
-                            <label class="inline" for="gf_stripe_update_post"><?php _e("Update Post when subscription is cancelled.", "gravityforms-stripe"); ?> <?php gform_tooltip("authorizenet_update_post") ?></label>
-                            <select id="gf_stripe_update_action" name="gf_stripe_update_action" onchange="var checked = jQuery(this).val() ? 'checked' : false; jQuery('#gf_authorizenet_update_post').attr('checked', checked);">
+                        <li id="stripe_post_update_action" <?php echo $display_post_fields && $config["meta"]["type"] == "subscription" ? "" : "style='display:none;'" ?>>
+                            <input type="checkbox" name="gf_stripe_update_post" id="gf_stripe_update_post" value="1" <?php echo rgar($config["meta"],"update_post_action") ? "checked='checked'" : ""?> onclick="var action = this.checked ? 'draft' : ''; jQuery('#gf_stripe_update_action').val(action);" />
+                            <label class="inline" for="gf_stripe_update_post"><?php _e("Update Post when subscription is cancelled.", "gravityforms-stripe"); ?> <?php gform_tooltip("stripe_update_post") ?></label>
+                            <select id="gf_stripe_update_action" name="gf_stripe_update_action" onchange="var checked = jQuery(this).val() ? 'checked' : false; jQuery('#gf_stripe_update_post').attr('checked', checked);">
                                 <option value=""></option>
                                 <option value="draft" <?php echo rgar($config["meta"],"update_post_action") == "draft" ? "selected='selected'" : ""?>><?php _e("Mark Post as Draft", "gravityforms-stripe") ?></option>
                                 <option value="delete" <?php echo rgar($config["meta"],"update_post_action") == "delete" ? "selected='selected'" : ""?>><?php _e("Delete Post", "gravityforms-stripe") ?></option>
                             </select>
                         </li>
 
-                        <?php do_action("gform_authorizenet_action_fields", $config, $form) ?>
+                        <?php do_action("gform_stripe_action_fields", $config, $form) ?>
                     </ul>
                 </div>
 
-                <?php do_action("gform_authorizenet_add_option_group", $config, $form); ?>
+                <?php do_action("gform_stripe_add_option_group", $config, $form); ?>
 
                 <div id="gf_stripe_conditional_section" valign="top" class="margin_vertical_10">
-                    <label for="gf_stripe_conditional_optin" class="left_header"><?php _e("Stripe Condition", "gravityforms-stripe"); ?> <?php gform_tooltip("authorizenet_conditional") ?></label>
+                    <label for="gf_stripe_conditional_optin" class="left_header"><?php _e("Stripe Condition", "gravityforms-stripe"); ?> <?php gform_tooltip("stripe_conditional") ?></label>
 
                     <div id="gf_stripe_conditional_option">
                         <table cellspacing="0" cellpadding="0">
                             <tr>
                                 <td>
-                                    <input type="checkbox" id="gf_stripe_conditional_enabled" name="gf_stripe_conditional_enabled" value="1" onclick="if(this.checked){jQuery('#gf_stripe_conditional_container').fadeIn('fast');} else{ jQuery('#gf_authorizenet_conditional_container').fadeOut('fast'); }" <?php echo rgar($config['meta'], 'authorizenet_conditional_enabled') ? "checked='checked'" : ""?>/>
+                                    <input type="checkbox" id="gf_stripe_conditional_enabled" name="gf_stripe_conditional_enabled" value="1" onclick="if(this.checked){jQuery('#gf_stripe_conditional_container').fadeIn('fast');} else{ jQuery('#gf_stripe_conditional_container').fadeOut('fast'); }" <?php echo rgar($config['meta'], 'stripe_conditional_enabled') ? "checked='checked'" : ""?>/>
                                     <label for="gf_stripe_conditional_enable"><?php _e("Enable", "gravityforms-stripe"); ?></label>
                                 </td>
                             </tr>
                             <tr>
                                 <td>
-                                    <div id="gf_stripe_conditional_container" <?php echo !rgar($config['meta'], 'authorizenet_conditional_enabled') ? "style='display:none'" : ""?>>
+                                    <div id="gf_stripe_conditional_container" <?php echo !rgar($config['meta'], 'stripe_conditional_enabled') ? "style='display:none'" : ""?>>
 
                                         <div id="gf_stripe_conditional_fields" <?php echo empty($selection_fields) ? "style='display:none'" : ""?>>
                                             <?php _e("Send to Stripe if ", "gravityforms-stripe") ?>
@@ -1501,8 +1480,8 @@ class GFStripe {
                                                 <?php echo $selection_fields ?>
                                             </select>
                                             <select id="gf_stripe_conditional_operator" name="gf_stripe_conditional_operator">
-                                                <option value="is" <?php echo rgar($config['meta'], 'authorizenet_conditional_operator') == "is" ? "selected='selected'" : "" ?>><?php _e("is", "gravityforms-stripe") ?></option>
-                                                <option value="isnot" <?php echo rgar($config['meta'], 'authorizenet_conditional_operator') == "isnot" ? "selected='selected'" : "" ?>><?php _e("is not", "gravityforms-stripe") ?></option>
+                                                <option value="is" <?php echo rgar($config['meta'], 'stripe_conditional_operator') == "is" ? "selected='selected'" : "" ?>><?php _e("is", "gravityforms-stripe") ?></option>
+                                                <option value="isnot" <?php echo rgar($config['meta'], 'stripe_conditional_operator') == "isnot" ? "selected='selected'" : "" ?>><?php _e("is not", "gravityforms-stripe") ?></option>
                                             </select>
                                             <select id="gf_stripe_conditional_value" name="gf_stripe_conditional_value" class='optin_select'></select>
 
@@ -1518,9 +1497,9 @@ class GFStripe {
                         </table>
                     </div>
 
-                </div> <!-- / authorizenet conditional -->
+                </div> <!-- / stripe conditional -->
 
-                <div id="authorizenet_submit_container" class="margin_vertical_30">
+                <div id="stripe_submit_container" class="margin_vertical_30">
                     <input type="submit" name="gf_stripe_submit" value="<?php echo empty($id) ? __("  Save  ", "gravityforms-stripe") : __("Update", "gravityforms-stripe"); ?>" class="button-primary"/>
                     <input type="button" value="<?php _e("Cancel", "gravityforms-stripe"); ?>" class="button" onclick="javascript:document.location='admin.php?page=gf_stripe'" />
                 </div>
@@ -1534,41 +1513,41 @@ class GFStripe {
             });
 
             function SelectType(type){
-                jQuery("#authorizenet_field_group").slideUp();
+                jQuery("#stripe_field_group").slideUp();
 
-                jQuery("#authorizenet_field_group input[type=\"text\"], #authorizenet_field_group select").val("");
+                jQuery("#stripe_field_group input[type=\"text\"], #stripe_field_group select").val("");
                 jQuery("#gf_stripe_trial_period_type, #gf_stripe_billing_cycle_type").val("M");
 
-                jQuery("#authorizenet_field_group input:checked").attr("checked", false);
+                jQuery("#stripe_field_group input:checked").attr("checked", false);
 
                 if(type){
-                    jQuery("#authorizenet_form_container").slideDown();
+                    jQuery("#stripe_form_container").slideDown();
                     jQuery("#gf_stripe_form").val("");
                 }
                 else{
-                    jQuery("#authorizenet_form_container").slideUp();
+                    jQuery("#stripe_form_container").slideUp();
                 }
             }
 
             function SelectForm(type, formId, settingId){
                 if(!formId){
-                    jQuery("#authorizenet_field_group").slideUp();
+                    jQuery("#stripe_field_group").slideUp();
                     return;
                 }
 
-                jQuery("#authorizenet_wait").show();
-                jQuery("#authorizenet_field_group").slideUp();
+                jQuery("#stripe_wait").show();
+                jQuery("#stripe_field_group").slideUp();
 
                 var mysack = new sack("<?php bloginfo( 'wpurl' ); ?>/wp-admin/admin-ajax.php" );
                 mysack.execute = 1;
                 mysack.method = 'POST';
-                mysack.setVar( "action", "gf_select_authorizenet_form" );
-                mysack.setVar( "gf_select_authorizenet_form", "<?php echo wp_create_nonce("gf_select_authorizenet_form") ?>" );
+                mysack.setVar( "action", "gf_select_stripe_form" );
+                mysack.setVar( "gf_select_stripe_form", "<?php echo wp_create_nonce("gf_select_stripe_form") ?>" );
                 mysack.setVar( "type", type);
                 mysack.setVar( "form_id", formId);
                 mysack.setVar( "setting_id", settingId);
                 mysack.encVar( "cookie", document.cookie, false );
-                mysack.onError = function() {jQuery("#authorizenet_wait").hide(); alert('<?php _e("Ajax error while selecting a form", "gravityforms-stripe") ?>' )};
+                mysack.onError = function() {jQuery("#stripe_wait").hide(); alert('<?php _e("Ajax error while selecting a form", "gravityforms-stripe") ?>' )};
                 mysack.runAJAX();
 
                 return true;
@@ -1583,39 +1562,39 @@ class GFStripe {
                 jQuery(".gf_stripe_invalid_form").hide();
                 if( (type == "product" || type =="subscription") && GetFieldsByType(["product"]).length == 0){
                     jQuery("#gf_stripe_invalid_product_form").show();
-                    jQuery("#authorizenet_wait").hide();
+                    jQuery("#stripe_wait").hide();
                     return;
                 }
                 else if( (type == "product" || type =="subscription") && GetFieldsByType(["creditcard"]).length == 0){
                     jQuery("#gf_stripe_invalid_creditcard_form").show();
-                    jQuery("#authorizenet_wait").hide();
+                    jQuery("#stripe_wait").hide();
                     return;
                 }
 
-                jQuery(".authorizenet_field_container").hide();
-                jQuery("#authorizenet_customer_fields").html(customer_fields);
+                jQuery(".stripe_field_container").hide();
+                jQuery("#stripe_customer_fields").html(customer_fields);
                 jQuery("#gf_stripe_recurring_amount").html(recurring_amount_options);
 
                 var post_fields = GetFieldsByType(["post_title", "post_content", "post_excerpt", "post_category", "post_custom_field", "post_image", "post_tag"]);
                 if(type == "subscription" && post_fields.length > 0){
-                    jQuery("#authorizenet_post_update_action").show();
+                    jQuery("#stripe_post_update_action").show();
                 }
                 else{
                     jQuery("#gf_stripe_update_post").attr("checked", false);
-                    jQuery("#authorizenet_post_update_action").hide();
+                    jQuery("#stripe_post_update_action").hide();
                 }
 
                 SetPeriodNumber('#gf_stripe_billing_cycle_number', jQuery("#gf_stripe_billing_cycle_type").val());
 
                 //Calling callback functions
-                jQuery(document).trigger('authorizenetFormSelected', [form]);
+                jQuery(document).trigger('stripeFormSelected', [form]);
 
                 jQuery("#gf_stripe_conditional_enabled").attr('checked', false);
-                SetAuthorizeNetCondition("","");
+                SetStripeCondition("","");
 
-                jQuery("#authorizenet_field_container_" + type).show();
-                jQuery("#authorizenet_field_group").slideDown();
-                jQuery("#authorizenet_wait").hide();
+                jQuery("#stripe_field_container_" + type).show();
+                jQuery("#stripe_field_group").slideDown();
+                jQuery("#stripe_wait").hide();
             }
 
             function SetPeriodNumber(element, type){
@@ -1624,9 +1603,8 @@ class GFStripe {
                 var min = 1;
                 var max = 0;
                 switch(type){
-                    case "D" :
-                        min = 7;
-                        max = 365;
+                    case "Y" :
+                        max = 1;
                     break;
                     case "M" :
                         max = 12;
@@ -1661,7 +1639,7 @@ class GFStripe {
 
         <script type="text/javascript">
 
-            // AuthorizeNet Conditional Functions
+            // Stripe Conditional Functions
 
             <?php
             if(!empty($config["form_id"])){
@@ -1672,16 +1650,16 @@ class GFStripe {
 
                 // initializing registration condition drop downs
                 jQuery(document).ready(function(){
-                    var selectedField = "<?php echo str_replace('"', '\"', $config["meta"]["authorizenet_conditional_field_id"])?>";
-                    var selectedValue = "<?php echo str_replace('"', '\"', $config["meta"]["authorizenet_conditional_value"])?>";
-                    SetAuthorizeNetCondition(selectedField, selectedValue);
+                    var selectedField = "<?php echo str_replace('"', '\"', $config["meta"]["stripe_conditional_field_id"])?>";
+                    var selectedValue = "<?php echo str_replace('"', '\"', $config["meta"]["stripe_conditional_value"])?>";
+                    SetStripeCondition(selectedField, selectedValue);
                 });
 
                 <?php
             }
             ?>
 
-            function SetAuthorizeNetCondition(selectedField, selectedValue){
+            function SetStripeCondition(selectedField, selectedValue){
 
                 // load form fields
                 jQuery("#gf_stripe_conditional_field_id").html(GetSelectableFields(selectedField, 20));
@@ -1765,9 +1743,9 @@ class GFStripe {
 
     }
 
-    public static function select_authorizenet_form(){
+    public static function select_stripe_form(){
 
-        check_ajax_referer("gf_select_authorizenet_form", "gf_select_authorizenet_form");
+        check_ajax_referer("gf_select_stripe_form", "gf_select_stripe_form");
 
         $type = $_POST["type"];
         $form_id =  intval($_POST["form_id"]);
@@ -1784,23 +1762,23 @@ class GFStripe {
 
     public static function add_permissions(){
         global $wp_roles;
-        $wp_roles->add_cap("administrator", "gravityforms_authorizenet");
-        $wp_roles->add_cap("administrator", "gravityforms_authorizenet_uninstall");
+        $wp_roles->add_cap("administrator", "gravityforms_stripe");
+        $wp_roles->add_cap("administrator", "gravityforms_stripe_uninstall");
     }
 
     //Target of Member plugin filter. Provides the plugin with Gravity Forms lists of capabilities
     public static function members_get_capabilities( $caps ) {
-        return array_merge($caps, array("gravityforms_authorizenet", "gravityforms_authorizenet_uninstall"));
+        return array_merge($caps, array("gravityforms_stripe", "gravityforms_stripe_uninstall"));
     }
 
-    public static function has_authorizenet_condition($form, $config) {
+    public static function has_stripe_condition($form, $config) {
 
         $config = $config["meta"];
 
-        $operator = $config["authorizenet_conditional_operator"];
-        $field = RGFormsModel::get_field($form, $config["authorizenet_conditional_field_id"]);
+        $operator = $config["stripe_conditional_operator"];
+        $field = RGFormsModel::get_field($form, $config["stripe_conditional_field_id"]);
 
-        if(empty($field) || !$config["authorizenet_conditional_enabled"])
+        if(empty($field) || !$config["stripe_conditional_enabled"])
             return true;
 
         // if conditional is enabled, but the field is hidden, ignore conditional
@@ -1808,25 +1786,25 @@ class GFStripe {
 
         $field_value = RGFormsModel::get_field_value($field, array());
 
-        $is_value_match = RGFormsModel::is_value_match($field_value, $config["authorizenet_conditional_value"]);
+        $is_value_match = RGFormsModel::is_value_match($field_value, $config["stripe_conditional_value"]);
         $is_match = $is_value_match && $is_visible;
 
-        $go_to_authorizenet = ($operator == "is" && $is_match) || ($operator == "isnot" && !$is_match);
+        $go_to_stripe = ($operator == "is" && $is_match) || ($operator == "isnot" && !$is_match);
 
-        return  $go_to_authorizenet;
+        return  $go_to_stripe;
     }
 
     public static function get_config($form){
         if(!class_exists("GFStripeData"))
             require_once(GRAVITYFORMS_STRIPE_PATH . "/data.php");
 
-        //Getting authorizenet settings associated with this transaction
+        //Getting stripe settings associated with this transaction
         $configs = GFStripeData::get_feed_by_form($form["id"]);
         if(!$configs)
             return false;
 
         foreach($configs as $config){
-            if(self::has_authorizenet_condition($form, $config))
+            if(self::has_stripe_condition($form, $config))
                 return $config;
         }
 
@@ -1837,6 +1815,19 @@ class GFStripe {
         $fields = GFCommon::get_fields_by_type($form, array("creditcard"));
         return empty($fields) ? false : $fields[0];
     }
+
+	public static function remove_ssl_warning( $field_content, $field, $value, $lead_id, $form_id ) {
+		$ssl_warning = "<div class='gfield_creditcard_warning_message'>" . __("This page is unsecured. Do not enter a real credit card number. Use this field only for testing purposes. ", "gravityforms") . "</div>";
+		$field_content = str_ireplace( $ssl_warning, "", $field_content);
+		return $field_content;
+
+}
+
+	public static function remove_ssl_warning_class( $css_class, $field, $form ) {
+			$css_class = str_ireplace( 'gfield_creditcard_warning', '', $css_class);
+			return $css_class;
+
+	}
 
     private static function is_ready_for_capture($validation_result){
 
@@ -1882,7 +1873,7 @@ class GFStripe {
         return array("trial_enabled" => $trial_enabled, "trial_amount" => $trial_amount, "trial_occurrences" => $trial_occurrences);
     }
 
-    public static function authorizenet_validation($validation_result){
+    public static function stripe_validation($validation_result){
 
         $config = self::is_ready_for_capture($validation_result);
         if(!$config)
@@ -1893,15 +1884,15 @@ class GFStripe {
             $validation_result = self::make_product_payment($config, $validation_result);
             return $validation_result;
         }
-        else
+        /*else
         {
             // creating subscription
             $validation_result = self::start_subscription($config, $validation_result);
             return $validation_result;
-        }
+        }*/
     }
 
-    private static function make_product_payment($config, $validation_result){
+    /*private static function make_product_payment($config, $validation_result){
 
         $form = $validation_result["form"];
 
@@ -1952,7 +1943,110 @@ class GFStripe {
             // Payment for single transaction was not successful
             return self::set_validation_result($validation_result, $_POST, $response, "aim");
         }
-    }
+    }*/
+
+	public static function create_card_token( $form_string ) {
+		$settings = get_option("gf_stripe_settings");
+		$mode = rgar( $settings, 'mode' );
+		switch ( $mode ) {
+			case 'test':
+				$publishable_key = esc_attr( rgar( $settings, 'test_publishable_key' ) );
+				break;
+			case 'live':
+				$publishable_key = esc_attr( rgar( $settings, 'live_publishable_key' ) );
+				break;
+			default:
+				//something is wrong
+				return $form_string;
+		}
+
+		$form_id = stristr( $form_string, "gform_wrapper_" );
+		$form_id = str_ireplace( 'gform_wrapper_', '', $form_id );
+		$form_id = stristr( $form_id, "'", true );
+
+		$form_string .= "<script type='text/javascript'>" . apply_filters("gform_cdata_open", "") .
+				"Stripe.setPublishableKey('" . $publishable_key . "');" .
+				"function stripeResponseHandler(status, response) {" .
+					"if (response.error) {" .
+						"jQuery('#gform_submit_button_{$form_id}').removeAttr('disabled');" .
+						"jQuery('#gform_{$form_id} .gform_card_icon_container').html(response.error.message);" .
+					"} else {" .
+						"var form$ = jQuery('#gform_{$form_id}');" .
+						"var token = response['id'];" .
+						"form$.append(\"<input type='hidden' name='stripeToken' value='\" + token + \"' />\");" .
+					"}" .
+				"}" .
+				"jQuery(document).ready(function($){" .
+					"$('#gform_{$form_id}').submit(function(event){" .
+						"Stripe.createToken({" .
+							"number: $('#gform_{$form_id} span.ginput_cardextras').prev().children(':input').val()," .
+							"exp_month: $('#gform_{$form_id} .ginput_card_expiration_month').val()," .
+							"exp_year: $('#gform_{$form_id} .ginput_card_expiration_year').val()," .
+							"cvc: $('#gform_{$form_id} .ginput_card_security_code').val()" .
+						"}, stripeResponseHandler);" .
+						"return false;" .
+					"});" .
+				"});" .
+				apply_filters("gform_cdata_close", "") . "</script>";
+		return $form_string;
+	}
+
+	private static function make_product_payment($config, $validation_result){
+
+
+	        $form = $validation_result["form"];
+
+	        self::$log->LogDebug("Starting to make a product payment for form: {$form["id"]}");
+
+	        $form_data = self::get_form_data($form, $config);
+
+					//create token
+					self::$log->LogDebug("Creating card token for form: {$form["id"]}");
+	        $transaction = self::get_initial_transaction($form_data, $config);
+
+	        //don't process payment if total is 0, but act as if the transaction was successfull
+	        if($form_data["amount"] == 0){
+	            self::$log->LogDebug("Amount is 0. No need to process payment, but act as if transaction was successfull");
+
+	            //blank out credit card field if this is the last page
+	            if(self::is_last_page($form)){
+	                $card_field = self::get_creditcard_field($form);
+	                $_POST["input_{$card_field["id"]}_1"] = "";
+	            }
+	            //creating dummy transaction response
+	            $products = self::get_product_fields($form);
+	            if(!empty($products["products"]))
+	                self::$transaction_response = array("transaction_id" => "N/A", "amount" => 0, "transaction_type" => 1);
+
+	            return $validation_result;
+	        }
+
+					//create charge
+	        self::$log->LogDebug("Creating the charge");
+
+	        //capture funds
+	        $response = $transaction->authorizeAndCapture();
+
+	        self::$log->LogDebug(print_r($response, true));
+
+	        if($response->approved )
+	        {
+	            self::$log->LogDebug("Transaction approved. ID: {$response->transaction_id} - Amount: {$response->amount}");
+
+	            self::$transaction_response = array("transaction_id" => $response->transaction_id, "amount" => $response->amount, "transaction_type" => 1);
+
+	            $validation_result["is_valid"] = true;
+	            return $validation_result;
+	        }
+	        else
+	        {
+	            self::$log->LogError("Transaction failed");
+	            self::$log->LogError(print_r($response, true));
+
+	            // Payment for single transaction was not successful
+	            return self::set_validation_result($validation_result, $_POST, $response, "aim");
+	        }
+	    }
 
     private static function start_subscription($config, $validation_result){
 
@@ -2079,7 +2173,8 @@ class GFStripe {
             $form_data["last_name"] = implode(" ", $names);
         }
 
-        $order_info = self::get_order_info($products, rgar($config["meta"],"recurring_amount_field"));
+        //$order_info = self::get_order_info($products, rgar($config["meta"],"recurring_amount_field"));
+				$order_info = self::get_order_info($products);
 
         $form_data["line_items"] = $order_info["line_items"];
         $form_data["amount"] = $order_info["amount"];
@@ -2087,7 +2182,7 @@ class GFStripe {
         return $form_data;
     }
 
-    private static function get_order_info($products, $recurring_field){
+    /*private static function get_order_info($products, $recurring_field){
         $amount = 0;
         $line_items = array();
         $item = 1;
@@ -2123,9 +2218,44 @@ class GFStripe {
         }
 
         return array("amount" => $amount, "line_items" => $line_items);
-    }
+    }*/
+	private static function get_order_info($products){
+	        $amount = 0;
+	        $line_items = array();
+	        $item = 1;
+	        foreach($products["products"] as $field_id => $product)
+	        {
 
-    private static function get_initial_transaction($form_data, $config){
+	            $quantity = $product["quantity"];
+	            if($quantity == "")
+	                $quantity = 1;
+
+	            $product_total = self::get_product_unit_price($product);
+	            $options = array();
+
+	            foreach($product["options"] as $option){
+	                $options[] = $option["option_label"];
+	            }
+
+	            $amount += $product_total * $quantity;
+
+	            $description = "";
+	            if(!empty($options))
+	                $description = __("options: ", "gravityforms-stripe") . " " . implode(", ", $options);
+
+	            $line_items[] = array("item_id" =>'Item ' . $item, "item_name"=>$product["name"], "item_description" =>$description, "item_quantity" =>$quantity, "item_unit_price"=>$product_total, "item_taxable"=>"Y");
+	            $item++;
+	        }
+
+	        if(!empty($products["shipping"]["name"])){
+	            $line_items[] = array("item_id" =>'Item ' . $item, "item_name"=>$products["shipping"]["name"], "item_description" =>"", "item_quantity" =>1, "item_unit_price"=>$products["shipping"]["price"], "item_taxable"=>"Y");
+	            $amount += $products["shipping"]["price"];
+	        }
+
+	        return array("amount" => $amount, "line_items" => $line_items);
+	    }
+
+    /*private static function get_initial_transaction($form_data, $config){
 
         // processing products and services single transaction and first payment of subscription transaction
         $transaction = self::get_aim();
@@ -2161,7 +2291,45 @@ class GFStripe {
         }
 
         return $transaction;
-    }
+    }*/
+
+	private static function get_initial_transaction($form_data, $config){
+
+	        // processing products and services single transaction and first payment of subscription transaction
+	        $transaction = self::get_aim();
+
+	        $transaction->amount = $form_data["amount"];
+	        $transaction->card_num = $form_data["card_number"];
+	        $exp_date = str_pad($form_data["expiration_date"][0], 2, "0", STR_PAD_LEFT) . "-" . $form_data["expiration_date"][1];
+	        $transaction->exp_date = $exp_date;
+	        $transaction->card_code = $form_data["security_code"];
+	        $transaction->first_name = $form_data["first_name"];
+	        $transaction->last_name = $form_data["last_name"];
+	        $transaction->address = $form_data["address1"];
+	        $transaction->city = $form_data["city"];
+	        $transaction->state = $form_data["state"];
+	        $transaction->zip = $form_data["zip"];
+	        $transaction->country = $form_data["country"];
+	        $transaction->email = $form_data["email"];
+	        $transaction->email_customer = "true";
+	        $transaction->description = $form_data["form_title"];
+	        $transaction->email_customer = $config["meta"]["enable_receipt"] == 1 ? "true" : "false";
+	        $transaction->duplicate_window = 5;
+
+	        foreach($form_data["line_items"] as $line_item){
+	            //truncating line item name to 31 characters (Stripe limit)
+	            if(!empty($line_item["item_name"]) && strlen($line_item["item_name"]) > 31)
+	                $line_item["item_name"] = substr($line_item["item_name"], 0, 31);
+
+	            //truncating line item description to 255 characters (Stripe limit)
+	            if(!empty($line_item["item_description"]) && strlen($line_item["item_description"]) > 255)
+	                $line_item["item_description"] = substr($line_item["item_description"], 0, 255);
+
+	            $transaction->addLineItem($line_item["item_id"], $line_item["item_name"], $line_item["item_description"], $line_item["item_quantity"], $line_item["item_unit_price"], $line_item["item_taxable"]);
+	        }
+
+	        return $transaction;
+	    }
 
     private static function get_subscription($config, $form_data, $trial_info){
 
@@ -2210,7 +2378,7 @@ class GFStripe {
         return $subscription;
     }
 
-    public static function authorizenet_after_submission($entry,$form){
+    public static function stripe_after_submission($entry,$form){
         $entry_id = rgar($entry,"id");
 
         if(!empty(self::$transaction_response))
@@ -2477,7 +2645,7 @@ class GFStripe {
         $recurring_feeds = GFStripeData::get_feeds();
         foreach($recurring_feeds as $feed)
         {
-            // process renewalls if Stripe feed is subscription feed
+            // process renewals if Stripe feed is subscription feed
             if($feed["meta"]["type"]=="subscription")
             {
                 $form_id = $feed["form_id"];
@@ -2576,7 +2744,7 @@ class GFStripe {
 
     }
 
-    public static function authorizenet_entry_info($form_id, $lead) {
+    public static function stripe_entry_info($form_id, $lead) {
 
         // adding cancel subscription button and script to entry info section
         $lead_id = $lead["id"];
@@ -2585,22 +2753,22 @@ class GFStripe {
         $cancelsub_button = "";
         if($transaction_type == 2 && $payment_status <> "Canceled")
         {
-            $cancelsub_button .= '<input id="cancelsub" type="button" name="cancelsub" value="' . __("Cancel Subscription", "gravityforms-stripe") . '" class="button" onclick=" if( confirm(\'' . __("Warning! This Stripe Subscription will be canceled. This cannot be undone. \'OK\' to cancel subscription, \'Cancel\' to stop", "gravityforms-stripe") . '\')){cancel_authorizenet_subscription();};"/>';
+            $cancelsub_button .= '<input id="cancelsub" type="button" name="cancelsub" value="' . __("Cancel Subscription", "gravityforms-stripe") . '" class="button" onclick=" if( confirm(\'' . __("Warning! This Stripe Subscription will be canceled. This cannot be undone. \'OK\' to cancel subscription, \'Cancel\' to stop", "gravityforms-stripe") . '\')){cancel_stripe_subscription();};"/>';
 
-            $cancelsub_button .= '<img src="'. self::get_base_url() . '/images/loading.gif" id="authorizenet_wait" style="display: none;"/>';
+            $cancelsub_button .= '<img src="'. self::get_base_url() . '/images/loading.gif" id="stripe_wait" style="display: none;"/>';
 
             $cancelsub_button .= '<script type="text/javascript">
-                function cancel_authorizenet_subscription(){
-                    jQuery("#authorizenet_wait").show();
+                function cancel_stripe_subscription(){
+                    jQuery("#stripe_wait").show();
                     jQuery("#cancelsub").attr("disabled", true);
                     var lead_id = ' . $lead_id  .'
                     jQuery.post(ajaxurl, {
-                            action:"gf_cancel_authorizenet_subscription",
+                            action:"gf_cancel_stripe_subscription",
                             leadid:lead_id,
                             gf_cancel_subscription: "' . wp_create_nonce('gf_cancel_subscription') . '"},
                             function(response){
 
-                                jQuery("#authorizenet_wait").hide();
+                                jQuery("#stripe_wait").hide();
 
                                 if(response == "1")
                                 {
@@ -2621,7 +2789,7 @@ class GFStripe {
         }
     }
 
-    public static function cancel_authorizenet_subscription() {
+    public static function cancel_stripe_subscription() {
         check_ajax_referer("gf_cancel_subscription","gf_cancel_subscription");
 
         $lead_id = $_POST["leadid"];
@@ -2733,11 +2901,11 @@ class GFStripe {
         //getting list of all fields for the selected form
         $form_fields = self::get_form_fields($form);
 
-        $str = "<table cellpadding='0' cellspacing='0'><tr><td class='authorizenet_col_heading'>" . __("Stripe Fields", "gravityforms-stripe") . "</td><td class='authorizenet_col_heading'>" . __("Form Fields", "gravityforms-stripe") . "</td></tr>";
+        $str = "<table cellpadding='0' cellspacing='0'><tr><td class='stripe_col_heading'>" . __("Stripe Fields", "gravityforms-stripe") . "</td><td class='stripe_col_heading'>" . __("Form Fields", "gravityforms-stripe") . "</td></tr>";
         $customer_fields = self::get_customer_fields();
         foreach($customer_fields as $field){
             $selected_field = $config ? $config["meta"]["customer_fields"][$field["name"]] : "";
-            $str .= "<tr><td class='authorizenet_field_cell'>" . $field["label"]  . "</td><td class='authorizenet_field_cell'>" . self::get_mapped_field_list($field["name"], $selected_field, $form_fields) . "</td></tr>";
+            $str .= "<tr><td class='stripe_field_cell'>" . $field["label"]  . "</td><td class='stripe_field_cell'>" . self::get_mapped_field_list($field["name"], $selected_field, $form_fields) . "</td></tr>";
         }
         $str .= "</table>";
 
@@ -2752,7 +2920,7 @@ class GFStripe {
     }
 
     private static function get_mapped_field_list($variable_name, $selected_field, $fields){
-        $field_name = "authorizenet_customer_field_" . $variable_name;
+        $field_name = "stripe_customer_field_" . $variable_name;
         $str = "<select name='$field_name' id='$field_name'><option value=''></option>";
         foreach($fields as $field){
             $field_id = $field[0];
@@ -2874,83 +3042,5 @@ function rgblank($text){
     return empty($text) && strval($text) != "0";
 }
 }
-
-/*
-PHP credit card number generator
-Copyright (C) 2006 Graham King graham@darkcoding.net
-
-This program is free software; you can redistribute it and/or
-modify it under the terms of the GNU General Public License
-as published by the Free Software Foundation; either version 2
-of the License, or (at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
-*/
-
-
-/*
-'prefix' is the start of the CC number as a string, any number of digits.
-'length' is the length of the CC number to generate. Typically 13 or 16
-*/
-/*function completed_number($prefix, $length) {
-
-    $ccnumber = $prefix;
-
-    # generate digits
-
-    while ( strlen($ccnumber) < ($length - 1) ) {
-        $ccnumber .= rand(0,9);
-    }
-
-    # Calculate sum
-
-    $sum = 0;
-    $pos = 0;
-
-    $reversedCCnumber = strrev( $ccnumber );
-
-    while ( $pos < $length - 1 ) {
-
-        $odd = $reversedCCnumber[ $pos ] * 2;
-        if ( $odd > 9 ) {
-            $odd -= 9;
-        }
-
-        $sum += $odd;
-
-        if ( $pos != ($length - 2) ) {
-
-            $sum += $reversedCCnumber[ $pos +1 ];
-        }
-        $pos += 2;
-    }
-
-    # Calculate check digit
-
-    $checkdigit = (( floor($sum/10) + 1) * 10 - $sum) % 10;
-    $ccnumber .= $checkdigit;
-
-    return $ccnumber;
-}
-
-function credit_card_number($prefixList, $length, $howMany) {
-
-    for ($i = 0; $i < $howMany; $i++) {
-
-        $ccnumber = $prefixList[ array_rand($prefixList) ];
-        $result[] = completed_number($ccnumber, $length);
-    }
-
-    return $result;
-}*/
-
-
 
 ?>
