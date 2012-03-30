@@ -161,6 +161,7 @@ class GFStripe {
 					add_filter("gform_submit_button", array('GFStripe', 'disable_submit_button') );
 
             //handling post submission.
+					add_filter("gform_field_validation", array('GFStripe', 'gform_field_validation' ), 10, 4);
 						add_filter('gform_get_form_filter',array("GFStripe", "create_card_token"), 10, 1);
             add_filter('gform_validation',array("GFStripe", "stripe_validation"), 10, 4);
             add_action('gform_after_submission',array("GFStripe", "stripe_after_submission"), 10, 2);
@@ -1861,7 +1862,7 @@ class GFStripe {
         if(!$config)
             return false;
 
-        //making sure credit card field is visible
+        //making sure credit card field is visible TODO: check to see if this will actually work since there are no credit card fields submitted with the form
         $creditcard_field = self::get_creditcard_field($validation_result["form"]);
         if(RGFormsModel::is_field_hidden($validation_result["form"], $creditcard_field, array()))
             return false;
@@ -1893,6 +1894,15 @@ class GFStripe {
 
         return array("trial_enabled" => $trial_enabled, "trial_amount" => $trial_amount, "trial_occurrences" => $trial_occurrences);
     }
+
+	public static function gform_field_validation( $validation_result, $value, $form, $field ) {
+		if( $field['type'] == 'creditcard' ) {
+			$validation_result['is_valid']  = true;
+			unset($validation_result['message']);
+		}
+
+		return $validation_result;
+	}
 
     public static function stripe_validation($validation_result){
 
@@ -1977,7 +1987,7 @@ class GFStripe {
 				$publishable_key = esc_attr( rgar( $settings, 'live_publishable_key' ) );
 				break;
 			default:
-				//something is wrong
+				//something is wrong TODO better error handling here
 				return $form_string;
 		}
 
@@ -1998,6 +2008,7 @@ class GFStripe {
 					"}" .
 				"}" .
 				"jQuery(document).ready(function($){" .
+					"$('#gform_submit_button_{$form_id}').removeAttr('disabled');" .
 					"$('#gform_{$form_id}').submit(function(event){" .
 						"Stripe.createToken({" .
 							"number: $('#gform_{$form_id} span.ginput_cardextras').prev().children(':input').val()," .
@@ -2009,6 +2020,7 @@ class GFStripe {
 					"});" .
 				"});" .
 				apply_filters("gform_cdata_close", "") . "</script>";
+
 		return $form_string;
 	}
 
