@@ -61,7 +61,7 @@ class GFStripe {
     private static $path = "gravityforms-stripe/stripe.php";
     private static $url = "http://www.gravityforms.com";
     private static $slug = "gravityforms-stripe";
-    private static $version = "1.0";
+    private static $version = "0.1";
     private static $min_gravityforms_version = "1.6.3.3";
     private static $transaction_response = "";
     private static $log = null;
@@ -156,8 +156,9 @@ class GFStripe {
             require_once( GRAVITYFORMS_STRIPE_PATH . "/data.php");
 
 					//remove SSL credit card warnings since credit card information never hits the server
-					add_filter("gform_field_content", array('GFStripe', 'remove_ssl_warning'), 10, 5);
+					add_filter("gform_field_content", array('GFStripe', 'gform_field_content'), 10, 2);
 					add_filter("gform_field_css_class", array('GFStripe', 'remove_ssl_warning_class'), 10, 3);
+					add_filter("gform_submit_button", array('GFStripe', 'disable_submit_button') );
 
             //handling post submission.
 						add_filter('gform_get_form_filter',array("GFStripe", "create_card_token"), 10, 1);
@@ -1816,9 +1817,22 @@ class GFStripe {
         return empty($fields) ? false : $fields[0];
     }
 
-	public static function remove_ssl_warning( $field_content, $field, $value, $lead_id, $form_id ) {
-		$ssl_warning = "<div class='gfield_creditcard_warning_message'>" . __("This page is unsecured. Do not enter a real credit card number. Use this field only for testing purposes. ", "gravityforms") . "</div>";
-		$field_content = str_ireplace( $ssl_warning, "", $field_content);
+	public static function gform_field_content( $field_content, $field ) {
+
+		if ( $field['type'] == "creditcard" ) {
+
+			//Remove SSL warning
+			$ssl_warning = "<div class='gfield_creditcard_warning_message'>" . __("This page is unsecured. Do not enter a real credit card number. Use this field only for testing purposes. ", "gravityforms") . "</div>";
+			$field_content = str_ireplace( $ssl_warning, "", $field_content);
+
+			//Remove input field name attribute so credit card information is not sent to POST variable
+			$search = array();
+			foreach ( $field['inputs'] as $input ) {
+				( $input['id'] == "2.2" ) ? ( $search[] = "name='input_" . $input['id'] . "[]'" ) : ( $search[] = "name='input_" . $input['id'] . "'" );
+			}
+			$field_content = str_ireplace( $search, '', $field_content );
+		}
+
 		return $field_content;
 
 }
@@ -1828,6 +1842,13 @@ class GFStripe {
 			return $css_class;
 
 	}
+
+	public static function disable_submit_button( $button_input ) {
+		$button_input = stristr( $button_input, '>', true );
+		$button_input = $button_input . ' disabled>';
+		return $button_input;
+	}
+
 
     private static function is_ready_for_capture($validation_result){
 
@@ -2000,9 +2021,9 @@ class GFStripe {
 
 	        $form_data = self::get_form_data($form, $config);
 
-					//create token
+					/*create token
 					self::$log->LogDebug("Creating card token for form: {$form["id"]}");
-	        $transaction = self::get_initial_transaction($form_data, $config);
+	        $transaction = self::get_initial_transaction($form_data, $config);*/
 
 	        //don't process payment if total is 0, but act as if the transaction was successfull
 	        if($form_data["amount"] == 0){
@@ -2024,8 +2045,42 @@ class GFStripe {
 					//create charge
 	        self::$log->LogDebug("Creating the charge");
 
-	        //capture funds
-	        $response = $transaction->authorizeAndCapture();
+					$settings = get_option("gf_stripe_settings");
+					$mode = rgar( $settings, 'mode' );
+					switch ( $mode ) {
+						case 'test':
+							$secret_key = esc_attr( rgar( $settings, 'test_secret_key' ) );
+							break;
+						case 'live':
+							$secret_key = esc_attr( rgar( $settings, 'live_secret_key' ) );
+							break;
+						default:
+							//something is wrong
+							$credit_card_page = 0;
+							foreach($validation_result["form"]["fields"] as &$field) {
+								if($field["type"] == "creditcard") {
+								  $field["failed_validation"] = true;
+								  $field["validation_message"] = "This form cannot process payments. Please contact site owner";
+								  $credit_card_page = $field["pageNumber"];
+								  break;
+								}
+
+							}
+							$validation_result["is_valid"] = false;
+
+							GFFormDisplay::set_current_page($validation_result["form"]["id"], $credit_card_page);
+
+							return $validation_result;
+					}
+
+
+					try {
+
+					}
+					catch ( Exception $e ) {
+
+					}
+	        $response =
 
 	        self::$log->LogDebug(print_r($response, true));
 
@@ -2160,7 +2215,7 @@ class GFStripe {
         $form_data["zip"] = rgpost('input_'. str_replace(".", "_",$config["meta"]["customer_fields"]["zip"]));
         $form_data["country"] = rgpost('input_'. str_replace(".", "_",$config["meta"]["customer_fields"]["country"]));
 
-        $card_field = self::get_creditcard_field($form);
+        /*$card_field = self::get_creditcard_field($form);
         $form_data["card_number"] = rgpost("input_{$card_field["id"]}_1");
         $form_data["expiration_date"] = rgpost("input_{$card_field["id"]}_2");
         $form_data["security_code"] = rgpost("input_{$card_field["id"]}_3");
@@ -2171,7 +2226,8 @@ class GFStripe {
         if(count($names) > 0){
             unset($names[0]);
             $form_data["last_name"] = implode(" ", $names);
-        }
+        }*/
+				$form_data["credit_card"] = rgpost('stripeToken');
 
         //$order_info = self::get_order_info($products, rgar($config["meta"],"recurring_amount_field"));
 				$order_info = self::get_order_info($products);
@@ -2550,7 +2606,7 @@ class GFStripe {
         return $product_total;
     }
 
-    private static function set_validation_result($validation_result,$post,$response,$responsetype){
+    /*private static function set_validation_result($validation_result,$post,$response,$responsetype){
 
         if($responsetype == "aim")
         {
@@ -2628,7 +2684,87 @@ class GFStripe {
         GFFormDisplay::set_current_page($validation_result["form"]["id"], $credit_card_page);
 
         return $validation_result;
-    }
+    }*/
+
+	private static function set_validation_result( $validation_result, $post, $response ){
+
+	        if($responsetype == "aim")
+	        {
+	            $code = $response->response_reason_code;
+	            switch($code){
+	                case "2" :
+	                case "3" :
+	                case "4" :
+	                case "41" :
+	                    $message = __("This credit card has been declined by your bank. Please use another form of payment.", "gravityforms-stripe");
+	                break;
+
+	                case "8" :
+	                    $message = __("The credit card has expired.", "gravityforms-stripe");
+	                break;
+
+	                case "17" :
+	                case "28" :
+	                    $message = __("The merchant does not accept this type of credit card.", "gravityforms-stripe");
+	                break;
+
+	                case "7" :
+	                case "44" :
+	                case "45" :
+	                case "65" :
+	                case "78" :
+	                case "6" :
+	                case "37" :
+	                case "27" :
+	                case "78" :
+	                case "45" :
+	                case "200" :
+	                case "201" :
+	                case "202" :
+	                    $message = __("There was an error processing your credit card. Please verify the information and try again.", "gravityforms-stripe");
+	                break;
+
+	                default :
+	                    $message = __("There was an error processing your credit card. Please verify the information and try again.", "gravityforms-stripe");
+
+	            }
+	        }
+	        else
+	        {
+	            $code = $response->getMessageCode();
+	            switch($code)
+	            {
+	                case "E00012" :
+	                    $message = __("A duplicate subscription already exists.", "gravityforms-stripe");
+	                break;
+	                case "E00018" :
+	                    $message = __("The credit card expires before the subscription start date. Please use another form of payment.", "gravityforms-stripe");
+	                break;
+	                default :
+	                    $message = __("There was an error processing your credit card. Please verify the information and try again.", "gravityforms-stripe");
+	            }
+	        }
+
+	        $message = "<!-- Error: " . $code . " -->" . $message;
+
+	        $credit_card_page = 0;
+	        foreach($validation_result["form"]["fields"] as &$field)
+	        {
+	            if($field["type"] == "creditcard")
+	            {
+	                $field["failed_validation"] = true;
+	                $field["validation_message"] = $message;
+	                $credit_card_page = $field["pageNumber"];
+	                break;
+	             }
+
+	        }
+	        $validation_result["is_valid"] = false;
+
+	        GFFormDisplay::set_current_page($validation_result["form"]["id"], $credit_card_page);
+
+	        return $validation_result;
+	    }
 
     public static function process_renewals(){
         // getting user information
