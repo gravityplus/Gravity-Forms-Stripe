@@ -718,7 +718,7 @@ class GFStripe {
 					if ( !empty( $settings[$key] ) ) {
 						try {
 							Stripe::setApiKey($settings[$key]);
-								$response = Stripe_Token::create(array(
+							Stripe_Token::create(array(
 						    	"card" => array(
 						    	"number" => '4242424242424242',
 						    	"exp_month" => 3,
@@ -726,7 +726,6 @@ class GFStripe {
 						    	"cvc" => 314
 						  		),
 						    	"currency" => "usd"));
-
 							$valid_keys[$key] = true;
 						}
 						catch (Exception $e) {
@@ -2005,6 +2004,7 @@ class GFStripe {
 						"var form$ = jQuery('#gform_{$form_id}');" .
 						"var token = response['id'];" .
 						"form$.append(\"<input type='hidden' name='stripeToken' value='\" + token + \"' />\");" .
+						"form$.get(0).submit();" .
 					"}" .
 				"}" .
 				"jQuery(document).ready(function($){" .
@@ -2087,32 +2087,31 @@ class GFStripe {
 
 
 					try {
+						Stripe::setApiKey( $secret_key );
+						$response = Stripe_Charge::create( array(	'amount' => ($form_data['amount'] * 100),
+																	 				'currency' => 'usd',
+																	 				'card' => $form_data['credit_card'],
+																					'description' => ($form_data['email'] . ': ' . implode("\n", $form_data['line_items']) )
+																	 ) );
+						//self::$log->LogDebug(print_r($response, true));
+						self::$log->LogDebug("Charge successful. ID: {$response['id']} - Amount: {$response['amount']}");
 
+						self::$transaction_response = array("transaction_id" => $response['id'], "amount" => $response['amount'], "transaction_type" => 1);
+
+						$validation_result["is_valid"] = true;
+						return $validation_result;
 					}
 					catch ( Exception $e ) {
+						self::$log->LogError("Charge failed");
+						$error_class = get_class( $e );
+						$error_message = $e->getMessage();
+						$response = $error_class . ': ' . $error_message;
+						self::$log->LogError(print_r( $response, true));
 
+						// Payment for single transaction was not successful
+						return self::set_validation_result( $validation_result, $_POST, $error_message );
 					}
-	        $response =
 
-	        self::$log->LogDebug(print_r($response, true));
-
-	        if($response->approved )
-	        {
-	            self::$log->LogDebug("Transaction approved. ID: {$response->transaction_id} - Amount: {$response->amount}");
-
-	            self::$transaction_response = array("transaction_id" => $response->transaction_id, "amount" => $response->amount, "transaction_type" => 1);
-
-	            $validation_result["is_valid"] = true;
-	            return $validation_result;
-	        }
-	        else
-	        {
-	            self::$log->LogError("Transaction failed");
-	            self::$log->LogError(print_r($response, true));
-
-	            // Payment for single transaction was not successful
-	            return self::set_validation_result($validation_result, $_POST, $response, "aim");
-	        }
 	    }
 
     private static function start_subscription($config, $validation_result){
@@ -2311,12 +2310,14 @@ class GFStripe {
 	            if(!empty($options))
 	                $description = __("options: ", "gravityforms-stripe") . " " . implode(", ", $options);
 
-	            $line_items[] = array("item_id" =>'Item ' . $item, "item_name"=>$product["name"], "item_description" =>$description, "item_quantity" =>$quantity, "item_unit_price"=>$product_total, "item_taxable"=>"Y");
-	            $item++;
+	            //$line_items[] = array("item_id" =>'Item ' . $item, "item_name"=>$product["name"], "item_description" =>$description, "item_quantity" =>$quantity, "item_unit_price"=>$product_total, "item_taxable"=>"Y");
+						$line_items[] = $item . "\t" . $product["name"] . "\t" . $description . "\t" . $quantity . "\t" . $product_total;
+						$item++;
 	        }
 
 	        if(!empty($products["shipping"]["name"])){
-	            $line_items[] = array("item_id" =>'Item ' . $item, "item_name"=>$products["shipping"]["name"], "item_description" =>"", "item_quantity" =>1, "item_unit_price"=>$products["shipping"]["price"], "item_taxable"=>"Y");
+	            //$line_items[] = array("item_id" =>'Item ' . $item, "item_name"=>$products["shipping"]["name"], "item_description" =>"", "item_quantity" =>1, "item_unit_price"=>$products["shipping"]["price"], "item_taxable"=>"Y");
+						$line_items[] = $item . "\t" . $products["shipping"]["name"] . "\t" . "1" . "\t" . $products["shipping"]["price"];
 	            $amount += $products["shipping"]["price"];
 	        }
 
@@ -2698,66 +2699,7 @@ class GFStripe {
         return $validation_result;
     }*/
 
-	private static function set_validation_result( $validation_result, $post, $response ){
-
-	        if($responsetype == "aim")
-	        {
-	            $code = $response->response_reason_code;
-	            switch($code){
-	                case "2" :
-	                case "3" :
-	                case "4" :
-	                case "41" :
-	                    $message = __("This credit card has been declined by your bank. Please use another form of payment.", "gravityforms-stripe");
-	                break;
-
-	                case "8" :
-	                    $message = __("The credit card has expired.", "gravityforms-stripe");
-	                break;
-
-	                case "17" :
-	                case "28" :
-	                    $message = __("The merchant does not accept this type of credit card.", "gravityforms-stripe");
-	                break;
-
-	                case "7" :
-	                case "44" :
-	                case "45" :
-	                case "65" :
-	                case "78" :
-	                case "6" :
-	                case "37" :
-	                case "27" :
-	                case "78" :
-	                case "45" :
-	                case "200" :
-	                case "201" :
-	                case "202" :
-	                    $message = __("There was an error processing your credit card. Please verify the information and try again.", "gravityforms-stripe");
-	                break;
-
-	                default :
-	                    $message = __("There was an error processing your credit card. Please verify the information and try again.", "gravityforms-stripe");
-
-	            }
-	        }
-	        else
-	        {
-	            $code = $response->getMessageCode();
-	            switch($code)
-	            {
-	                case "E00012" :
-	                    $message = __("A duplicate subscription already exists.", "gravityforms-stripe");
-	                break;
-	                case "E00018" :
-	                    $message = __("The credit card expires before the subscription start date. Please use another form of payment.", "gravityforms-stripe");
-	                break;
-	                default :
-	                    $message = __("There was an error processing your credit card. Please verify the information and try again.", "gravityforms-stripe");
-	            }
-	        }
-
-	        $message = "<!-- Error: " . $code . " -->" . $message;
+	private static function set_validation_result( $validation_result, $post, $error_message ){
 
 	        $credit_card_page = 0;
 	        foreach($validation_result["form"]["fields"] as &$field)
@@ -2765,7 +2707,7 @@ class GFStripe {
 	            if($field["type"] == "creditcard")
 	            {
 	                $field["failed_validation"] = true;
-	                $field["validation_message"] = $message;
+	                $field["validation_message"] = $error_message;
 	                $credit_card_page = $field["pageNumber"];
 	                break;
 	             }
