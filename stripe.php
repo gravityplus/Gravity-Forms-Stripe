@@ -42,17 +42,24 @@ else if ( isset( $network_plugin ) ) {
 define( 'GRAVITYFORMS_STRIPE_FILE', $gravityforms_stripe_file );
 define( 'GRAVITYFORMS_STRIPE_PATH', WP_PLUGIN_DIR.'/'.basename( dirname( $gravityforms_stripe_file ) ) );
 
-add_action('wp_print_scripts', 'load_stripe_js');
+add_action("gform_enqueue_scripts", 'load_stripe_js', '', 2);
 add_action('admin_print_scripts', 'load_stripe_js');
-function load_stripe_js() {
-    wp_enqueue_script('stripe-js', 'https://js.stripe.com/v1/', array('jquery') );
+
+function load_stripe_js( $form=null, $ajax=null ) {
+		if ( is_admin() ) {
+    	wp_enqueue_script('stripe-js', 'https://js.stripe.com/v1/', array('jquery') );
+		} else if ( ! $form == null  ) {
+			if ( GFCommon::has_credit_card_field($form) ) {
+				wp_enqueue_script('stripe-js', 'https://js.stripe.com/v1/', array('jquery') );
+			}
+		}
 }
 
 add_action('init',  array('GFStripe', 'init'));
 
 //limits currency to US Dollars
 add_filter("gform_currency", create_function("","return 'USD';"));
-add_action("renewal_cron", array("GFStripe", "process_renewals"));
+//add_action("renewal_cron", array("GFStripe", "process_renewals"));
 
 register_activation_hook( GRAVITYFORMS_STRIPE_FILE, array("GFStripe", "add_permissions"));
 
@@ -155,14 +162,16 @@ class GFStripe {
             //loading data class
             require_once( GRAVITYFORMS_STRIPE_PATH . "/data.php");
 
+
+
 					//remove SSL credit card warnings since credit card information never hits the server
 					add_filter("gform_field_content", array('GFStripe', 'gform_field_content'), 10, 2);
 					add_filter("gform_field_css_class", array('GFStripe', 'remove_ssl_warning_class'), 10, 3);
-					add_filter("gform_submit_button", array('GFStripe', 'disable_submit_button') );
+					//add_filter("gform_submit_button", array('GFStripe', 'disable_submit_button') );
 
             //handling post submission.
 					add_filter("gform_field_validation", array('GFStripe', 'gform_field_validation' ), 10, 4);
-						add_filter('gform_get_form_filter',array("GFStripe", "create_card_token"), 10, 1);
+						add_filter('gform_get_form_filter',array("GFStripe", "gform_get_form_filter"), 10, 1);
             add_filter('gform_validation',array("GFStripe", "stripe_validation"), 10, 4);
             add_action('gform_after_submission',array("GFStripe", "stripe_after_submission"), 10, 2);
 
@@ -172,10 +181,10 @@ class GFStripe {
         }
     }
 
-    public static function setup_cron(){
+    /*public static function setup_cron(){
        if(!wp_next_scheduled("renewal_cron"))
            wp_schedule_event(time(), "daily", "renewal_cron");
-    }
+    }*/
 
     public static function update_feed_active(){
         check_ajax_referer('gf_stripe_update_feed_active','gf_stripe_update_feed_active');
@@ -1838,16 +1847,19 @@ class GFStripe {
 }
 
 	public static function remove_ssl_warning_class( $css_class, $field, $form ) {
+		$form_feeds = GFStripeData::get_feed_by_form( $form['id'] );
+		if ( ! empty( $form_feeds ) ) {
 			$css_class = str_ireplace( 'gfield_creditcard_warning', '', $css_class);
+		}
 			return $css_class;
 
 	}
 
-	public static function disable_submit_button( $button_input ) {
+	/*public static function disable_submit_button( $button_input ) {
 		$button_input = stristr( $button_input, '>', true );
 		$button_input = $button_input . ' disabled>';
 		return $button_input;
-	}
+	}*/
 
 
     private static function is_ready_for_capture($validation_result){
@@ -1895,9 +1907,12 @@ class GFStripe {
     }
 
 	public static function gform_field_validation( $validation_result, $value, $form, $field ) {
-		if( $field['type'] == 'creditcard' ) {
-			$validation_result['is_valid']  = true;
-			unset($validation_result['message']);
+		$form_feeds = GFStripeData::get_feed_by_form( $form['id'] );
+		if ( ! empty( $form_feeds ) ) {
+			if( $field['type'] == 'creditcard' ) {
+				$validation_result['is_valid']  = true;
+				unset($validation_result['message']);
+			}
 		}
 
 		return $validation_result;
@@ -1975,51 +1990,80 @@ class GFStripe {
         }
     }*/
 
-	public static function create_card_token( $form_string ) {
-		$settings = get_option("gf_stripe_settings");
-		$mode = rgar( $settings, 'mode' );
-		switch ( $mode ) {
-			case 'test':
-				$publishable_key = esc_attr( rgar( $settings, 'test_publishable_key' ) );
-				break;
-			case 'live':
-				$publishable_key = esc_attr( rgar( $settings, 'live_publishable_key' ) );
-				break;
-			default:
-				//something is wrong TODO better error handling here
-				return $form_string;
+	private static function inject_gf_stripe( $injection, $inject_into, $inject_point ) {
+		$before_injection_point = stristr( $inject_into, $inject_point, true );
+		$after_injection_point = stristr( $inject_into, $inject_point );
+		if ( $before_injection_point && $after_injection_point ) {
+			$inject_into = $before_injection_point . $injection . $after_injection_point;
 		}
 
+		return $inject_into;
+	}
+
+	public static function gform_get_form_filter( $form_string ) {
+
+
+		//Get form ID
 		$form_id = stristr( $form_string, "gform_wrapper_" );
 		$form_id = str_ireplace( 'gform_wrapper_', '', $form_id );
 		$form_id = stristr( $form_id, "'", true );
 
-		$form_string .= "<script type='text/javascript'>" . apply_filters("gform_cdata_open", "") .
-				"Stripe.setPublishableKey('" . $publishable_key . "');" .
-				"function stripeResponseHandler(status, response) {" .
-					"if (response.error) {" .
-						"jQuery('#gform_submit_button_{$form_id}').removeAttr('disabled');" .
-						"jQuery('#gform_{$form_id} .gform_card_icon_container').html(response.error.message);" .
-					"} else {" .
-						"var form$ = jQuery('#gform_{$form_id}');" .
-						"var token = response['id'];" .
-						"form$.append(\"<input type='hidden' name='stripeToken' value='\" + token + \"' />\");" .
-						"form$.get(0).submit();" .
-					"}" .
-				"}" .
-				"jQuery(document).ready(function($){" .
-					"$('#gform_submit_button_{$form_id}').removeAttr('disabled');" .
-					"$('#gform_{$form_id}').submit(function(event){" .
-						"Stripe.createToken({" .
-							"number: $('#gform_{$form_id} span.ginput_cardextras').prev().children(':input').val()," .
-							"exp_month: $('#gform_{$form_id} .ginput_card_expiration_month').val()," .
-							"exp_year: $('#gform_{$form_id} .ginput_card_expiration_year').val()," .
-							"cvc: $('#gform_{$form_id} .ginput_card_security_code').val()" .
-						"}, stripeResponseHandler);" .
-						"return false;" .
-					"});" .
-				"});" .
-				apply_filters("gform_cdata_close", "") . "</script>";
+		$form_feeds = GFStripeData::get_feed_by_form( $form_id );
+		if ( ! empty( $form_feeds ) ) {
+
+			$settings = get_option("gf_stripe_settings");
+					$mode = rgar( $settings, 'mode' );
+					switch ( $mode ) {
+						case 'test':
+							$publishable_key = esc_attr( rgar( $settings, 'test_publishable_key' ) );
+							break;
+						case 'live':
+							$publishable_key = esc_attr( rgar( $settings, 'live_publishable_key' ) );
+							break;
+						default:
+							//something is wrong TODO better error handling here
+							return $form_string;
+					}
+
+			//Make sure JS gets added for multi-page forms
+			$needle = "<meta charset='UTF-8' /></head>";
+			$js = "<script type='text/javascript' src='https://js.stripe.com/v1/'></script>";
+			$form_string = self::inject_gf_stripe( $js, $form_string, $needle );
+
+			//Output JS to create token
+			$needle = "function gformInitSpinner_{$form_id}(){";
+			$js = "function stripeResponseHandler(status, response) {" .
+																	"if (response.error) {" .
+																		"jQuery('#gform_submit_button_{$form_id}').removeAttr('disabled');" .
+																		"jQuery('#gform_{$form_id} .gform_card_icon_container').html('This form cannot process payments. Please contact site owner.');" .
+																	"} else {" .
+																		"var form$ = jQuery('#gform_{$form_id}');" .
+																		"var token = response['id'];" .
+																		"form$.append(\"<input type='hidden' name='stripeToken' value='\" + token + \"' />\");" .
+																		"form$.get(0).submit();" .
+																	"}" .
+																"}";
+			$form_string = self::inject_gf_stripe( $js, $form_string, $needle );
+
+			$needle = "});" .
+		                    "}" .
+		                    "jQuery(document).ready(function($){" .
+		                        "gformInitSpinner_{$form_id}();";
+			$js = "var last_page = jQuery('#gform_target_page_number_{$form_id}').val();" .
+
+																						"if ( last_page === '0' ){" .
+																"Stripe.setPublishableKey('" . $publishable_key . "');" .
+																			"Stripe.createToken({" .
+																				"number: jQuery('#gform_{$form_id} span.ginput_cardextras').prev().children(':input').val()," .
+																				"exp_month: jQuery('#gform_{$form_id} .ginput_card_expiration_month').val()," .
+																				"exp_year: jQuery('#gform_{$form_id} .ginput_card_expiration_year').val()," .
+																				"cvc: jQuery('#gform_{$form_id} .ginput_card_security_code').val()" .
+																			"}, stripeResponseHandler);" .
+																			"return false;" .
+																		"}";
+			$form_string = self::inject_gf_stripe( $js, $form_string, $needle );
+		}
+
 
 		return $form_string;
 	}
@@ -2311,7 +2355,7 @@ class GFStripe {
 	                $description = __("options: ", "gravityforms-stripe") . " " . implode(", ", $options);
 
 	            //$line_items[] = array("item_id" =>'Item ' . $item, "item_name"=>$product["name"], "item_description" =>$description, "item_quantity" =>$quantity, "item_unit_price"=>$product_total, "item_taxable"=>"Y");
-						$line_items[] = $item . "\t" . $product["name"] . "\t" . $description . "\t" . $quantity . "\t" . $product_total;
+						$line_items[] = "(" . $quantity . ")\t" . $product["name"] . "\t" . $description .  "\tx\t$" . $product_total;
 						$item++;
 	        }
 
@@ -2456,7 +2500,7 @@ class GFStripe {
             $currency = GFCommon::get_currency();
             $transaction_id = self::$transaction_response["transaction_id"];
             $transaction_type = self::$transaction_response["transaction_type"];
-            $amount = self::$transaction_response["amount"];
+            $amount = ( self::$transaction_response["amount"] ) / 100;
             $payment_date = gmdate("Y-m-d H:i:s");
             $entry["currency"] = $currency;
             if($transaction_type == "1")
