@@ -71,7 +71,7 @@ class GFStripe {
 			//loading translations
 			load_plugin_textdomain( 'gravityforms-stripe', FALSE, '/gravityforms-stripe/languages' );
 
-			add_action( 'after_plugin_row_' . self::$path, array( 'GFStripe', 'plugin_row' ) );
+			//add_action( 'after_plugin_row_' . self::$path, array( 'GFStripe', 'plugin_row' ) );
 
 			//force new remote request for version info on the plugin page
 			//self::flush_version_info();
@@ -142,7 +142,7 @@ class GFStripe {
 				add_filter( 'gform_tooltips', array( 'GFStripe', 'tooltips' ) );
 			}
 			else if ( RGForms::get( 'page' ) == 'gf_entries' ) {
-				add_action( 'gform_entry_info', array( 'GFStripe', 'stripe_entry_info' ), 10, 2 );
+				//add_action( 'gform_entry_info', array( 'GFStripe', 'stripe_entry_info' ), 10, 2 );
 			}
 		}
 		else {
@@ -2258,7 +2258,8 @@ class GFStripe {
     }*/
 
 	private static function inject_gf_stripe( $injection, $inject_into, $inject_point ) {
-		$before_injection_point = stristr( $inject_into, $inject_point, true );
+		//$before_injection_point = stristr( $inject_into, $inject_point, true );
+		$before_injection_point = substr( $inject_into, 0, strpos( $inject_into, $inject_point ) );
 		$after_injection_point  = stristr( $inject_into, $inject_point );
 		if ( $before_injection_point && $after_injection_point ) {
 			$inject_into = $before_injection_point . $injection . $after_injection_point;
@@ -2273,7 +2274,8 @@ class GFStripe {
 		//Get form ID
 		$form_id = stristr( $form_string, 'gform_wrapper_' );
 		$form_id = str_ireplace( 'gform_wrapper_', '', $form_id );
-		$form_id = stristr( $form_id, "'", true );
+		//$form_id = stristr( $form_id, "'", true );
+		$form_id = strtok( $form_id, "'" );
 
 		$form_feeds = GFStripeData::get_feed_by_form( $form_id );
 		if ( ! empty( $form_feeds ) ) {
