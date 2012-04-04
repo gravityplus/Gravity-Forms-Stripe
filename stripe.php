@@ -1,8 +1,8 @@
 <?php
 /*
 Plugin Name: Gravity Forms Stripe Add-On
-Plugin URI: http://github.com/naomicbush/gravityforms-stripe
-Description: Integrates Gravity Forms with Stripe, enabling end users to purchase goods and services through Gravity Forms.
+Plugin URI: http://github.com/naomicbush/Gravity-Forms-Stripe
+Description: Use Stripe to process credit card payments on your site, easily and securely, with Gravity Forms
 Version: 0.1
 Author: Naomi C. Bush
 Author URI: http://naomicbush.com
@@ -52,9 +52,9 @@ register_activation_hook( GRAVITYFORMS_STRIPE_FILE, array( 'GFStripe', 'add_perm
 
 class GFStripe {
 
-	private static $path = 'gravityforms-stripe/stripe.php';
+	private static $path = 'gravity-forms-stripe/stripe.php';
 	private static $url = 'http://www.gravityforms.com';
-	private static $slug = 'gravityforms-stripe';
+	private static $slug = 'gravity-forms-stripe';
 	private static $version = '0.1';
 	private static $min_gravityforms_version = '1.6.3.3';
 	private static $transaction_response = '';
