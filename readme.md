@@ -1,5 +1,5 @@
 # Gravity Forms Stripe Payment Add-On
-[http://wordpress.org/plugins/extend/gravity-forms-stripe](http://wordpress.org/plugins/extend/gravity-forms-stripe)
+http://wordpress.org/extend/plugins/gravity-forms-stripe/
 
 [Stripe](https://stripe.com) allows you to process credit cards directly on your site, securely and easily, without having to deal with merchant accounts, PCI-compliance, or PayPal.
 
