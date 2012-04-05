@@ -3,7 +3,7 @@ http://wordpress.org/extend/plugins/gravity-forms-stripe/
 
 [Stripe](https://stripe.com) allows you to process credit cards directly on your site, securely and easily, without having to deal with merchant accounts, PCI-compliance, or PayPal.
 
-This Gravity Forms add-on integrates Stripe with your forms (adapted from the Gravity Forms Authorize.net Add-On) using the provided Stripe.js to make sure sensitive card information never hits your server.
+This [Gravity Forms](http://naomicbush.com/getgravityforms) add-on integrates Stripe with your forms (adapted from the Gravity Forms Authorize.net Add-On) using the provided [Stripe.js](https://stripe.com/docs/stripe.js) to make sure sensitive card information never hits your server.
 
 ## Features
 ### Current
@@ -32,6 +32,9 @@ This Gravity Forms add-on integrates Stripe with your forms (adapted from the Gr
 6. Under Forms->Stripe, add a Stripe feed for your new form.
 
 ## Changelog
+### 0.1.1
+* Fixes "Class 'Stripe' Not Found" error
+
 ### 0.1 (April 3, 2012)
 * First release
 
