@@ -3,7 +3,7 @@
 Plugin Name: Gravity Forms Stripe Add-On
 Plugin URI: http://github.com/naomicbush/Gravity-Forms-Stripe
 Description: Use Stripe to process credit card payments on your site, easily and securely, with Gravity Forms
-Version: 0.1
+Version: 0.1.1
 Author: Naomi C. Bush
 Author URI: http://naomicbush.com
 
@@ -775,7 +775,7 @@ class GFStripe {
     }*/
 
 	private static function is_valid_key() {
-		$api_login = self::include_api();
+		self::include_api();
 		$settings  = get_option( 'gf_stripe_settings' );
 
 		$year = date( 'Y' ) + 1;
@@ -2401,9 +2401,9 @@ class GFStripe {
 				return $validation_result;
 		}
 
-
+		self::include_api();
 		try {
-			Stripe::setApiKey( $secret_key );
+			$response = Stripe::setApiKey( $secret_key );
 			$response = Stripe_Charge::create( array(
 																							'amount'      => ( $form_data[ 'amount' ] * 100 ),
 																							'currency'    => 'usd',
