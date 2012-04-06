@@ -3,7 +3,7 @@
 Plugin Name: Gravity Forms Stripe Add-On
 Plugin URI: http://github.com/naomicbush/Gravity-Forms-Stripe
 Description: Use Stripe to process credit card payments on your site, easily and securely, with Gravity Forms
-Version: 0.1.1
+Version: 0.1.2
 Author: Naomi C. Bush
 Author URI: http://naomicbush.com
 
@@ -1951,8 +1951,24 @@ class GFStripe {
 		$form_feeds = GFStripeData::get_feed_by_form( $form[ 'id' ] );
 		if ( ! empty( $form_feeds ) ) {
 			if ( $field[ 'type' ] == 'creditcard' ) {
-				$validation_result[ 'is_valid' ] = true;
-				unset( $validation_result[ 'message' ] );
+				$card_number_valid = rgpost( 'card_number_valid' );
+				$exp_date_valid = rgpost( 'exp_date_valid' );
+				$cvc_valid = rgpost( 'cvc_valid' );
+				$create_token_error = rgpost( 'create_token_error' );
+				if ( ( 'false' == $card_number_valid ) || ( 'false' == $exp_date_valid ) || ( 'false' == $cvc_valid ) ) {
+					$validation_result[ 'is_valid' ] = false;
+					$message = ( 'false' == $card_number_valid ) ? __( 'Invalid credit card number.', 'gravityforms-stripe' ) : '';
+					$message .= ( 'false' == $exp_date_valid ) ? __( ' Invalid expiration date.', 'gravityforms-stripe' ) : '';
+					$message .= ( 'false' == $cvc_valid ) ? __( ' Invalid security code.', 'gravityforms-stripe' ) : '';
+					$validation_result['message'] = sprintf( __('%s', 'gravityforms-stripe'), $message );
+				} else if ( ! empty( $create_token_error ) ) {
+					$validation_result[ 'is_valid' ] = false;
+					$validation_result['message'] = sprintf( __('%s', 'gravityforms-stripe'), $create_token_error );
+				}
+				else {
+					$validation_result[ 'is_valid' ] = true;
+					unset( $validation_result[ 'message' ] );
+				}
 			}
 		}
 
@@ -2021,15 +2037,16 @@ class GFStripe {
 			$needle      = "function gformInitSpinner_{$form_id}(){";
 			$js          = "function stripeResponseHandler(status, response) {" .
 					"if (response.error) {" .
-					"jQuery('#gform_submit_button_{$form_id}').removeAttr('disabled');" .
-					"jQuery('#gform_{$form_id} .gform_card_icon_container').html('This form cannot process payments. Please contact site owner.');" .
+						"var param = response.error.param;" .
+						"var form$ = jQuery('#gform_{$form_id}');" .
+						"form$.append(\"<input type='hidden' name='create_token_error' value='\" + message + \"' />\");" .
 					"} else {" .
-					"var form$ = jQuery('#gform_{$form_id}');" .
-					"var token = response['id'];" .
-					"form$.append(\"<input type='hidden' name='stripeToken' value='\" + token + \"' />\");" .
-					"form$.get(0).submit();" .
+						"var form$ = jQuery('#gform_{$form_id}');" .
+						"var token = response['id'];" .
+						"form$.append(\"<input type='hidden' name='stripeToken' value='\" + token + \"' />\");" .
 					"}" .
-					"}";
+					"form$.get(0).submit();" .
+				"}";
 			$form_string = self::inject_gf_stripe( $js, $form_string, $needle );
 
 			$needle      = "});" .
@@ -2039,14 +2056,27 @@ class GFStripe {
 			$js          = "var last_page = jQuery('#gform_target_page_number_{$form_id}').val();" .
 
 					"if ( last_page === '0' ){" .
-					"Stripe.setPublishableKey('" . $publishable_key . "');" .
-					"Stripe.createToken({" .
-					"number: jQuery('#gform_{$form_id} span.ginput_cardextras').prev().children(':input').val()," .
-					"exp_month: jQuery('#gform_{$form_id} .ginput_card_expiration_month').val()," .
-					"exp_year: jQuery('#gform_{$form_id} .ginput_card_expiration_year').val()," .
-					"cvc: jQuery('#gform_{$form_id} .ginput_card_security_code').val()" .
-					"}, stripeResponseHandler);" .
-					"return false;" .
+						"var form$ = jQuery('#gform_{$form_id}');" .
+						"Stripe.setPublishableKey('" . $publishable_key . "');" .
+						"var card_number = jQuery('#gform_{$form_id} span.ginput_cardextras').prev().children(':input').val();" .
+						"var exp_month = jQuery('#gform_{$form_id} .ginput_card_expiration_month').val();" .
+						"var exp_year = jQuery('#gform_{$form_id} .ginput_card_expiration_year').val();" .
+						"var cvc = jQuery('#gform_{$form_id} .ginput_card_security_code').val();" .
+						"var card_number_valid = Stripe.validateCardNumber(card_number);" .
+						"var exp_date_valid = Stripe.validateExpiry(exp_month, exp_year);" .
+						"var cvc_valid = Stripe.validateCVC(cvc);" .
+						"if ( !card_number_valid || !exp_date_valid || !cvc_valid ) {".
+							"form$.append(\"<input type='hidden' name='card_number_valid' value='\" + card_number_valid + \"' /><input type='hidden' name='exp_date_valid' value='\" + exp_date_valid + \"' /><input type='hidden' name='cvc_valid' value='\" + cvc_valid + \"' />\");" .
+						"} else {" .
+							"var token = Stripe.createToken({" .
+								"number: card_number," .
+								"exp_month: exp_month," .
+								"exp_year: exp_year," .
+								"cvc: cvc" .
+								"}, stripeResponseHandler);" .
+							"return false;" .
+						"}" .
+
 					"}";
 			$form_string = self::inject_gf_stripe( $js, $form_string, $needle );
 		}

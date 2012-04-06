@@ -4,7 +4,7 @@ Donate link: http://naomicbush.com/
 Tags: form, forms, gravity, gravity form, gravity forms, gravityforms, stripe, payment, payments, subscribe, subscriptions, recurring billing, paypal, authorize.net, credit cards, online payment
 Requires at least: 3.3.1
 Tested up to: 3.3.1
-Stable tag: 0.1.1
+Stable tag: 0.1.2
 
 Easy and secure credit card payments on your WordPress site with Stripe and Gravity Forms!
 
@@ -56,12 +56,20 @@ Yes, you need to install the [Gravity Forms Plugin](http://bit.ly/getgravityform
 3. Stripe feed
 
 == Changelog ==
+= 0.1.2 =
+* Fix error handling
+
 = 0.1.1 =
-* Fixes "Class 'Stripe' Not Found" error
+* Fix "Class 'Stripe' Not Found" error
 
 = 0.1 =
-* Initial release. Processes charges (one-time payments) only.
+* Initial release. Process charges (one-time payments) only.
 
 == Upgrade Notice ==
 
+= 0.1.2 =
+Important fix for error handling! Please upgrade to the latest version.
+
+= 0.1.1 =
 Important fix! Please upgrade to the latest version or your form may not correctly process payments.
+

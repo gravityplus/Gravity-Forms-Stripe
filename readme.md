@@ -32,8 +32,11 @@ This [Gravity Forms](http://naomicbush.com/getgravityforms) add-on integrates St
 6. Under Forms->Stripe, add a Stripe feed for your new form.
 
 ## Changelog
+### 0.1.2
+* Fix error handling
+
 ### 0.1.1
-* Fixes "Class 'Stripe' Not Found" error
+* Fix "Class 'Stripe' Not Found" error
 
 ### 0.1 (April 3, 2012)
 * First release
