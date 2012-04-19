@@ -4,7 +4,7 @@ Donate link: http://naomicbush.com/
 Tags: form, forms, gravity, gravity form, gravity forms, gravityforms, stripe, payment, payments, subscribe, subscriptions, recurring billing, paypal, authorize.net, credit cards, online payment
 Requires at least: 3.3.1
 Tested up to: 3.3.1
-Stable tag: 0.1.2
+Stable tag: 0.1.3
 
 Easy and secure credit card payments on your WordPress site with Stripe and Gravity Forms!
 
@@ -41,13 +41,16 @@ This section describes how to install and setup the Gravity Forms Stripe Add-On.
 2. Make sure that Gravity Forms is activated
 3. Activate the plugin through the 'Plugins' menu in WordPress
 4. Add your Stripe API keys to the Stripe tab on the Settings page (Forms->Settings).
-5. Create a form, adding at least one product field along with the new 'Credit Card' field that appears under 'Pricing Fields'
+5. Create a form, adding at least one product field along with the new 'Credit Card' field that appears under 'Pricing Fields.' Keep in mind that Stripe accepts a minimum charge of $0.50 - this means that the total amount of your form must be at least $0.50.
 6. Under Forms->Stripe, add a Stripe feed for your new form.
 
 == Frequently Asked Questions ==
 
 = Do I need to have a copy of Gravity Forms for this plugin to work? =
 Yes, you need to install the [Gravity Forms Plugin](http://bit.ly/getgravityforms "visit the Gravity Forms website") for this plugin to work.
+
+= What is the minimum amount my form can accept? =
+$0.50, [per Stripe](https://stripe.com/help/faq)
 
 == Screenshots ==
 
@@ -56,6 +59,13 @@ Yes, you need to install the [Gravity Forms Plugin](http://bit.ly/getgravityform
 3. Stripe feed
 
 == Changelog ==
+= 0.1.3 =
+* Fix credit card field conflict with other GF payment add-ons
+* Load Stripe JS only when form with a credit card field *and* Stripe feed is loaded
+* Fix removal of credit card expiration date from information sent to server
+* Add validation check for cardholder name and address
+* Don't process payment if total is less than $0.50
+
 = 0.1.2 =
 * Fix error handling
 
@@ -66,6 +76,8 @@ Yes, you need to install the [Gravity Forms Plugin](http://bit.ly/getgravityform
 * Initial release. Process charges (one-time payments) only.
 
 == Upgrade Notice ==
+= 0.1.3 =
+Important fix for conflicts with other GF payments add-ons! Please upgrade to the latest version.
 
 = 0.1.2 =
 Important fix for error handling! Please upgrade to the latest version.
