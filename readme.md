@@ -28,12 +28,22 @@ This [Gravity Forms](http://naomicbush.com/getgravityforms) add-on integrates St
 2. Make sure that Gravity Forms is activated
 3. Activate the plugin through the 'Plugins' menu in WordPress
 4. Add your Stripe API keys to the Stripe tab on the Settings page (Forms->Settings).
-5. Create a form, adding at least one product field along with the new 'Credit Card' field that appears under 'Pricing Fields'
+5. Create a form, adding at least one product field along with the new 'Credit Card' field that appears under 'Pricing Fields.' Keep in mind that Stripe accepts a minimum charge of $0.50 - this means that the total amount of your form must be at least $0.50.
 6. Under Forms->Stripe, add a Stripe feed for your new form.
 
 ## Changelog
+### 0.1.3 (April 19, 2012)
+* Fix credit card field conflict with other GF payment add-ons
+* Load Stripe JS only when form with a credit card field *and* Stripe feed is loaded
+* Fix removal of credit card expiration date from information sent to server
+* Add validation check for cardholder name and address
+* Don't process payment if total is less than $0.50
+
+### 0.1.2
+* Fix error handling
+
 ### 0.1.1
-* Fixes "Class 'Stripe' Not Found" error
+* Fix "Class 'Stripe' Not Found" error
 
 ### 0.1 (April 3, 2012)
 * First release
