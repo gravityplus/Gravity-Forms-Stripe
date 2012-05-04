@@ -8,9 +8,11 @@ This [Gravity Forms](http://naomicbush.com/getgravityforms) add-on integrates St
 ## Features
 ### Current
 * One-time payments
+* Recurring/Subscription Payments
 
 ### Up Next
-* Recurring/Subscription Payments
+* Receipts
+* [Make a request](http://naomicbush.com/)
 
 ## Requirements
 * WordPress 3.3.1
@@ -21,6 +23,14 @@ This [Gravity Forms](http://naomicbush.com/getgravityforms) add-on integrates St
 ## Support
 * Please note that this plugin has not been extensively tested so use at your own risk - I needed it for a few projects and it works for me.
 * Feel free to open an issue or pull request - no guarantees, though
+* If you want to be sure that I see & respond to your request or issue, I consider [donations](http://naomicbush.com) a fair exchange :-)
+
+## Current Limitations
+* Subscription product can be the *only* product on the form
+* When canceling a subscription through the Gravity Forms entry detail screen, the subscription will remain active until the end of the period, however it will reflect in WordPress as 'canceled'
+
+## Known Issues
+https://github.com/naomicbush/Gravity-Forms-Stripe/issues
 
 ## Installation
 
@@ -32,6 +42,10 @@ This [Gravity Forms](http://naomicbush.com/getgravityforms) add-on integrates St
 6. Under Forms->Stripe, add a Stripe feed for your new form.
 
 ## Changelog
+### new version number (release date)
+* Process subscriptions/recurring payments
+* Create a new customer in Stripe for all transactions
+
 ### 0.1.3 (April 19, 2012)
 * Fix credit card field conflict with other GF payment add-ons
 * Load Stripe JS only when form with a credit card field *and* Stripe feed is loaded

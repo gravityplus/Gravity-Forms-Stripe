@@ -22,16 +22,30 @@ Requires WordPress 3.3.1, PHP 5.3 (although it worked for me when initially test
 **Current Features**
 
 * One-time payments
+* Recurring/Subscription Payments
 
 **Upcoming Features**
-
-* Recurring/Subscription Payments
+* Receipts
+* [Make a request](http://naomicbush.com/)
 
 **Support**
 
 * Please note that this plugin has not been extensively tested so use at your own risk - I needed it for a few projects and it works for me.
 
-* Feel free to leave a message in the forum, or open an issue or pull request on [Github](https://github.com/naomicbush/Gravity-Forms-Stripe) - no guarantees, though
+* Feel free to leave a message in the forum, or open an issue or pull request on [GitHub](https://github.com/naomicbush/Gravity-Forms-Stripe) - no guarantees, though
+
+* If you want to be sure that I see & respond to your request or issue, I consider [donations](http://naomicbush.com) a fair exchange :-)
+
+
+**Current Limitations**
+
+* Subscription product can be the *only* product on the form
+* When canceling a subscription through the Gravity Forms entry detail screen, the subscription will remain active in Stripe until the end of the period, however it will reflect in WordPress as 'canceled'
+
+**Known Issues**
+
+* https://github.com/naomicbush/Gravity-Forms-Stripe/issues
+
 
 == Installation ==
 
@@ -59,6 +73,10 @@ $0.50, [per Stripe](https://stripe.com/help/faq)
 3. Stripe feed
 
 == Changelog ==
+= new version number =
+* Process subscriptions/recurring payments
+* Create a customer in Stripe for all transactions
+
 = 0.1.3 =
 * Fix credit card field conflict with other GF payment add-ons
 * Load Stripe JS only when form with a credit card field *and* Stripe feed is loaded
