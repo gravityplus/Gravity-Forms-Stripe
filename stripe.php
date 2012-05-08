@@ -148,7 +148,7 @@ class GFStripe {
 				add_filter( 'gform_tooltips', array( 'GFStripe', 'gform_tooltips' ) );
 			}
 			else if ( 'gf_entries' == RGForms::get( 'page' ) ) {
-				add_action( 'gform_entry_info', array( 'GFStripe', 'stripe_entry_info' ), 10, 2 );
+				add_action( 'gform_entry_info', array( 'GFStripe', 'gform_entry_info' ), 10, 2 );
 			}
 		}
 		else {
@@ -722,7 +722,7 @@ class GFStripe {
 			     <?php _e( 'To receive information about a customer subscription from Stripe, you must have webhooks for this site\'s URL in your Stripe dashboard \'Account Settings\'. Follow the steps below to confirm.', 'gravityforms-stripe' ) ?>
 			   </p>
 				 <ol>
-				  <li><?php echo sprintf( __( 'Navigate to your Stripe dashboard %sAccount Settings->Webhooks page%s.', 'gravityforms-stripe' ), "<a href='https://manage.stripe.com/#account/webhooks' target='_blank'>" , "</a>") ?></li>
+				  <li><?php echo sprintf( __( 'Navigate to your Stripe dashboard\'s %sAccount Settings->Webhooks page%s.', 'gravityforms-stripe' ), "<a href='https://manage.stripe.com/#account/webhooks' target='_blank'>" , "</a>") ?></li>
 				  <li><?php _e( 'If the webhooks are already setup, you will see your site\'s webhook URL listed twice - once for Test mode and once for Live mode. If that is the case, just check the confirmation box below and you are ready to go!', 'gravityforms-stripe' ) ?></li>
 				  <li><?php echo sprintf( __( 'If you don\'t see your site\'s webhook URLs listed, click the \'Add URL\' button and enter the following URL, once with the mode underneath the URL box set as \'Test\' and once with the mode underneath the URL box set as \'Live\': %s', 'gravityforms-stripe' ), '<strong>' . add_query_arg( 'page', 'gf_stripe_listener', get_bloginfo( 'url' ) . '/') . '</strong>') ?></li>
 				 </ol>
@@ -2563,12 +2563,31 @@ class GFStripe {
 		self::include_api();
 		Stripe::setApiKey( self::get_api_key( 'secret' ) );
 		try {
-			$response = Stripe_Charge::create( array(
+			$customer = Stripe_Customer::create( array(
+																					 	'description'	=> $form_data[ 'name' ],
+																					 	'card' 				=> $form_data[ 'credit_card' ]
+																					 ) );
+		}
+		catch( Exception $e ){
+			$customer = '';
+		}
+		try {
+			if ( ! empty( $customer ) ) {
+				$response = Stripe_Charge::create( array(
+																						'amount'      => ( $form_data[ 'amount' ] * 100 ),
+																						'currency'    => 'usd',
+																						'customer'    => $customer,
+																						'description' => implode( '\n', $form_data[ 'line_items' ] )
+																					) );
+			}
+			else {
+				$response = Stripe_Charge::create( array(
 																							'amount'      => ( $form_data[ 'amount' ] * 100 ),
 																							'currency'    => 'usd',
 																							'card'        => $form_data[ 'credit_card' ],
 																							'description' => ( $form_data[ 'name' ] . '(' . $form_data[ 'email' ] . ' ): ' . implode( "\n", $form_data[ 'line_items' ] ) )
 																				 ) );
+			}
 			//self::$log->LogDebug(print_r($response, true));
 			self::$log->LogDebug( "Charge successful. ID: {$response['id']} - Amount: {$response['amount']}" );
 
@@ -2773,8 +2792,8 @@ class GFStripe {
 													'start' 				=> gmdate( 'Y-m-d H:i:s', $response->subscription[ 'current_period_start' ] ),
 													'end' 					=> gmdate( 'Y-m-d H:i:s', $response->subscription[ 'current_period_end' ] ),
 													'next_payment' 	=> array(
-																							'amount'	=> $response->next_recurring_charge[ 'amount' ],
-																							'date' 		=> gmdate( 'Y-m-d H:i:s', $response->next_recurring_charge[ 'date' ] )
+																							'amount'	=> $response->next_recurring_charge[ 'amount' ] / 100,
+																							'date' 		=> $response->next_recurring_charge[ 'date' ]
 																							),
 													'plan' 					=> array(
 																							'id' 			=> $response->subscription->plan[ 'id' ],
@@ -2810,11 +2829,11 @@ class GFStripe {
 						$upcoming_invoice = '';
 					}
 
-					$subscription[ 'next_payment' ][ 'invoice_id' ] = empty( $upcoming_invoice ) ? $upcoming_invoice : $upcoming_invoice[ 'id' ];
+					$subscription[ 'next_payment' ][ 'invoice_id' ] = empty( $upcoming_invoice ) ? $upcoming_invoice : $upcoming_invoice[ 'date' ];
 
 					//$subscription_id            = $subscription[ 'customer_id' ];
 					self::$transaction_response = array(
-																					'transaction_id'   => empty( $last_invoice ) ? $subscription[ 'customer_id' ] : $last_invoice[ 'id' ],
+																					'transaction_id'   => empty( $last_invoice ) ? $subscription[ 'customer_id' ] : $last_invoice[ 'data' ][ 0 ][ 'id' ],
 																					'amount'           => $subscription[ 'plan' ][ 'amount' ],
 																					'transaction_type' => 2,
 																					'subscription'   => $subscription
@@ -3369,10 +3388,92 @@ class GFStripe {
 	}*/
 
 	public static function parse_request() {
+		//Ignore requests that are not Stripe
+		if( RGForms::get( 'page' ) != 'gf_stripe_listener' )
+		 return;
 
+		if( ! isset( self::$log ) )
+		 self::$log = self::create_logger();
+
+		self::$log->LogDebug( 'Stripe webhook received. Starting to process...' );
+		self::$log->LogDebug( print_r( $_POST, true ) );
+
+		self::include_api();
+		Stripe::setApiKey( self::get_api_key( 'secret' ) );
+
+		$body = @file_get_contents( 'php://input' );
+		$stripe_event = json_decode( $body, true );
+
+		//Verify webhook came from Stripe
+		self::$log->LogDebug( 'Sending webhook ID request to Stripe for validation.' );
+
+			//Request event information from Stripe to validate
+				try {
+					$stripe_event = Stripe_Event::retrieve( $stripe_event[ 'id' ] );
+				}
+				catch( Exception $e ) {
+					self::$log->LogError( 'Webhook could not be verified by Stripe. Aborting.' );
+					return;
+				}
+
+		self::$log->LogDebug( 'Webhook successfully verified by Stripe' );
+
+		//HTTP status code 200 should automatically return to Stripe
+
+		if ( 'customer.subscription.deleted' == $stripe_event[ 'type' ] ) {
+			$subscription = $stripe_event[ 'data' ]->subscription;
+			$customer_id = $subscription[ 'customer' ];
+
+
+			//Find entry/lead
+
+				//get all subscriptions, match customer_id to subscription_customer_id, if only one, then save $entry_id = lead_id
+
+			//Get all Stripe subscriptions where ['customer_id'] == $customer_id
+			global $wpdb;
+			$lead_meta_table = RGFormsModel::get_lead_meta_table_name();
+			$sql = "SELECT lead_id, meta_value
+							FROM {$lead_meta_table}
+							WHERE meta_key = 'Stripe_subscription'";
+			$results = $wpdb->get_results( $sql, ARRAY_A );
+			$matches = array();
+			foreach ( $results as $result ) {
+				if ( $customer_id == $result[ 'meta_value' ][ 'customer_id' ] ) {
+					$matches = array( 'lead_id' => $result[ 'lead_id' ] );
+				}
+			}
+
+			if ( ( ! empty ( $matches ) ) && count( $matches ) < 2 ) {
+				//update payment_status to canceled
+				$entry_id = $matches[0][ 'lead_id' ];
+				$entry = RGFormsModel::get_lead( $entry_id );
+				self::$log->LogDebug("Entry has been found." . print_r($entry, true));
+
+				//Pre Stripe webhook processing filter. Allows users to cancel webhook processing
+				$cancel = apply_filters( 'gform_stripe_pre_webhook', false, $entry );
+
+				if( ! $cancel ) {
+					self::$log->LogDebug( 'Setting payment status...' );
+					self::cancel_subscription( $entry );
+					$user_id   = 0;
+					$user_name = 'System';
+					RGFormsModel::add_note( $entry_id, $user_id, $user_name, sprintf( __( "Subscription has been canceled. Customer Id: %s", "gravityforms" ), $customer_id ) );
+				}
+				else {
+					self::$log->LogDebug( 'Stripe webhook processing cancelled by the gform_stripe_pre_webhook filter. Aborting.' );
+				}
+
+				self::$log->LogDebug( 'Before gform_stripe_post_webhook.' );
+				//Post Stripe webhook processing action
+				do_action( 'gform_stripe_post_webhook', $entry, $cancel );
+
+				self::$log->LogDebug( 'Stripe webhook processing complete.' );
+
+			}
+		}
 	}
 
-	public static function stripe_entry_info( $form_id, $lead ) {
+	public static function gform_entry_info( $form_id, $lead ) {
 
 		// adding cancel subscription button and script to entry info section
 		$lead_id          = $lead[ "id" ];
@@ -3436,7 +3537,7 @@ class GFStripe {
 
 		try {
 			//$canceled_subscription = $customer->cancelSubscription( array( 'at_period_end' => true ) );
-			$canceled_subscription = $customer->cancelSubscription();
+			$canceled_subscription = $customer->cancelSubscription();	//for testing
 		}
 		catch( Exception $e ) {
 			die( '0' );
@@ -3449,7 +3550,7 @@ class GFStripe {
 			die( '1' );
 		}*/
 		//if ( true == $canceled_subscription[ 'cancel_at_period_end' ] ) {
-		if ( 'canceled' == $canceled_subscription[ 'status' ] ) {
+		if ( 'canceled' == $canceled_subscription[ 'status' ] ) {	//for testing
 					self::cancel_subscription( $lead );
 					die( '1' );
 		}

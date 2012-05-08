@@ -28,6 +28,8 @@ This [Gravity Forms](http://naomicbush.com/getgravityforms) add-on integrates St
 ## Current Limitations
 * Subscription product can be the *only* product on the form
 * When canceling a subscription through the Gravity Forms entry detail screen, the subscription will remain active until the end of the period, however it will reflect in WordPress as 'canceled'
+* Cannot have Stripe Add-On "activated" at the same time as Authorize.Net or PayPal Pro Add-Ons
+* Can only handle subscription status updates from Stripe when customer only has 'one' active subscription
 
 ## Known Issues
 https://github.com/naomicbush/Gravity-Forms-Stripe/issues
