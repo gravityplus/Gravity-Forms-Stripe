@@ -1,5 +1,5 @@
 <?php
-class GFStripeData{
+class GFPStripeData{
 
     public static function update_table(){
         global $wpdb;
@@ -182,4 +182,3 @@ class GFStripeData{
     }
 
 }
-?>
