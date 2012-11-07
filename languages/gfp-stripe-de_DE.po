@@ -1,0 +1,801 @@
+# This German language file Copyright (C) 2012 by David Decker of deckerweb.de & genesisthemes.de
+# This file is distributed under the same license as the Gravity Forms + Stripe Add-On Plugin package.
+#
+# Weitere deutsche Sprachdateien fuer Gravity Forms und Add-Ons
+# sowie WordPress Plugins und Themes sind hier zu finden:
+# --> http://deckerweb.de/sprachdateien/
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Gravity Forms + Stripe v1.6.9.1 (SIE-Version)\n"
+"Report-Msgid-Bugs-To: https://github.com/naomicbush/Gravity-Forms-Stripe/issues\n"
+"POT-Creation-Date: 2011-03-04 17:40-0500\n"
+"PO-Revision-Date: 2012-11-07 18:25+0100\n"
+"Last-Translator: David Decker <deckerweb.mobil@googlemail.com>\n"
+"Language-Team: DECKERWEB <deckerweb.mobil@googlemail.com>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Poedit-Language: German\n"
+"X-Poedit-Country: GERMANY\n"
+"X-Poedit-SourceCharset: utf-8\n"
+"X-Poedit-KeywordsList: __;_e;__ngettext:1,2;_n:1,2;__ngettext_noop:1,2;_n_noop:1,2;_c,_nc:4c,1,2;_x:1,2c;_ex:1,2c;_nx:4c,1,2;_nx_noop:4c,1,2\n"
+"X-Textdomain-Support: yes\n"
+"X-Poedit-SearchPath-0: .\n"
+
+#@ gfp-stripe
+#: stripe.php:188
+#: stripe.php:280
+#: stripe.php:289
+msgid "Transaction Type"
+msgstr "Transaktionstyp"
+
+#@ gfp-stripe
+#: stripe.php:189
+#: stripe.php:1401
+msgid "Gravity Form"
+msgstr "Gravity-Formular"
+
+#@ gfp-stripe
+#: stripe.php:190
+msgid "Customer"
+msgstr "Kunde"
+
+#@ gfp-stripe
+#: stripe.php:191
+#: stripe.php:1454
+msgid "Options"
+msgstr "Einstellungen"
+
+#@ gfp-stripe
+#: stripe.php:228
+msgid "Feed deleted."
+msgstr "Feed gelöscht."
+
+#@ gfp-stripe
+#: stripe.php:239
+msgid "Feeds deleted."
+msgstr "Feeds gelöscht."
+
+#@ gfp-stripe
+#: stripe.php:253
+msgid "Add New"
+msgstr "Hinzufügen"
+
+#@ gfp-stripe
+#: stripe.php:264
+#: stripe.php:266
+msgid "Bulk action"
+msgstr "Aktion wählen"
+
+#@ gfp-stripe
+#: stripe.php:267
+#: stripe.php:345
+#: stripe.php:346
+msgid "Delete"
+msgstr "Löschen"
+
+#@ gfp-stripe
+#: stripe.php:270
+msgid "Apply"
+msgstr "Übernehmen"
+
+#@ gfp-stripe
+#: stripe.php:270
+msgid "Delete selected feeds? "
+msgstr "Ausgewählte Feeds löschen? "
+
+#@ gfp-stripe
+#: stripe.php:346
+msgid "\\'Cancel\\' to stop, \\'OK\\' to delete."
+msgstr "\\'Abbrechen\\' um zu stoppen, \\'OK\\' um zu löschen."
+
+#@ gfp-stripe
+#: stripe.php:279
+#: stripe.php:288
+msgid "Form"
+msgstr "Formular"
+
+#@ gfp-stripe
+#: stripe.php:318
+#: stripe.php:319
+#: stripe.php:400
+msgid "Active"
+msgstr "Aktiv"
+
+#@ gfp-stripe
+#: stripe.php:318
+#: stripe.php:319
+#: stripe.php:396
+msgid "Inactive"
+msgstr "Inaktiv"
+
+#@ gfp-stripe
+#: stripe.php:323
+#: stripe.php:327
+#: stripe.php:329
+msgid "Edit"
+msgstr "Bearbeiten"
+
+#@ gfp-stripe
+#: stripe.php:333
+#: stripe.php:335
+msgid "View Stats"
+msgstr "Statistiken ansehen"
+
+#@ gfp-stripe
+#: stripe.php:335
+msgid "Stats"
+msgstr "Statistiken"
+
+#@ gfp-stripe
+#: stripe.php:339
+#: stripe.php:341
+msgid "View Entries"
+msgstr "Einträge ansehen"
+
+#@ gfp-stripe
+#: stripe.php:341
+msgid "Entries"
+msgstr "Einträge"
+
+#@ gfp-stripe
+#: stripe.php:346
+msgid "Delete this feed? "
+msgstr "Diesen Feed löschen? "
+
+#@ gfp-stripe
+#: stripe.php:358
+msgid "Product and Services"
+msgstr "Produkte und Dienstleistungen"
+
+#@ gfp-stripe
+#: stripe.php:362
+msgid "Subscription"
+msgstr "Abonnement"
+
+#@ gfp-stripe
+#: stripe.php:412
+msgid "Ajax error while updating feed"
+msgstr "Ajax-Fehler beim Aktualisieren des Feeds"
+
+#@ gfp-stripe
+#: stripe.php:823
+msgid "Daily"
+msgstr "Täglich"
+
+#@ gfp-stripe
+#: stripe.php:827
+msgid "Weekly"
+msgstr "Wöchentlich"
+
+#@ gfp-stripe
+#: stripe.php:831
+msgid "Monthly"
+msgstr "Monatlich"
+
+#@ gfp-stripe
+#: stripe.php:854
+msgid "No payments have been made yet."
+msgstr "Bisher wurden noch keine Zahlungen getätigt."
+
+#@ gfp-stripe
+#: stripe.php:913
+msgid "Week "
+msgstr "Woche "
+
+#@ gfp-stripe
+#: stripe.php:934
+msgid "Total Orders"
+msgstr "Gesamte Bestellungen"
+
+#@ gfp-stripe
+#: stripe.php:939
+msgid "Total Donations"
+msgstr "Gesamte Spenden"
+
+#@ gfp-stripe
+#: stripe.php:944
+msgid "Active Subscriptions"
+msgstr "Aktive Abonnements"
+
+#@ gfp-stripe
+#: stripe.php:952
+msgid "Total Revenue"
+msgstr "Gesamteinnahmen"
+
+#@ gfp-stripe
+#: stripe.php:972
+msgid "** Free trial transactions will only be reflected in the graph after the first payment is made (i.e. after trial period ends)"
+msgstr "** Kostenlose/ Freie Test-Transaktionen werden nur in der Grafik reflektiert werden, nachdem die erste Zahlung getätigt wurde (d.h. nachdem die Probezeit/ Testperiode endet)."
+
+#@ gfp-stripe
+#: stripe.php:1027
+#: stripe.php:1099
+#: stripe.php:1175
+msgid "New Subscriptions"
+msgstr "Neue Abonnements"
+
+#@ gfp-stripe
+#: stripe.php:1027
+#: stripe.php:1099
+#: stripe.php:1175
+msgid "Renewals"
+msgstr "Verlängerungen"
+
+#@ gfp-stripe
+#: stripe.php:1030
+#: stripe.php:1102
+#: stripe.php:1178
+msgid "Orders"
+msgstr "Bestellungen"
+
+#@ gfp-stripe
+#: stripe.php:1033
+#: stripe.php:1105
+#: stripe.php:1181
+msgid "Revenue"
+msgstr "Einnahmen"
+
+#@ gfp-stripe
+#: stripe.php:1052
+msgid "Orders Today"
+msgstr "Bestellungen heute"
+
+#@ gfp-stripe
+#: stripe.php:1056
+msgid "Donations Today"
+msgstr "Spenden heute"
+
+#@ gfp-stripe
+#: stripe.php:1060
+msgid "Subscriptions Today"
+msgstr "Abonnements heute"
+
+#@ gfp-stripe
+#: stripe.php:1068
+msgid "Revenue Today"
+msgstr "Einnahmen heute"
+
+#@ gfp-stripe
+#: stripe.php:1105
+msgid "Week"
+msgstr "Woche"
+
+#@ gfp-stripe
+#: stripe.php:1125
+msgid "Orders this Week"
+msgstr "Bestellungen diese Woche"
+
+#@ gfp-stripe
+#: stripe.php:1129
+msgid "Donations this Week"
+msgstr "Spenden diese Woche"
+
+#@ gfp-stripe
+#: stripe.php:1133
+msgid "Subscriptions this Week"
+msgstr "Abonnements diese Woche"
+
+#@ gfp-stripe
+#: stripe.php:1142
+msgid "Revenue this Week"
+msgstr "Einnahmen diese Woche"
+
+#@ gfp-stripe
+#: stripe.php:1200
+msgid "Orders this Month"
+msgstr "Bestellungen diesen Monat"
+
+#@ gfp-stripe
+#: stripe.php:1204
+msgid "Donations this Month"
+msgstr "Spenden diesen Monat"
+
+#@ gfp-stripe
+#: stripe.php:1208
+msgid "Subscriptions this Month"
+msgstr "Abonnements diesen Monat"
+
+#@ gfp-stripe
+#: stripe.php:1216
+msgid "Revenue this Month"
+msgstr "Einnahmen diesen Monat"
+
+#@ gfp-stripe
+#: stripe.php:1233
+msgid "Jan"
+msgstr "Jan"
+
+#@ gfp-stripe
+#: stripe.php:1233
+msgid "Feb"
+msgstr "Feb"
+
+#@ gfp-stripe
+#: stripe.php:1233
+msgid "Mar"
+msgstr "Mär"
+
+#@ gfp-stripe
+#: stripe.php:1233
+msgid "Apr"
+msgstr "Apr"
+
+#@ gfp-stripe
+#: stripe.php:1233
+msgid "May"
+msgstr "Mai"
+
+#@ gfp-stripe
+#: stripe.php:1233
+msgid "Jun"
+msgstr "Jun"
+
+#@ gfp-stripe
+#: stripe.php:1233
+msgid "Jul"
+msgstr "Jul"
+
+#@ gfp-stripe
+#: stripe.php:1233
+msgid "Aug"
+msgstr "Aug"
+
+#@ gfp-stripe
+#: stripe.php:1233
+msgid "Sep"
+msgstr "Sep"
+
+#@ gfp-stripe
+#: stripe.php:1233
+msgid "Oct"
+msgstr "Okt"
+
+#@ gfp-stripe
+#: stripe.php:1233
+msgid "Nov"
+msgstr "Nov"
+
+#@ gfp-stripe
+#: stripe.php:1233
+msgid "Dec"
+msgstr "Dez"
+
+#@ gfp-stripe
+#: stripe.php:1357
+#, php-format
+msgid "Feed Updated. %sback to list%s"
+msgstr "Feed aktualisiert. %sZurück zur Liste%s"
+
+#@ gfp-stripe
+#: stripe.php:1375
+msgid "There was an issue saving your feed. Please address the errors below and try again."
+msgstr "Es gab ein Problem beim Speichern Ihres Feeds. Bitte beheben Sie den Fehler unten und versuchen Sie es erneut."
+
+#@ gfp-stripe
+#: stripe.php:522
+msgid "Test"
+msgstr "Test"
+
+#@ gfp-stripe
+#: stripe.php:1405
+msgid "Select a form"
+msgstr "Wählen Sie ein Formular"
+
+#@ gfp-stripe
+#: stripe.php:1426
+msgid "The form selected does not have any Product fields. Please add a Product field to the form and try again."
+msgstr "Das ausgewählte Formular enthält keine Produktfelder. Bitte fügen Sie ein Produktfeld zum Formular hinzu und versuchen Sie es noch einmal."
+
+#@ gfp-stripe
+#: stripe.php:1493
+msgid "Enable"
+msgstr "Aktivieren"
+
+#@ gfp-stripe
+#: stripe.php:1466
+msgid "Update Post when subscription is cancelled."
+msgstr "Beitrag aktualisieren, wenn das Abonnement gekündigt wurde."
+
+#@ gfp-stripe
+#: stripe.php:1471
+msgid "Mark Post as Draft"
+msgstr "Beitrag als Entwurf markieren"
+
+#@ gfp-stripe
+#: stripe.php:1473
+msgid "Delete Post"
+msgstr "Beitrag löschen"
+
+#@ gfp-stripe
+#: stripe.php:1511
+msgid "is"
+msgstr "ist"
+
+#@ gfp-stripe
+#: stripe.php:1513
+msgid "is not"
+msgstr "ist nicht"
+
+#@ gfp-stripe
+#: stripe.php:1536
+msgid "  Save  "
+msgstr "Speichern "
+
+#@ gfp-stripe
+#: stripe.php:1536
+msgid "Update"
+msgstr "Aktualisieren"
+
+#@ gfp-stripe
+#: stripe.php:1538
+msgid "Cancel"
+msgstr "Abbrechen"
+
+#@ gfp-stripe
+#: stripe.php:1583
+msgid "Ajax error while selecting a form"
+msgstr "Ajax-Fehler beim Auswählen eines Formulars"
+
+#@ gfp-stripe
+#: stripe.php:2525
+msgid "Form Fields"
+msgstr "Formularfelder"
+
+#@ gfp-stripe
+#: stripe.php:2584
+msgid "Select a field"
+msgstr "Ein Feld auswählen"
+
+#@ gfp-stripe
+#: stripe.php:2596
+msgid "Form Total"
+msgstr "Formular gesamt"
+
+#@ gfp-stripe
+#: stripe.php:168
+#: stripe.php:815
+#: stripe.php:1314
+msgid "Stripe"
+msgstr "Stripe"
+
+#@ gfp-stripe
+#: stripe.php:188
+msgid "Select which Stripe transaction type should be used. Products and Services, Donations or Subscription."
+msgstr "Wählen Sie aus, welcher Stripe Transaktionstyp verwendet werden soll. Produkte und Dienstleistungen, Spenden oder Abonnement."
+
+#@ gfp-stripe
+#: stripe.php:189
+msgid "Select which Gravity Forms you would like to integrate with Stripe."
+msgstr "Wählen Sie aus, welches Gravity Forms Formular Sie mit Stripe verbinden/ integrieren möchten."
+
+#@ gfp-stripe
+#: stripe.php:190
+msgid "Map your Form Fields to the available Stripe customer information fields."
+msgstr "Verbinden Sie Ihre Formularfelder mit verfügbaren Kundeninformationsfeldern von Stripe."
+
+#@ gfp-stripe
+#: stripe.php:191
+msgid "Turn on or off the available Stripe checkout options."
+msgstr "Schalten Sie die verfügbaren Bezahloptionen von Stripe an oder ab."
+
+#@ gfp-stripe
+#: stripe.php:193
+msgid "API"
+msgstr "API"
+
+#@ gfp-stripe
+#: stripe.php:193
+msgid "Select the Stripe API you would like to use. Select 'Live' to use your Live API keys. Select 'Test' to use your Test API keys."
+msgstr "Wählen Sie die Stripe API aus, welche Sie verwenden wollen. Wählen Sie 'Live', um die Live-API-Schlüssel zu verwenden. Wählen Sie 'Test', um entsprechend Ihre Test-API-Schlüssel zu verwenden."
+
+#@ gfp-stripe
+#: stripe.php:194
+msgid "API Test Secret Key"
+msgstr "API Test Geheimer Schlüssel (Secret Key)"
+
+#@ gfp-stripe
+#: stripe.php:194
+msgid "Enter the API Test Secret Key for your Stripe account."
+msgstr "Geben Sie den 'API Test Geheimer Schlüssel' (Secret Key) für Ihr Stripe Benutzerkonto ein."
+
+#@ gfp-stripe
+#: stripe.php:195
+msgid "API Test Publishable Key"
+msgstr "API Test Öffentlicher Schlüssel (Publishable Key)"
+
+#@ gfp-stripe
+#: stripe.php:195
+msgid "Enter the API Test Publishable Key for your Stripe account."
+msgstr "Geben Sie den 'API Test Öffentlicher Schlüssel' (Publishable Key) für Ihr Stripe Benutzerkonto ein."
+
+#@ gfp-stripe
+#: stripe.php:196
+msgid "API Live Secret Key"
+msgstr "API Live Geheimer Schlüssel (Secret Key)"
+
+#@ gfp-stripe
+#: stripe.php:196
+msgid "Enter the API Live Secret Key for your Stripe account."
+msgstr "Geben Sie den 'API Live Geheimer Schlüssel' (Secret Key) für Ihr Stripe Benutzerkonto ein."
+
+#@ gfp-stripe
+#: stripe.php:197
+msgid "API Live Publishable Key"
+msgstr "API Live Öffentlicher Schlüssel (Publishable Key)"
+
+#@ gfp-stripe
+#: stripe.php:197
+msgid "Enter the API Live Publishable Key for your Stripe account."
+msgstr "Geben Sie den 'API Live Öffentlicher Schlüssel' (Publishable Key) für Ihr Stripe Benutzerkonto ein."
+
+#@ gfp-stripe
+#: stripe.php:198
+#: stripe.php:1485
+msgid "Stripe Condition"
+msgstr "Stripe Bedingung"
+
+#@ gfp-stripe
+#: stripe.php:198
+msgid "When the Stripe condition is enabled, form submissions will only be sent to Stripe when the condition is met. When disabled all form submissions will be sent to Stripe."
+msgstr "Wenn Die Stripe Bedingung aktiviert ist, werden Formulareinträge nur an Stripe gesendet, wenn diese Bedingung zutrifft. Falls die Bedingung deaktiviert ist, werden alle Formulareinträge an Stripe gesandt."
+
+#@ gfp-stripe
+#: stripe.php:245
+msgid "Stripe Transactions"
+msgstr "Stripe Transaktionen"
+
+#@ gfp-stripe
+#: stripe.php:250
+msgid "Stripe Forms"
+msgstr "Stripe Formulare"
+
+#@ gfp-stripe
+#: stripe.php:270
+msgid "'Cancel' to stop, 'OK' to delete."
+msgstr "'Abbrechen', um zu stoppen, 'OK', um zu löschen."
+
+#@ gfp-stripe
+#: stripe.php:305
+#, php-format
+msgid "To get started, please configure your %sStripe Settings%s."
+msgstr "Um zu loslegen zu können, richten Sie bitte Ihre %sStripe Einstellungen%s ein."
+
+#@ gfp-stripe
+#: stripe.php:376
+#, php-format
+msgid "You don't have any Stripe feeds configured. Let's go %screate one%s!"
+msgstr "Sie haben bisher keinen Stripe Feed eingerichtet. - %sErstellen Sie einen%s!"
+
+#@ gfp-stripe
+#: stripe.php:504
+msgid "Stripe Account Information"
+msgstr "Stripe Benutzerkonto-Information"
+
+#@ gfp-stripe
+#: stripe.php:513
+msgid "API Mode"
+msgstr "API-Modus"
+
+#@ gfp-stripe
+#: stripe.php:518
+msgid "Live"
+msgstr "Live"
+
+#@ gfp-stripe
+#: stripe.php:527
+msgid "Test Secret Key"
+msgstr "Test Geheimer Schlüssel (Secret Key)"
+
+#@ gfp-stripe
+#: stripe.php:539
+msgid "You can find your <strong>Test Secret Key</strong> by clicking on 'Your Account' in the top right corner of the Stripe Account Dashboard. Choose 'Account Settings' then 'API Keys'. Your API keys will be displayed."
+msgstr "Sie können Ihren <strong>Test Geheimer Schlüssel Key</strong> (Secret Key) finden, indem Sie in 'Ihrem Konto' (Your Account) oben rechts auf das 'Stripe Account Dashboard' klicken. Wählen Sie dort 'Account Settings, dann 'API Keys'. Ihre API-Schlüssel werden dann angezeigt."
+
+#@ gfp-stripe
+#: stripe.php:544
+msgid "Test Publishable Key"
+msgstr "Test Öffentlicher Schlüssel (Publishable Key)"
+
+#@ gfp-stripe
+#: stripe.php:556
+msgid "You can find your <strong>Test Publishable Key</strong> by clicking on 'Your Account' in the top right corner of the Stripe Account Dashboard. Choose 'Account Settings' then 'API Keys'. Your API keys will be displayed."
+msgstr "Sie können Ihren <strong>Test Öffentlicher Schlüssel Key</strong> (Publishable Key) finden, indem Sie in 'Ihrem Konto' (Your Account) oben rechts auf das 'Stripe Account Dashboard' klicken. Wählen Sie dort 'Account Settings, dann 'API Keys'. Ihre API-Schlüssel werden dann angezeigt."
+
+#@ gfp-stripe
+#: stripe.php:561
+msgid "Live Secret Key"
+msgstr "Live Geheimer Schlüssel (Secret Key)"
+
+#@ gfp-stripe
+#: stripe.php:578
+msgid "You can find your <strong>Live Secret Key</strong> by clicking on 'Your Account' in the top right corner of the Stripe Account Dashboard. Choose 'Account Settings' then 'API Keys'. Your API keys will be displayed."
+msgstr "Sie können Ihren <strong>Live Geheimer Schlüssel Key</strong> (Secret Key) finden, indem Sie in 'Ihrem Konto' (Your Account) oben rechts auf das 'Stripe Account Dashboard' klicken. Wählen Sie dort 'Account Settings, dann 'API Keys'. Ihre API-Schlüssel werden dann angezeigt."
+
+#@ gfp-stripe
+#: stripe.php:583
+msgid "Live Publishable Key"
+msgstr "Live Öffentlicher Schlüssel (Publishable Key)"
+
+#@ gfp-stripe
+#: stripe.php:600
+msgid "You can find your <strong>Live Publishable Key</strong> by clicking on 'Your Account' in the top right corner of the Stripe Account Dashboard. Choose 'Account Settings' then 'API Keys'. Your API keys will be displayed."
+msgstr "Sie können Ihren <strong>Live Öffentlicher Schlüssel Key</strong> (Publishable Key) finden, indem Sie in 'Ihrem Konto' (Your Account) oben rechts auf das 'Stripe Account Dashboard' klicken. Wählen Sie dort 'Account Settings, dann 'API Keys'. Ihre API-Schlüssel werden dann angezeigt."
+
+#@ gfp-stripe
+#: stripe.php:610
+msgid "Save Settings"
+msgstr "Einstellungen speichern"
+
+#@ gfp-stripe
+#: stripe.php:624
+#: stripe.php:627
+msgid "Uninstall Stripe Add-On"
+msgstr "Stripe Zusatzmodul deinstallieren"
+
+#@ gfp-stripe
+#: stripe.php:625
+msgid "Warning! This operation deletes ALL Stripe Feeds."
+msgstr "Warnung! Diese Operation löscht ALLE Stripe Feeds."
+
+#@ gfp-stripe
+#: stripe.php:627
+msgid "Warning! ALL Stripe Feeds will be deleted. This cannot be undone. \\'OK\\' to delete, \\'Cancel\\' to stop"
+msgstr "Warnung! ALLE Stripe Feeds werden gelöscht. Dies kann nicht rückgängig gemacht werden! Klicken Sie \\'OK\\', um zu löschen, \\'Abbrechen\\', um zu stoppen."
+
+#@ gfp-stripe
+#: stripe.php:818
+msgid "Stripe Stats"
+msgstr "Stripe Statistiken"
+
+#@ gfp-stripe
+#: stripe.php:1317
+msgid "Stripe Transaction Settings"
+msgstr "Stripe Transaktionseinstellungen"
+
+#@ gfp-stripe
+#: stripe.php:1429
+msgid "The form selected does not have a credit card field. Please add a credit card field to the form and try again."
+msgstr "Das ausgewählte Formular enthält noch kein Kreditkartenfeld. Bitte fügen Sie zuerst ein Kreditkartenfeld zum Formular hinzu und versuchen Sie es dann noch einmal."
+
+#@ gfp-stripe
+#: stripe.php:1438
+msgid "Billing Information"
+msgstr "Rechnungsinformation"
+
+#@ gfp-stripe
+#: stripe.php:1503
+msgid "Send to Stripe if "
+msgstr "An Stripe senden, wenn "
+
+#@ gfp-stripe
+#: stripe.php:1522
+msgid "To create a registration condition, your form must have a drop down, checkbox or multiple choice field"
+msgstr "Um eine Bedingung für die Registrierung zu erstellen, muss Ihr Formular ein Aufklappmenü, eine Checkbox oder ein Mehrfachauswahlfeld enthalten"
+
+#@ gfp-stripe
+#: stripe.php:1949
+msgid "Invalid credit card number."
+msgstr "Ungültige Kreditkartennummer."
+
+#@ gfp-stripe
+#: stripe.php:1950
+msgid " Invalid expiration date."
+msgstr "Falsches Ablaufdatum der Karte."
+
+#@ gfp-stripe
+#: stripe.php:1951
+msgid " Invalid security code."
+msgstr "Falscher Prüfcode der Karte."
+
+#@ gfp-stripe
+#: stripe.php:1952
+msgid " Invalid cardholder name."
+msgstr "Falscher Karteninhabername."
+
+#@ gfp-stripe
+#: stripe.php:1953
+#: stripe.php:1956
+#, php-format
+msgid "%s"
+msgstr "%s"
+
+#@ gfp-stripe
+#: stripe.php:2314
+msgid "options: "
+msgstr "Optionen: "
+
+#@ gfp-stripe
+#: stripe.php:2475
+msgid "You don't have adequate permission to uninstall the Stripe Add-On."
+msgstr "Sie haben keine erforderlichen Rechte, um das Stripe Zusatzmodul zu deinstallieren."
+
+#@ gfp-stripe
+#: stripe.php:2525
+msgid "Stripe Fields"
+msgstr "Stripe Felder"
+
+#@ gfp-stripe
+#: stripe.php:2541
+msgid "First Name"
+msgstr "Vorname"
+
+#@ gfp-stripe
+#: stripe.php:2544
+msgid "Last Name"
+msgstr "Nachname"
+
+#@ gfp-stripe
+#: stripe.php:2547
+msgid "Email"
+msgstr "E-Mail"
+
+#@ gfp-stripe
+#: stripe.php:2550
+msgid "Address"
+msgstr "Anschrift"
+
+#@ gfp-stripe
+#: stripe.php:2553
+msgid "Address 2"
+msgstr "Anschrift, 2. Zeile"
+
+#@ gfp-stripe
+#: stripe.php:2556
+msgid "City"
+msgstr "Ort"
+
+#@ gfp-stripe
+#: stripe.php:2559
+msgid "State"
+msgstr "Bundesland/ Kanton"
+
+#@ gfp-stripe
+#: stripe.php:2562
+msgid "Zip"
+msgstr "PLZ"
+
+#@ gfp-stripe
+#: stripe.php:2565
+msgid "Country"
+msgstr "Land"
+
+#@ gfp-stripe
+#. translators: plugin header field 'Name'
+#: stripe.php:0
+msgid "Gravity Forms + Stripe"
+msgstr "Gravity Forms + Stripe"
+
+#@ gfp-stripe
+#. translators: plugin header field 'PluginURI'
+#. translators: plugin header field 'AuthorURI'
+#: stripe.php:0
+msgid "http://gravityplus.pro"
+msgstr "http://gravityplus.pro/"
+
+#@ gfp-stripe
+#. translators: plugin header field 'Description'
+#: stripe.php:0
+msgid "Use Stripe to process credit card payments on your site, easily and securely, with Gravity Forms"
+msgstr "Verwenden Sie Stripe, um Kreditartenzahlungen auf Ihrer Webseite zu ermöglichen - einfach und sicher via Gravity Forms."
+
+#@ gfp-stripe
+#. translators: plugin header field 'Author'
+#: stripe.php:0
+msgid "gravity+"
+msgstr "gravity+ / Naomi C. Bush"
+
+#@ gfp-stripe
+#. translators: plugin header field 'Version'
+#: stripe.php:0
+msgid "1.6.9.1"
+msgstr "1.6.9.1"
+
+#@ gfp-stripe
+#: stripe.php:507
+#, php-format
+msgid "Stripe is a payment gateway for merchants. Use Gravity Forms to collect payment information and automatically integrate to your client's Stripe account. If you don't have a Stripe account, you can %ssign up for one here%s"
+msgstr "Stripe ist ein Zahlungsdienstleister für Händler. Verwenden Sie Gravity Forms, um Zahlungsinformationen zu sammeln und automatisch mit Ihrem Stripe Benutzerkonto zu verbinden. Falls Sie noch kein Stripe Benutzerkonto haben, %skönnen Sie hier ein neues Konto registrieren%s."
+

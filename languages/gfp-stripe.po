@@ -1,0 +1,598 @@
+# This file is distributed under the same license as the Gravity Forms + Stripe package.
+msgid ""
+msgstr ""
+"PO-Revision-Date: 2012-11-07 17:22:31+0000\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: GlotPress/0.1\n"
+"Project-Id-Version: Gravity Forms + Stripe\n"
+
+#: stripe.php:188 stripe.php:280 stripe.php:289
+msgid "Transaction Type"
+msgstr ""
+
+#: stripe.php:189 stripe.php:1401
+msgid "Gravity Form"
+msgstr ""
+
+#: stripe.php:190
+msgid "Customer"
+msgstr ""
+
+#: stripe.php:191 stripe.php:1454
+msgid "Options"
+msgstr ""
+
+#: stripe.php:228
+msgid "Feed deleted."
+msgstr ""
+
+#: stripe.php:239
+msgid "Feeds deleted."
+msgstr ""
+
+#: stripe.php:253
+msgid "Add New"
+msgstr ""
+
+#: stripe.php:264 stripe.php:266
+msgid "Bulk action"
+msgstr ""
+
+#: stripe.php:267 stripe.php:345 stripe.php:346
+msgid "Delete"
+msgstr ""
+
+#: stripe.php:270
+msgid "Apply"
+msgstr ""
+
+#: stripe.php:270
+msgid "Delete selected feeds? "
+msgstr ""
+
+#: stripe.php:346
+msgid "\\'Cancel\\' to stop, \\'OK\\' to delete."
+msgstr ""
+
+#: stripe.php:279 stripe.php:288
+msgid "Form"
+msgstr ""
+
+#: stripe.php:318 stripe.php:319 stripe.php:400
+msgid "Active"
+msgstr ""
+
+#: stripe.php:318 stripe.php:319 stripe.php:396
+msgid "Inactive"
+msgstr ""
+
+#: stripe.php:323 stripe.php:327 stripe.php:329
+msgid "Edit"
+msgstr ""
+
+#: stripe.php:333 stripe.php:335
+msgid "View Stats"
+msgstr ""
+
+#: stripe.php:335
+msgid "Stats"
+msgstr ""
+
+#: stripe.php:339 stripe.php:341
+msgid "View Entries"
+msgstr ""
+
+#: stripe.php:341
+msgid "Entries"
+msgstr ""
+
+#: stripe.php:346
+msgid "Delete this feed? "
+msgstr ""
+
+#: stripe.php:358
+msgid "Product and Services"
+msgstr ""
+
+#: stripe.php:362
+msgid "Subscription"
+msgstr ""
+
+#: stripe.php:412
+msgid "Ajax error while updating feed"
+msgstr ""
+
+#: stripe.php:823
+msgid "Daily"
+msgstr ""
+
+#: stripe.php:827
+msgid "Weekly"
+msgstr ""
+
+#: stripe.php:831
+msgid "Monthly"
+msgstr ""
+
+#: stripe.php:854
+msgid "No payments have been made yet."
+msgstr ""
+
+#: stripe.php:913
+msgid "Week "
+msgstr ""
+
+#: stripe.php:934
+msgid "Total Orders"
+msgstr ""
+
+#: stripe.php:939
+msgid "Total Donations"
+msgstr ""
+
+#: stripe.php:944
+msgid "Active Subscriptions"
+msgstr ""
+
+#: stripe.php:952
+msgid "Total Revenue"
+msgstr ""
+
+#: stripe.php:972
+msgid "** Free trial transactions will only be reflected in the graph after the first payment is made (i.e. after trial period ends)"
+msgstr ""
+
+#: stripe.php:1027 stripe.php:1099 stripe.php:1175
+msgid "New Subscriptions"
+msgstr ""
+
+#: stripe.php:1027 stripe.php:1099 stripe.php:1175
+msgid "Renewals"
+msgstr ""
+
+#: stripe.php:1030 stripe.php:1102 stripe.php:1178
+msgid "Orders"
+msgstr ""
+
+#: stripe.php:1033 stripe.php:1105 stripe.php:1181
+msgid "Revenue"
+msgstr ""
+
+#: stripe.php:1052
+msgid "Orders Today"
+msgstr ""
+
+#: stripe.php:1056
+msgid "Donations Today"
+msgstr ""
+
+#: stripe.php:1060
+msgid "Subscriptions Today"
+msgstr ""
+
+#: stripe.php:1068
+msgid "Revenue Today"
+msgstr ""
+
+#: stripe.php:1105
+msgid "Week"
+msgstr ""
+
+#: stripe.php:1125
+msgid "Orders this Week"
+msgstr ""
+
+#: stripe.php:1129
+msgid "Donations this Week"
+msgstr ""
+
+#: stripe.php:1133
+msgid "Subscriptions this Week"
+msgstr ""
+
+#: stripe.php:1142
+msgid "Revenue this Week"
+msgstr ""
+
+#: stripe.php:1200
+msgid "Orders this Month"
+msgstr ""
+
+#: stripe.php:1204
+msgid "Donations this Month"
+msgstr ""
+
+#: stripe.php:1208
+msgid "Subscriptions this Month"
+msgstr ""
+
+#: stripe.php:1216
+msgid "Revenue this Month"
+msgstr ""
+
+#: stripe.php:1233
+msgid "Jan"
+msgstr ""
+
+#: stripe.php:1233
+msgid "Feb"
+msgstr ""
+
+#: stripe.php:1233
+msgid "Mar"
+msgstr ""
+
+#: stripe.php:1233
+msgid "Apr"
+msgstr ""
+
+#: stripe.php:1233
+msgid "May"
+msgstr ""
+
+#: stripe.php:1233
+msgid "Jun"
+msgstr ""
+
+#: stripe.php:1233
+msgid "Jul"
+msgstr ""
+
+#: stripe.php:1233
+msgid "Aug"
+msgstr ""
+
+#: stripe.php:1233
+msgid "Sep"
+msgstr ""
+
+#: stripe.php:1233
+msgid "Oct"
+msgstr ""
+
+#: stripe.php:1233
+msgid "Nov"
+msgstr ""
+
+#: stripe.php:1233
+msgid "Dec"
+msgstr ""
+
+#: stripe.php:1357
+msgid "Feed Updated. %sback to list%s"
+msgstr ""
+
+#: stripe.php:1375
+msgid "There was an issue saving your feed. Please address the errors below and try again."
+msgstr ""
+
+#: stripe.php:522
+msgid "Test"
+msgstr ""
+
+#: stripe.php:1405
+msgid "Select a form"
+msgstr ""
+
+#: stripe.php:1426
+msgid "The form selected does not have any Product fields. Please add a Product field to the form and try again."
+msgstr ""
+
+#: stripe.php:1493
+msgid "Enable"
+msgstr ""
+
+#: stripe.php:1466
+msgid "Update Post when subscription is cancelled."
+msgstr ""
+
+#: stripe.php:1471
+msgid "Mark Post as Draft"
+msgstr ""
+
+#: stripe.php:1473
+msgid "Delete Post"
+msgstr ""
+
+#: stripe.php:1511
+msgid "is"
+msgstr ""
+
+#: stripe.php:1513
+msgid "is not"
+msgstr ""
+
+#: stripe.php:1536
+msgid "  Save  "
+msgstr ""
+
+#: stripe.php:1536
+msgid "Update"
+msgstr ""
+
+#: stripe.php:1538
+msgid "Cancel"
+msgstr ""
+
+#: stripe.php:1583
+msgid "Ajax error while selecting a form"
+msgstr ""
+
+#: stripe.php:2525
+msgid "Form Fields"
+msgstr ""
+
+#: stripe.php:2584
+msgid "Select a field"
+msgstr ""
+
+#: stripe.php:2596
+msgid "Form Total"
+msgstr ""
+
+#: stripe.php:168 stripe.php:815 stripe.php:1314
+msgid "Stripe"
+msgstr ""
+
+#: stripe.php:188
+msgid "Select which Stripe transaction type should be used. Products and Services, Donations or Subscription."
+msgstr ""
+
+#: stripe.php:189
+msgid "Select which Gravity Forms you would like to integrate with Stripe."
+msgstr ""
+
+#: stripe.php:190
+msgid "Map your Form Fields to the available Stripe customer information fields."
+msgstr ""
+
+#: stripe.php:191
+msgid "Turn on or off the available Stripe checkout options."
+msgstr ""
+
+#: stripe.php:193
+msgid "API"
+msgstr ""
+
+#: stripe.php:193
+msgid "Select the Stripe API you would like to use. Select 'Live' to use your Live API keys. Select 'Test' to use your Test API keys."
+msgstr ""
+
+#: stripe.php:194
+msgid "API Test Secret Key"
+msgstr ""
+
+#: stripe.php:194
+msgid "Enter the API Test Secret Key for your Stripe account."
+msgstr ""
+
+#: stripe.php:195
+msgid "API Test Publishable Key"
+msgstr ""
+
+#: stripe.php:195
+msgid "Enter the API Test Publishable Key for your Stripe account."
+msgstr ""
+
+#: stripe.php:196
+msgid "API Live Secret Key"
+msgstr ""
+
+#: stripe.php:196
+msgid "Enter the API Live Secret Key for your Stripe account."
+msgstr ""
+
+#: stripe.php:197
+msgid "API Live Publishable Key"
+msgstr ""
+
+#: stripe.php:197
+msgid "Enter the API Live Publishable Key for your Stripe account."
+msgstr ""
+
+#: stripe.php:198 stripe.php:1485
+msgid "Stripe Condition"
+msgstr ""
+
+#: stripe.php:198
+msgid "When the Stripe condition is enabled, form submissions will only be sent to Stripe when the condition is met. When disabled all form submissions will be sent to Stripe."
+msgstr ""
+
+#: stripe.php:245
+msgid "Stripe Transactions"
+msgstr ""
+
+#: stripe.php:250
+msgid "Stripe Forms"
+msgstr ""
+
+#: stripe.php:270
+msgid "'Cancel' to stop, 'OK' to delete."
+msgstr ""
+
+#: stripe.php:305
+msgid "To get started, please configure your %sStripe Settings%s."
+msgstr ""
+
+#: stripe.php:376
+msgid "You don't have any Stripe feeds configured. Let's go %screate one%s!"
+msgstr ""
+
+#: stripe.php:504
+msgid "Stripe Account Information"
+msgstr ""
+
+#: stripe.php:513
+msgid "API Mode"
+msgstr ""
+
+#: stripe.php:518
+msgid "Live"
+msgstr ""
+
+#: stripe.php:527
+msgid "Test Secret Key"
+msgstr ""
+
+#: stripe.php:539
+msgid "You can find your <strong>Test Secret Key</strong> by clicking on 'Your Account' in the top right corner of the Stripe Account Dashboard. Choose 'Account Settings' then 'API Keys'. Your API keys will be displayed."
+msgstr ""
+
+#: stripe.php:544
+msgid "Test Publishable Key"
+msgstr ""
+
+#: stripe.php:556
+msgid "You can find your <strong>Test Publishable Key</strong> by clicking on 'Your Account' in the top right corner of the Stripe Account Dashboard. Choose 'Account Settings' then 'API Keys'. Your API keys will be displayed."
+msgstr ""
+
+#: stripe.php:561
+msgid "Live Secret Key"
+msgstr ""
+
+#: stripe.php:578
+msgid "You can find your <strong>Live Secret Key</strong> by clicking on 'Your Account' in the top right corner of the Stripe Account Dashboard. Choose 'Account Settings' then 'API Keys'. Your API keys will be displayed."
+msgstr ""
+
+#: stripe.php:583
+msgid "Live Publishable Key"
+msgstr ""
+
+#: stripe.php:600
+msgid "You can find your <strong>Live Publishable Key</strong> by clicking on 'Your Account' in the top right corner of the Stripe Account Dashboard. Choose 'Account Settings' then 'API Keys'. Your API keys will be displayed."
+msgstr ""
+
+#: stripe.php:610
+msgid "Save Settings"
+msgstr ""
+
+#: stripe.php:624 stripe.php:627
+msgid "Uninstall Stripe Add-On"
+msgstr ""
+
+#: stripe.php:625
+msgid "Warning! This operation deletes ALL Stripe Feeds."
+msgstr ""
+
+#: stripe.php:627
+msgid "Warning! ALL Stripe Feeds will be deleted. This cannot be undone. \\'OK\\' to delete, \\'Cancel\\' to stop"
+msgstr ""
+
+#: stripe.php:818
+msgid "Stripe Stats"
+msgstr ""
+
+#: stripe.php:1317
+msgid "Stripe Transaction Settings"
+msgstr ""
+
+#: stripe.php:1429
+msgid "The form selected does not have a credit card field. Please add a credit card field to the form and try again."
+msgstr ""
+
+#: stripe.php:1438
+msgid "Billing Information"
+msgstr ""
+
+#: stripe.php:1503
+msgid "Send to Stripe if "
+msgstr ""
+
+#: stripe.php:1522
+msgid "To create a registration condition, your form must have a drop down, checkbox or multiple choice field"
+msgstr ""
+
+#: stripe.php:1949
+msgid "Invalid credit card number."
+msgstr ""
+
+#: stripe.php:1950
+msgid " Invalid expiration date."
+msgstr ""
+
+#: stripe.php:1951
+msgid " Invalid security code."
+msgstr ""
+
+#: stripe.php:1952
+msgid " Invalid cardholder name."
+msgstr ""
+
+#: stripe.php:1953 stripe.php:1956
+msgid "%s"
+msgstr ""
+
+#: stripe.php:2314
+msgid "options: "
+msgstr ""
+
+#: stripe.php:2475
+msgid "You don't have adequate permission to uninstall the Stripe Add-On."
+msgstr ""
+
+#: stripe.php:2525
+msgid "Stripe Fields"
+msgstr ""
+
+#: stripe.php:2541
+msgid "First Name"
+msgstr ""
+
+#: stripe.php:2544
+msgid "Last Name"
+msgstr ""
+
+#: stripe.php:2547
+msgid "Email"
+msgstr ""
+
+#: stripe.php:2550
+msgid "Address"
+msgstr ""
+
+#: stripe.php:2553
+msgid "Address 2"
+msgstr ""
+
+#: stripe.php:2556
+msgid "City"
+msgstr ""
+
+#: stripe.php:2559
+msgid "State"
+msgstr ""
+
+#: stripe.php:2562
+msgid "Zip"
+msgstr ""
+
+#: stripe.php:2565
+msgid "Country"
+msgstr ""
+
+#: stripe.php:0
+msgid "Gravity Forms + Stripe"
+msgstr ""
+
+#: stripe.php:0
+msgid "http://gravityplus.pro"
+msgstr ""
+
+#: stripe.php:0
+msgid "Use Stripe to process credit card payments on your site, easily and securely, with Gravity Forms"
+msgstr ""
+
+#: stripe.php:0
+msgid "gravity+"
+msgstr ""
+
+#: stripe.php:0
+msgid "1.6.9.1"
+msgstr ""
+
+#: stripe.php:507
+msgid "Stripe is a payment gateway for merchants. Use Gravity Forms to collect payment information and automatically integrate to your client's Stripe account. If you don't have a Stripe account, you can %ssign up for one here%s"
+msgstr ""

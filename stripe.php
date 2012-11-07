@@ -6,6 +6,8 @@ Description: Use Stripe to process credit card payments on your site, easily and
 Version: 1.6.9.1
 Author: gravity+
 Author URI: http://gravityplus.pro
+Text Domain: gfp-stripe
+Domain Path: /languages/
 
 ------------------------------------------------------------------------
 Copyright 2012 Naomi C. Bush
@@ -61,12 +63,12 @@ class GFPStripe {
 	//Plugin starting point. Will load appropriate files
 	public static function init() {
 		//supports logging
-	    add_filter( 'gform_logging_supported', array( 'GFPStripe', 'gform_logging_supported' ) );
+	    	add_filter( 'gform_logging_supported', array( 'GFPStripe', 'gform_logging_supported' ) );
 
 		if ( basename( $_SERVER[ 'PHP_SELF' ] ) == 'plugins.php' ) {
 
 			//loading translations
-			load_plugin_textdomain( 'gfp-stripe', FALSE, dirname( GFP_STRIPE_FILE ) . '/languages' );
+			load_plugin_textdomain( 'gfp-stripe', FALSE, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
 
 		}
 
@@ -79,7 +81,7 @@ class GFPStripe {
 			self::setup();
 
 			//loading translations
-			load_plugin_textdomain( 'gfp-stripe', FALSE, dirname( GFP_STRIPE_FILE ) . '/languages' );
+			load_plugin_textdomain( 'gfp-stripe', FALSE, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
 
 			//integrating with Members plugin
 			if ( function_exists( 'members_get_capabilities' ) )
@@ -502,7 +504,7 @@ class GFPStripe {
 		<h3><?php _e( 'Stripe Account Information', 'gfp-stripe' ) ?></h3>
 
 		<p style="text-align: left;">
-			<?php _e( sprintf( "Stripe is a payment gateway for merchants. Use Gravity Forms to collect payment information and automatically integrate to your client's Stripe account. If you don't have a Stripe account, you can %ssign up for one here%s", "<a href='http://www.stripe.com' target='_blank'>", "</a>" ), 'gfp-stripe' ) ?>
+			<?php echo sprintf( __( 'Stripe is a payment gateway for merchants. Use Gravity Forms to collect payment information and automatically integrate to your client\'s Stripe account. If you don\'t have a Stripe account, you can %ssign up for one here%s', 'gfp-stripe' ), '<a href="http://www.stripe.com" target="_blank">', '</a>' ); ?>
 		</p>
 
 		<table class="form-table">
@@ -818,15 +820,15 @@ class GFPStripe {
 		<form method="post" action="">
 			<ul class="subsubsub">
 				<li><a class="<?php echo ( ! RGForms::get( 'tab' ) || 'daily' == RGForms::get( 'tab' ) ) ? 'current' : '' ?>"
-							 href="?page=gfp_stripe&view=stats&id=<?php echo $_GET[ "id" ] ?>"><?php _e( 'Daily', 'gravityforms' ); ?></a>
+							 href="?page=gfp_stripe&view=stats&id=<?php echo $_GET[ "id" ] ?>"><?php _e( 'Daily', 'gfp-stripe' ); ?></a>
 					|
 				</li>
 				<li><a class="<?php echo 'weekly' == RGForms::get( 'tab' ) ? 'current' : ''?>"
-							 href="?page=gfp_stripe&view=stats&id=<?php echo $_GET[ "id" ] ?>&tab=weekly"><?php _e( 'Weekly', 'gravityforms' ); ?></a>
+							 href="?page=gfp_stripe&view=stats&id=<?php echo $_GET[ "id" ] ?>&tab=weekly"><?php _e( 'Weekly', 'gfp-stripe' ); ?></a>
 					|
 				</li>
 				<li><a class="<?php echo 'monthly' == RGForms::get( 'tab' ) ? 'current' : ''?>"
-							 href="?page=gfp_stripe&view=stats&id=<?php echo $_GET[ "id" ] ?>&tab=monthly"><?php _e( 'Monthly', 'gravityforms' ); ?></a>
+							 href="?page=gfp_stripe&view=stats&id=<?php echo $_GET[ "id" ] ?>&tab=monthly"><?php _e( 'Monthly', 'gfp-stripe' ); ?></a>
 				</li>
 			</ul>
 			<?php
@@ -1370,7 +1372,7 @@ class GFPStripe {
 			<?php
 			if ( $is_validation_error ) {
 				?>
-				<span><?php _e( 'There was an issue saving your feed. Please address the errors below and try again.' ); ?></span>
+				<span><?php _e( 'There was an issue saving your feed. Please address the errors below and try again.', 'gfp-stripe' ); ?></span>
 				<?php
 			}
 			?>
@@ -1517,7 +1519,7 @@ class GFPStripe {
 
 									<div
 											id="gfp_stripe_conditional_message" <?php echo ! empty( $selection_fields ) ? "style='display:none'" : ""?>>
-										<?php _e( 'To create a registration condition, your form must have a drop down, checkbox or multiple choice field', 'gravityform' ) ?>
+										<?php _e( 'To create a registration condition, your form must have a drop down, checkbox or multiple choice field', 'gfp-stripe' ) ?>
 									</div>
 
 								</div>
