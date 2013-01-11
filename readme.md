@@ -3,33 +3,33 @@ http://wordpress.org/extend/plugins/gravity-forms-stripe/
 
 [Stripe](https://stripe.com) allows you to process credit cards directly on your site, securely and easily, without having to deal with merchant accounts, PCI-compliance, or PayPal.
 
-This [Gravity Forms](http://naomicbush.com/getgravityforms) add-on integrates Stripe with your forms (adapted from the Gravity Forms Authorize.net Add-On) using the provided [Stripe.js](https://stripe.com/docs/stripe.js) to make sure sensitive card information never hits your server.
+This [Gravity Forms](http://naomicbush.com/getgravityforms) add-on integrates Stripe with your forms (adapted from the Gravity Forms Authorize.net Add-On) using [Stripe.js](https://stripe.com/docs/stripe.js) to make sure sensitive card information never hits your server.
 
 ## Supporters
 [deckerweb](https://github.com/deckerweb), [admodiggity](https://github.com/admodiggity), [pnommensen](https://github.com/pnommensen), [Linda C.](http://askmepc.com/), [jacobdubail](https://github.com/jacobdubail), [Michael S.](http://markandphil.com/), [Mark C.](http://bizelevator.com/), [willshouse](http://profiles.wordpress.org/willshouse), Dan B., Aaron A., [wpcdn](http://profiles.wordpress.org/wpcdn), [feshin](http://profiles.wordpress.org/feshin), Scot R., Teresa O.
 
 ## Features
-* This plugin does one thing and one thing well: One-time payments
-* with hooks to extend the plugin and add in your own functionality
-
-## Want [more Stripe](http://gravityplus.pro)?
-* Recurring payments/subscriptions
-* Coupons
-* Invoice line items
+* One-time payments
+* Canadian Stripe accounts
 * Stripe + PayPal option on same form
-* Pretty receipts?
+* *Recurring payments/subscriptions
+* *Multiple quantities of one subscription, e.g. 5 users at $10/month/user
+* *One-time setup fee charge for subscriptions
+* *Stripe coupons
+* *Gravity Forms User Registration Add-On integration
+* Hooks to extend the plugin and add in your own functionality
 
-[Get More Stripe here](http://gravityplus.pro)
+*available only with [More Stripe here](http://gravityplus.pro)
 
 ## Requirements
-* WordPress 3.4.2
-* PHP 5.3 (although it worked for me when initially tested on 5.2 server)
-* Gravity Forms 1.6.9 - [Grab a license](http://naomicbush.com/getgravityforms "purchase Gravity Forms!") if you don't already have one
+* WordPress 3.4.2, tested up to 3.5, Multisite as well
+* PHP 5.3
+* Gravity Forms 1.6.11 - [Grab a license](http://naomicbush.com/getgravityforms "purchase Gravity Forms!") if you don't already have one
 * [Stripe](https://stripe.com) account
 
 ## Support
+* Full support is available at [gravity+](http://gravityplus.pro). I'm very happy to help.
 * Do NOT contact Gravity Forms OR Stripe for help with this add-on. They do not provide support for this plugin.
-* Full support is available at [gravity+](http://gravityplus.pro)
 * Support is not provided for free or via the WordPress forums, but feel free to help one another.
 
 ## Current Limitations
@@ -52,6 +52,12 @@ This [Gravity Forms](http://naomicbush.com/getgravityforms) add-on integrates St
 6. Under Forms->Stripe, add a Stripe feed for your new form.
 
 ## Changelog
+### 1.6.11.1 (January 11, 2013)
+* Add support for Canadian Stripe accounts
+* Fix annoying PHP warnings
+* Update Stripe PHP library
+* Bump version number to latest version of Gravity Forms
+
 ### 1.6.9.1 (November 1, 2012)
 * Switch to new version scheme that follows Gravity Forms
 * Create a customer in Stripe for all transactions

@@ -1,15 +1,15 @@
 <?php
 /*
 Plugin Name: Gravity Forms + Stripe
-Plugin URI: http://gravityplus.pro
+Plugin URI: https://gravityplus.pro
 Description: Use Stripe to process credit card payments on your site, easily and securely, with Gravity Forms
-Version: 1.6.9.1
+Version: 1.6.11.1
 Author: gravity+
-Author URI: http://gravityplus.pro
+Author URI: https://gravityplus.pro
 
 ------------------------------------------------------------------------
-Copyright 2012 Naomi C. Bush
-last updated: November 1, 2012
+Copyright 2012-2013 Naomi C. Bush
+last updated: January 11, 2013
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -44,9 +44,6 @@ define( 'GFP_STRIPE_PATH', WP_PLUGIN_DIR . '/' . basename( dirname( $gfp_stripe_
 
 add_action( 'init', array( 'GFPStripe', 'init' ) );
 
-//limits currency to US Dollars
-add_filter( 'gform_currency', create_function( '', 'return "USD";' ) );
-
 register_activation_hook( GFP_STRIPE_FILE, array( 'GFPStripe', 'add_permissions' ) );
 
 class GFPStripe {
@@ -54,14 +51,17 @@ class GFPStripe {
 	private static $path = "gravityforms-stripe/stripe.php";
 	private static $url = "http://gravityplus.pro";
 	private static $slug = "gravityforms-stripe";
-	public static $version = '1.6.9.1';
-	private static $min_gravityforms_version = '1.6.9';
+	public static $version = '1.6.11.1';
+	private static $min_gravityforms_version = '1.6.11';
 	private static $transaction_response = '';
 
 	//Plugin starting point. Will load appropriate files
 	public static function init() {
 		//supports logging
 	    add_filter( 'gform_logging_supported', array( 'GFPStripe', 'gform_logging_supported' ) );
+
+        //limits currency to only those allowed by Stripe account
+        add_filter( 'gform_currency', array( 'GFPStripe', 'gform_currency' ) );
 
 		if ( basename( $_SERVER[ 'PHP_SELF' ] ) == 'plugins.php' ) {
 
@@ -115,7 +115,7 @@ class GFPStripe {
 			}
 			else if ( 'gf_settings' == RGForms::get( 'page' ) ) {
 				RGForms::add_settings_page( 'Stripe', array( 'GFPStripe', 'settings_page' ), self::get_base_url() . '/images/stripe_wordpress_icon_32.png' );
-				add_filter( 'gform_currency_setting_message', create_function( '', "echo '<div class=\'gform_currency_message\'>Stripe only supports US Dollars.</div>';" ) );
+				add_action( 'gform_currency_setting_message', array( 'GFPStripe', 'gform_currency_setting_message' ) );
 				add_filter( 'gform_currency_disabled', '__return_true' );
 
 				//loading Gravity Forms tooltips
@@ -145,6 +145,33 @@ class GFPStripe {
 
 		}
 	}
+
+    public static function gform_currency( $currency ) {
+        self::include_api();
+        $api_key = self::get_api_key( 'secret' );
+        if ( ! empty( $api_key ) ) { /* @todo check for valid key also */
+            $account = Stripe_Account::retrieve( $api_key );
+            $currency = $account['currencies_supported'][0];
+            return $currency;
+        }
+        else {
+            return $currency;
+        }
+    }
+
+    public static function gform_currency_setting_message() {
+        $api_key = self::get_api_key( 'secret' );
+        if ( ! empty( $api_key ) ) { /* @todo check for valid key also */
+            if( ! class_exists( 'RGCurrency' ) )
+                require_once( 'currency.php' );
+            $currency_name = RGCurrency::get_currency( GFCommon::get_currency() );
+            $currency_name = $currency_name['name'];
+            echo '<div class=\'gform_currency_message\'>' . sprintf( __( "Your Stripe account only accepts %ss.", 'gfp-stripe' ), $currency_name ) . '</div>';
+        }
+        else {
+            echo '<div class=\'gform_currency_message\'>' . sprintf( __( "Your %sStripe settings%s are not filled in -- using default currency.", 'gfp-stripe' ), '<a href="admin.php?page=gf_settings&addon=Stripe">', '</a>' ) . '</div>';
+        }
+    }
 
 	public static function gfp_stripe_update_feed_active() {
 		check_ajax_referer( 'gfp_stripe_update_feed_active', 'gfp_stripe_update_feed_active' );
@@ -447,6 +474,7 @@ class GFPStripe {
 
 
 			update_option( 'gfp_stripe_settings', $settings );
+            //update_option( 'rg_gforms_currency', self::get_currency() );
 		}
 		else if ( has_filter( 'gfp_stripe_settings_page_action' ) ) {
 			$do_return = '';
@@ -684,7 +712,7 @@ class GFPStripe {
 			return array( $valid, $valid_keys );
 		}
 		else {
-			return array( $valid, $valid_keys, $errors );
+			return array( $valid, $valid_keys, isset( $errors ) ? $errors : null );
 		}
 
 	}
@@ -1301,7 +1329,7 @@ class GFPStripe {
 		<script type="text/javascript">
 			var form = Array();
 
-			window['gf_currency_config'] = <?php echo json_encode( RGCurrency::get_currency( "USD" ) ) ?>;
+			window['gf_currency_config'] = <?php echo json_encode( RGCurrency::get_currency( GFCommon::get_currency() ) ) ?>;
 			function FormatCurrency(element) {
 				var val = jQuery(element).val();
 				jQuery(element).val(gformFormatMoney(val));
@@ -2204,7 +2232,7 @@ class GFPStripe {
 				self::log_debug( 'Creating the charge, using the customer ID' );
 				$response = Stripe_Charge::create( array(
 																						'amount'      => ( $form_data[ 'amount' ] * 100 ),
-																						'currency'    => 'usd',
+																						'currency'    => GFCommon::get_currency(),
 																						'customer'    => $customer[ 'id' ],
 																						'description' => implode( '\n', $form_data[ 'line_items' ] )
 																					) );
@@ -2213,7 +2241,7 @@ class GFPStripe {
 				self::log_debug( 'Creating the charge, using the card token' );
 				$response = Stripe_Charge::create( array(
 																							'amount'      => ( $form_data[ 'amount' ] * 100 ),
-																							'currency'    => 'usd',
+																							'currency'    => GFCommon::get_currency(),
 																							'card'        => $form_data[ 'credit_card' ],
 																							'description' => ( $form_data[ 'name' ] . '(' . $form_data[ 'email' ] . ' ): ' . implode( "\n", $form_data[ 'line_items' ] ) )
 																				 ) );
