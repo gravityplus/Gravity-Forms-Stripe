@@ -2,9 +2,9 @@
 Contributors: naomicbush
 Donate link: http://gravityplus.pro/
 Tags: form, forms, gravity, gravity form, gravity forms, gravityforms, stripe, payment, payments, subscribe, subscriptions, recurring billing, paypal, authorize.net, credit cards, online payment
-Requires at least: 3.4.2
-Tested up to: 3.5
-Stable tag: 1.6.11.1
+Requires at least: 3.5
+Tested up to: 3.5.1
+Stable tag: 1.7.2.1
 
 Easy and secure credit card payments on your WordPress site with Stripe and Gravity Forms!
 
@@ -17,7 +17,7 @@ Easy and secure credit card payments on your WordPress site with Stripe and Grav
 >
 > You'll also need a [Stripe](https://stripe.com) account.
 
-Requires WordPress 3.4.1, PHP 5.3, and Gravity Forms 1.6.11. Works with WordPress Multisite.
+Requires WordPress 3.5, PHP 5.3, and Gravity Forms 1.7.2. Works with WordPress Multisite.
 
 **Current Features**
 
@@ -69,7 +69,7 @@ This section describes how to install and setup the Gravity Forms Stripe Add-On.
 == Frequently Asked Questions ==
 
 = Do I need to have a copy of Gravity Forms for this plugin to work? =
-Yes, you need to install the [Gravity Forms Plugin](http://bit.ly/getgravityforms "visit the Gravity Forms website") for this plugin to work.
+Yes, you need to install the [Gravity Forms Plugin](http://gravityforms.com "visit the Gravity Forms website") for this plugin to work.
 
 = What is the minimum amount my form can accept? =
 $0.50, [per Stripe](https://stripe.com/help/faq)
@@ -83,12 +83,16 @@ Yes.
 = Do I need to have SSL? =
 Yes, according to the Stripe Terms of Service regarding PCI-compliance.
 
-= Why am I getting in 'Invalid token ID' error? =
+= Why am I getting an 'Invalid token ID' or 'Empty string given for card' error? =
 This error occurs for one of three reasons:
 
 1. Javascript is not available to browser
 2. You've embedded your Gravity Form directly into the page and did not follow all of the Gravity Forms instructions to do so: http://www.gravityhelp.com/documentation/page/Embedding_A_Form
 3. the Stripe JS is being blocked from running by a theme or another plugin. Follow the procedure outlined here by Gravity Forms in order to troubleshoot: http://www.gravityhelp.com/documentation/page/Testing_for_a_Theme/Plugin_Conflict with one minor change -- For plugin conflicts, deactivate all plugins except Gravity Forms and Gravity Forms + Stripe.
+
+= Do I need to purchase +(More) Stripe to make this plugin work?
+No. If you are having an issue and tried the troubleshooting steps, [purchase support](https://gravityplus.pro/). +(More) Stripe will *not* fix your issue --
+it only adds features.
 
 = Your plugin just does not work =
 I can assure you that is not the case -- [this should help you find where the problem is occurring](http://scribu.net/wordpress/wordpress-plugin-troubleshooting-flowchart.html) or [this](http://uproot.us/docs/how-to-troubleshoot-plugin-issues/)
@@ -100,6 +104,15 @@ I can assure you that is not the case -- [this should help you find where the pr
 3. Stripe feed
 
 == Changelog ==
+= 1.7.2 =
+* Update JS for credit card field change
+* Fix currency detection performance issue
+* Use original Stripe error in test mode, pretty errors in live mode
+* Allow multiple Stripe feeds for multiple address fields on one form
+* Fix annoying PHP warnings
+* Update Stripe PHP library to 1.8.0
+* Bump version number to latest version of Gravity Forms
+
 = 1.6.11.1 =
 * Add support for Canadian Stripe accounts
 * Fix annoying PHP warnings
@@ -132,6 +145,9 @@ I can assure you that is not the case -- [this should help you find where the pr
 * Initial release. Process charges (one-time payments) only.
 
 == Upgrade Notice ==
+= 1.7.2.1 ==
+Important update for Gravity Forms 1.7. Please upgrade to the latest version or your form may not correctly process payments.
+
 = 1.6.11.1 =
 New version available! Adds support for Canadian Stripe accounts, fixes PHP warnings.
 
