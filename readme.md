@@ -22,9 +22,9 @@ This [Gravity Forms](http://naomicbush.com/getgravityforms) add-on integrates St
 *available only with [More Stripe here](http://gravityplus.pro)
 
 ## Requirements
-* WordPress 3.4.2, tested up to 3.5, Multisite as well
+* WordPress 3.5, tested up to 3.5.1, Multisite as well
 * PHP 5.3
-* Gravity Forms 1.6.11 - [Grab a license](http://naomicbush.com/getgravityforms "purchase Gravity Forms!") if you don't already have one
+* Gravity Forms 1.7.2 - [Grab a license](http://naomicbush.com/getgravityforms "purchase Gravity Forms!") if you don't already have one
 * [Stripe](https://stripe.com) account
 
 ## Support
@@ -52,6 +52,15 @@ This [Gravity Forms](http://naomicbush.com/getgravityforms) add-on integrates St
 6. Under Forms->Stripe, add a Stripe feed for your new form.
 
 ## Changelog
+### 1.7.2 (May 1, 2013)
+* Update JS for credit card field change
+* Fix currency detection performance issue
+* Use original Stripe error in test mode, pretty errors in live mode
+* Allow multiple Stripe feeds for multiple address fields on one form
+* Fix annoying PHP warnings
+* Update Stripe PHP library to 1.8.0
+* Bump version number to latest version of Gravity Forms
+
 ### 1.6.11.1 (January 11, 2013)
 * Add support for Canadian Stripe accounts
 * Fix annoying PHP warnings
