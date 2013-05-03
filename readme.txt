@@ -4,7 +4,7 @@ Donate link: http://gravityplus.pro/
 Tags: form, forms, gravity, gravity form, gravity forms, gravityforms, stripe, payment, payments, subscribe, subscriptions, recurring billing, paypal, authorize.net, credit cards, online payment
 Requires at least: 3.5
 Tested up to: 3.5.1
-Stable tag: 1.7.2.1
+Stable tag: 1.7.2.2
 
 Easy and secure credit card payments on your WordPress site with Stripe and Gravity Forms!
 
@@ -90,7 +90,7 @@ This error occurs for one of three reasons:
 2. You've embedded your Gravity Form directly into the page and did not follow all of the Gravity Forms instructions to do so: http://www.gravityhelp.com/documentation/page/Embedding_A_Form
 3. the Stripe JS is being blocked from running by a theme or another plugin. Follow the procedure outlined here by Gravity Forms in order to troubleshoot: http://www.gravityhelp.com/documentation/page/Testing_for_a_Theme/Plugin_Conflict with one minor change -- For plugin conflicts, deactivate all plugins except Gravity Forms and Gravity Forms + Stripe.
 
-= Do I need to purchase +(More) Stripe to make this plugin work?
+= Do I need to purchase +(More) Stripe to make this plugin work? =
 No. If you are having an issue and tried the troubleshooting steps, [purchase support](https://gravityplus.pro/). +(More) Stripe will *not* fix your issue --
 it only adds features.
 
@@ -104,7 +104,12 @@ I can assure you that is not the case -- [this should help you find where the pr
 3. Stripe feed
 
 == Changelog ==
-= 1.7.2 =
+= 1.7.2.2 =
+* Fix issue with billing address not being sent to Stripe
+* Add new billing address city field to Stripe token creation
+* Remove hidden condition for sending billing address state and country to Stripe
+
+= 1.7.2.1 =
 * Update JS for credit card field change
 * Fix currency detection performance issue
 * Use original Stripe error in test mode, pretty errors in live mode
@@ -145,7 +150,10 @@ I can assure you that is not the case -- [this should help you find where the pr
 * Initial release. Process charges (one-time payments) only.
 
 == Upgrade Notice ==
-= 1.7.2.1 ==
+= 1.7.2.2 =
+Important fix for billing address issue! Please upgrade to make sure billing address is sent to Stripe.
+
+= 1.7.2.1 =
 Important update for Gravity Forms 1.7. Please upgrade to the latest version or your form may not correctly process payments.
 
 = 1.6.11.1 =

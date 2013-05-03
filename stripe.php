@@ -3,13 +3,13 @@
 	Plugin Name: Gravity Forms + Stripe
 	Plugin URI: https://gravityplus.pro
 	Description: Use Stripe to process credit card payments on your site, easily and securely, with Gravity Forms
-	Version: 1.7.2.1
+	Version: 1.7.2.2
 	Author: gravity+
 	Author URI: https://gravityplus.pro
 
 	------------------------------------------------------------------------
 	Copyright 2012-2013 Naomi C. Bush
-	last updated: May 1, 2013
+	last updated: May 2, 2013
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -51,7 +51,7 @@ class GFPStripe {
 	private static $path = "gravityforms-stripe/stripe.php";
 	private static $url = "http://gravityplus.pro";
 	private static $slug = "gravityforms-stripe";
-	public static $version = '1.7.2.1';
+	public static $version = '1.7.2.2';
 	private static $min_gravityforms_version = '1.7.2';
 	private static $transaction_response = '';
 
@@ -2124,7 +2124,12 @@ private static function edit_page() {
 											$street_input_id                             = $form_id . '_' . $field['id'] . '_1';
 											$field_info[$field['id']]['street_input_id'] = $street_input_id;
 										}
-										else if ( ( ( $field['id'] . '.4' ) == $input['id'] ) && ( ! $field['hideState'] ) ) {
+										else if ( ( $field['id'] . '.3' ) == $input['id'] ) {
+																					$city_input_id                             = $form_id . '_' . $field['id'] . '_3';
+																					$field_info[$field['id']]['city_input_id'] = $city_input_id;
+																				}
+										//else if ( ( ( $field['id'] . '.4' ) == $input['id'] ) && ( ! $field['hideState'] ) ) {
+										else if ( ( $field['id'] . '.4' ) == $input['id'] ) {
 											$state_input_id                             = $form_id . '_' . $field['id'] . '_4';
 											$field_info[$field['id']]['state_input_id'] = $state_input_id;
 										}
@@ -2132,7 +2137,8 @@ private static function edit_page() {
 											$zip_input_id                             = $form_id . '_' . $field['id'] . '_5';
 											$field_info[$field['id']]['zip_input_id'] = $zip_input_id;
 										}
-										else if ( ( ( $field['id'] . '.6' ) == $input['id'] ) && ( ! $field['hideCountry'] ) ) {
+										//else if ( ( ( $field['id'] . '.6' ) == $input['id'] ) && ( ! $field['hideCountry'] ) ) {
+										else if ( ( $field['id'] . '.6' ) == $input['id'] ) {
 											$country_input_id                             = $form_id . '_' . $field['id'] . '_6';
 											$field_info[$field['id']]['country_input_id'] = $country_input_id;
 										}
@@ -2163,7 +2169,12 @@ private static function edit_page() {
 										$street_input_id               = $form_id . '_' . $field['id'] . '_1';
 										$field_info['street_input_id'] = $street_input_id;
 									}
-									else if ( ( ( $field['id'] . '.4' ) == $input['id'] ) && ( ! $field['hideState'] ) ) {
+									else if ( ( $field['id'] . '.3' ) == $input['id'] ) {
+																			$city_input_id               = $form_id . '_' . $field['id'] . '_3';
+																			$field_info['city_input_id'] = $city_input_id;
+																		}
+									//else if ( ( ( $field['id'] . '.4' ) == $input['id'] ) && ( ! $field['hideState'] ) ) {
+									else if ( ( $field['id'] . '.4' ) == $input['id'] ) {
 										$state_input_id               = $form_id . '_' . $field['id'] . '_4';
 										$field_info['state_input_id'] = $state_input_id;
 									}
@@ -2171,7 +2182,8 @@ private static function edit_page() {
 										$zip_input_id               = $form_id . '_' . $field['id'] . '_5';
 										$field_info['zip_input_id'] = $zip_input_id;
 									}
-									else if ( ( ( $field['id'] . '.6' ) == $input['id'] ) && ( ! $field['hideCountry'] ) ) {
+									//else if ( ( ( $field['id'] . '.6' ) == $input['id'] ) && ( ! $field['hideCountry'] ) ) {
+									else if ( ( $field['id'] . '.6' ) == $input['id'] ) {
 										$country_input_id               = $form_id . '_' . $field['id'] . '_6';
 										$field_info['country_input_id'] = $country_input_id;
 									}
@@ -2228,12 +2240,13 @@ private static function edit_page() {
 						"var cvc = jQuery('#gform_{$form_id} .ginput_card_security_code').val();" .
 						"var cardholder_name = jQuery('#gform_{$form_id} #input_{$form_id}_{$field_id}_5').val();";
 
-					if ( 1 < count( $field_info ) ) {
+					if ( 1 < count( $field_info ) && ( ! isset( $address_required_check ) ) ) {
 						$js .= "var address_condition = jQuery('input:radio[name=input_{$conditional_field_id}]:checked').val();";
 						foreach ( $field_info as $address_field_info ) {
 							if ( is_array( $address_field_info ) && array_key_exists( 'operator', $address_field_info ) ) {
 								$conditional_value = $address_field_info['value'];
 								$street_input_id   = $address_field_info['street_input_id'];
+								$city_input_id   = $address_field_info['city_input_id'];
 								$state_input_id    = $address_field_info['state_input_id'];
 								$zip_input_id      = $address_field_info['zip_input_id'];
 								$country_input_id  = $address_field_info['country_input_id'];
@@ -2245,6 +2258,7 @@ private static function edit_page() {
 								}
 								if ( isset( $address_field_info['address_required_check'] ) && ( 1 == $address_field_info['address_required_check'] ) ) {
 									$js .= ( ! empty( $street_input_id ) ) ? "var address_line1 = jQuery('#gform_{$form_id} #input_{$street_input_id}').val();" : "var address_line1 = '';";
+									$js .= ( ! empty( $city_input_id ) ) ? "var address_city = jQuery('#gform_{$form_id} #input_{$city_input_id}').val();" : "var address_city = '';";
 									if ( isset( $state_input_id ) ) {
 										$js .= ( ! empty( $state_input_id ) ) ? "var address_state = jQuery('#gform_{$form_id} #input_{$state_input_id}').val();" : "var address_state = '';";
 									}
@@ -2263,6 +2277,7 @@ private static function edit_page() {
 
 						if ( isset( $address_required_check ) && $address_required_check ) {
 							$js .= ( ! empty( $street_input_id ) ) ? "var address_line1 = jQuery('#gform_{$form_id} #input_{$street_input_id}').val();" : "var address_line1 = '';";
+							$js .= ( ! empty( $city_input_id ) ) ? "var address_city = jQuery('#gform_{$form_id} #input_{$city_input_id}').val();" : "var address_city = '';";
 							if ( isset( $state_input_id ) ) {
 								$js .= ( ! empty( $state_input_id ) ) ? "var address_state = jQuery('#gform_{$form_id} #input_{$state_input_id}').val();" : "var address_state = '';";
 							}
@@ -2280,7 +2295,7 @@ private static function edit_page() {
 							"var cardholder_name_valid = (cardholder_name.length > 0 ) ? true : false;" .
 							"if ( !card_number_valid || !exp_date_valid || !cvc_valid || !cardholder_name_valid ) {" .
 							"form$.append(\"<input type='hidden' name='card_number_valid' value='\" + card_number_valid + \"' /><input type='hidden' name='exp_date_valid' value='\" + exp_date_valid + \"' /><input type='hidden' name='cvc_valid' value='\" + cvc_valid + \"' /><input type='hidden' name='cardholder_name_valid' value='\" + cardholder_name_valid + \"' />\");" .
-							"} else if ( ( ! ( typeof address_line1 === 'undefined' ) ) && ( ( ! ( address_line1.length > 0 ) ) || ( ! ( address_zip.length > 0 ) ) || ( ( ! ( typeof address_state === 'undefined' ) ) && ( ! ( address_state.length > 0 ) ) ) || ( ( ! ( typeof address_country === 'undefined' ) ) && ( ! ( address_country.length > 0 ) ) ) ) ) { " .
+							"} else if ( ( ! ( typeof address_line1 === 'undefined' ) ) && ( ( ! ( address_line1.length > 0 ) ) || ( ! ( address_city.length > 0 ) ) || ( ! ( address_zip.length > 0 ) ) || ( ( ! ( typeof address_state === 'undefined' ) ) && ( ! ( address_state.length > 0 ) ) ) || ( ( ! ( typeof address_country === 'undefined' ) ) && ( ! ( address_country.length > 0 ) ) ) ) ) { " .
 
 							"} else {" .
 							"var token = Stripe.createToken({" .
@@ -2290,6 +2305,7 @@ private static function edit_page() {
 							"cvc: cvc," .
 							"name: cardholder_name," .
 							"address_line1: ( ! ( typeof address_line1 === 'undefined' ) ) ? address_line1 : ''," .
+							"address_city: ( ! ( typeof address_city === 'undefined' ) ) ? address_city : ''," .
 							"address_zip: ( ! ( typeof address_zip === 'undefined' ) ) ? address_zip : ''," .
 							"address_state: ( ! ( typeof address_state === 'undefined' ) ) ? address_state : ''," .
 							"address_country: ( ! ( typeof address_country === 'undefined' ) ) ? address_country : ''," .
