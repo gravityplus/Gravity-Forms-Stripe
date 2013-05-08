@@ -3,13 +3,13 @@
 	Plugin Name: Gravity Forms + Stripe
 	Plugin URI: https://gravityplus.pro
 	Description: Use Stripe to process credit card payments on your site, easily and securely, with Gravity Forms
-	Version: 1.7.2.2
+	Version: 1.7.2.3
 	Author: gravity+
 	Author URI: https://gravityplus.pro
 
 	------------------------------------------------------------------------
 	Copyright 2012-2013 Naomi C. Bush
-	last updated: May 2, 2013
+	last updated: May 14, 2013
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -51,7 +51,7 @@ class GFPStripe {
 	private static $path = "gravityforms-stripe/stripe.php";
 	private static $url = "http://gravityplus.pro";
 	private static $slug = "gravityforms-stripe";
-	public static $version = '1.7.2.2';
+	public static $version = '1.7.2.3';
 	private static $min_gravityforms_version = '1.7.2';
 	private static $transaction_response = '';
 
@@ -389,9 +389,9 @@ class GFPStripe {
 												_e( 'Product and Services', 'gfp-stripe' );
 												break;
 
-											case 'subscription' :
+											/*case 'subscription' :
 												_e( 'Subscription', 'gfp-stripe' );
-												break;
+												break;*/
 										}
 									}
 									?>
@@ -470,10 +470,10 @@ class GFPStripe {
 		else if ( isset( $_POST["gfp_stripe_submit"] ) ) {
 			check_admin_referer( 'update', 'gfp_stripe_update' );
 			$settings = array(
-				'test_secret_key'      => rgpost( 'gfp_stripe_test_secret_key' ),
-				'test_publishable_key' => rgpost( 'gfp_stripe_test_publishable_key' ),
-				'live_secret_key'      => rgpost( 'gfp_stripe_live_secret_key' ),
-				'live_publishable_key' => rgpost( 'gfp_stripe_live_publishable_key' ),
+				'test_secret_key'      => trim( rgpost( 'gfp_stripe_test_secret_key' ) ),
+				'test_publishable_key' => trim( rgpost( 'gfp_stripe_test_publishable_key' ) ),
+				'live_secret_key'      => trim( rgpost( 'gfp_stripe_live_secret_key' ) ),
+				'live_publishable_key' => trim( rgpost( 'gfp_stripe_live_publishable_key' ) ),
 				'mode'                 => rgpost( 'gfp_stripe_mode' )
 			);
 			$settings = apply_filters( 'gfp_stripe_save_settings', $settings );
@@ -560,7 +560,7 @@ class GFPStripe {
 					</th>
 					<td width="88%">
 						<input class="size-1" id="gfp_stripe_test_secret_key" name="gfp_stripe_test_secret_key"
-									 value="<?php echo esc_attr( rgar( $settings, 'test_secret_key' ) ) ?>"/>
+									 value="<?php echo trim( esc_attr( rgar( $settings, 'test_secret_key' ) ) ) ?>"/>
 						<img
 							src="<?php echo self::get_base_url() ?>/images/<?php echo $is_valid[1]['test_secret_key'] ? 'tick.png' : 'stop.png' ?>"
 							border="0"
@@ -577,7 +577,7 @@ class GFPStripe {
 					</th>
 					<td width="88%">
 						<input class="size-1" id="gfp_stripe_test_publishable_key" name="gfp_stripe_test_publishable_key"
-									 value="<?php echo esc_attr( rgar( $settings, 'test_publishable_key' ) ) ?>"/>
+									 value="<?php echo trim( esc_attr( rgar( $settings, 'test_publishable_key' ) ) ) ?>"/>
 						<img
 							src="<?php echo self::get_base_url() ?>/images/<?php echo $is_valid[1]['test_publishable_key'] ? 'tick.png' : 'stop.png' ?>"
 							border="0"
@@ -594,7 +594,7 @@ class GFPStripe {
 					</th>
 					<td width="88%">
 						<input class="size-1" id="gfp_stripe_live_secret_key" name="gfp_stripe_live_secret_key"
-									 value="<?php echo esc_attr( rgar( $settings, 'live_secret_key' ) ) ?>"/>
+									 value="<?php echo trim( esc_attr( rgar( $settings, 'live_secret_key' ) ) ) ?>"/>
 						<img
 							src="<?php echo self::get_base_url() ?>/images/<?php echo $is_valid[1]['live_secret_key'] ? 'tick.png' : 'stop.png' ?>"
 							border="0"
@@ -618,7 +618,7 @@ class GFPStripe {
 					</th>
 					<td width="88%">
 						<input class="size-1" id="gfp_stripe_live_publishable_key" name="gfp_stripe_live_publishable_key"
-									 value="<?php echo esc_attr( rgar( $settings, 'live_publishable_key' ) ) ?>"/>
+									 value="<?php echo trim( esc_attr( rgar( $settings, 'live_publishable_key' ) ) ) ?>"/>
 						<img
 							src="<?php echo self::get_base_url() ?>/images/<?php echo $is_valid[1]['live_publishable_key'] ? 'tick.png' : 'stop.png' ?>"
 							border="0"
@@ -732,7 +732,7 @@ class GFPStripe {
 		$mode     = rgar( $settings, 'mode' );
 		$key      = $mode . '_' . $type . '_key';
 
-		return esc_attr( rgar( $settings, $key ) );
+		return trim( esc_attr( rgar( $settings, $key ) ) );
 
 	}
 
@@ -2022,13 +2022,12 @@ private static function edit_page() {
 			//making one time payment
 			$validation_result = self::make_product_payment( $config, $validation_result );
 
-			return $validation_result;
 		}
 		else {
 			$validation_result = apply_filters( 'gfp_stripe_gform_validation', $validation_result, $config );
-
-			return $validation_result;
 		}
+
+		return $validation_result;
 	}
 
 	public static function gform_get_form_filter ( $form_string ) {
@@ -2072,10 +2071,10 @@ private static function edit_page() {
 				$mode     = rgar( $settings, 'mode' );
 				switch ( $mode ) {
 					case 'test':
-						$publishable_key = esc_attr( rgar( $settings, 'test_publishable_key' ) );
+						$publishable_key = trim( esc_attr( rgar( $settings, 'test_publishable_key' ) ) );
 						break;
 					case 'live':
-						$publishable_key = esc_attr( rgar( $settings, 'live_publishable_key' ) );
+						$publishable_key = trim( esc_attr( rgar( $settings, 'live_publishable_key' ) ) );
 						break;
 					default:
 						//something is wrong TODO better error handling here
@@ -2083,7 +2082,7 @@ private static function edit_page() {
 				}
 
 				//if more than one feed, find out if conditional logic affects Stripe token fields (address)
-				if ( 0 < $valid_feeds ) {
+				if ( isset( $valid_feeds ) && ( 0 < $valid_feeds ) ) {
 					$need_conditional_js = 0;
 					$field_info          = array();
 					foreach ( $form_feeds as $feed ) {
@@ -2234,7 +2233,7 @@ private static function edit_page() {
 						"if ( last_page === '0' ){" .
 						"var form$ = jQuery('#gform_{$form_id}');" .
 						"Stripe.setPublishableKey('" . $publishable_key . "');" .
-						"var card_number = jQuery('#gform_{$form_id} span.ginput_cardextras').parent().children(':input').val();" .
+						"var card_number = jQuery('#gform_{$form_id} #input_{$form_id}_{$field_id}_1').val();" .
 						"var exp_month = jQuery('#gform_{$form_id} .ginput_card_expiration_month').val();" .
 						"var exp_year = jQuery('#gform_{$form_id} .ginput_card_expiration_year').val();" .
 						"var cvc = jQuery('#gform_{$form_id} .ginput_card_security_code').val();" .
