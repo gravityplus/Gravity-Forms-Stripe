@@ -52,6 +52,12 @@ This [Gravity Forms](http://naomicbush.com/getgravityforms) add-on integrates St
 6. Under Forms->Stripe, add a Stripe feed for your new form.
 
 ## Changelog
+### 1.7.2.3 (May 14, 2013)
+* Fix IE9 JS issue preventing card number submission
+* Prevent Stripe API key whitespace error by stripping whitespace from API keys
+* Fix annoying PHP warnings
+* Clean up duplicate and unneeded code
+
 ### 1.7.2.2 (May 2, 2013)
 * Fix issue with billing address not being sent to Stripe
 * Add new billing address city field to Stripe token creation

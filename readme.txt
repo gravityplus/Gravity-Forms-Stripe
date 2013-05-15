@@ -4,7 +4,7 @@ Donate link: http://gravityplus.pro/
 Tags: form, forms, gravity, gravity form, gravity forms, gravityforms, stripe, payment, payments, subscribe, subscriptions, recurring billing, paypal, authorize.net, credit cards, online payment
 Requires at least: 3.5
 Tested up to: 3.5.1
-Stable tag: 1.7.2.2
+Stable tag: 1.7.2.3
 
 Easy and secure credit card payments on your WordPress site with Stripe and Gravity Forms!
 
@@ -104,6 +104,12 @@ I can assure you that is not the case -- [this should help you find where the pr
 3. Stripe feed
 
 == Changelog ==
+= 1.7.2.3 =
+* Fix IE9 JS issue preventing card number submission
+* Prevent Stripe API key whitespace error by stripping whitespace from API keys
+* Fix annoying PHP warnings
+* Clean up duplicate and unneeded code
+
 = 1.7.2.2 =
 * Fix issue with billing address not being sent to Stripe
 * Add new billing address city field to Stripe token creation
@@ -150,6 +156,9 @@ I can assure you that is not the case -- [this should help you find where the pr
 * Initial release. Process charges (one-time payments) only.
 
 == Upgrade Notice ==
+= 1.7.2.3 =
+Important fix for JS issue in IE9 that prevents successful form submission.
+
 = 1.7.2.2 =
 Important fix for billing address issue! Please upgrade to make sure billing address is sent to Stripe.
 
