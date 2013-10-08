@@ -1,46 +1,50 @@
 # Gravity Forms + Stripe
-http://wordpress.org/extend/plugins/gravity-forms-stripe/
+http://wordpress.org/plugins/gravity-forms-stripe/
 
 [Stripe](https://stripe.com) allows you to process credit cards directly on your site, securely and easily, without having to deal with merchant accounts, PCI-compliance, or PayPal.
 
-This [Gravity Forms](http://naomicbush.com/getgravityforms) add-on integrates Stripe with your forms (adapted from the Gravity Forms Authorize.net Add-On) using [Stripe.js](https://stripe.com/docs/stripe.js) to make sure sensitive card information never hits your server.
+This [Gravity Forms](http://naomicbush.com/getgravityforms) add-on integrates Stripe with your forms using [Stripe.js](https://stripe.com/docs/stripe.js) to make sure sensitive card information never hits your server.
 
 ## Supporters
 [deckerweb](https://github.com/deckerweb), [admodiggity](https://github.com/admodiggity), [pnommensen](https://github.com/pnommensen), [Linda C.](http://askmepc.com/), [jacobdubail](https://github.com/jacobdubail), [Michael S.](http://markandphil.com/), [Mark C.](http://bizelevator.com/), [willshouse](http://profiles.wordpress.org/willshouse), Dan B., Aaron A., [wpcdn](http://profiles.wordpress.org/wpcdn), [feshin](http://profiles.wordpress.org/feshin), Scot R., Teresa O.
 
 ## Features
 * One-time payments
-* Canadian Stripe accounts
+* International Stripe accounts, including those with multiple currencies
 * Stripe + PayPal option on same form
+* *Save credit cards instead of charging them right away
 * *Recurring payments/subscriptions
 * *Multiple quantities of one subscription, e.g. 5 users at $10/month/user
 * *One-time setup fee charge for subscriptions
 * *Stripe coupons
-* *Gravity Forms User Registration Add-On integration
+* *Gravity Forms User Registration Add-On integration, including allowing logged-in users to manage their subscriptions
+* *Stripe event notifications using Gravity Forms notifications system
 * Hooks to extend the plugin and add in your own functionality
 
-*available only with [More Stripe here](http://gravityplus.pro)
+*available only with [More Stripe here](https://gravityplus.pro/gravity-forms-stripe)
 
 ## Requirements
-* WordPress 3.5, tested up to 3.5.1, Multisite as well
+* WordPress 3.6, tested up to 3.6.1, Multisite as well
 * PHP 5.3
-* Gravity Forms 1.7.2 - [Grab a license](http://naomicbush.com/getgravityforms "purchase Gravity Forms!") if you don't already have one
+* Gravity Forms 1.7.9 - [Grab a license](http://naomicbush.com/getgravityforms "purchase Gravity Forms!") if you don't already have one
 * [Stripe](https://stripe.com) account
 
 ## Support
-* Full support is available at [gravity+](http://gravityplus.pro). I'm very happy to help.
-* Do NOT contact Gravity Forms OR Stripe for help with this add-on. They do not provide support for this plugin.
-* Support is not provided for free or via the WordPress forums, but feel free to help one another.
+* Although I am unable to provide free support, **full, paid support is available at [gravity+](https://gravityplus.pro)**. I am very happy to help.
+* Also, neither Gravity Forms nor Stripe provides support for this plugin.
+* If you think you've found a bug, feel free to contact me.
 
 ## Current Limitations
 * Cannot have Stripe Add-On "activated" at the same time as Authorize.Net or PayPal Pro Add-Ons
 * For security reasons, credit card field has to be on the last page of a multi-page form
-* Can only setup 1 Stripe feed per form
+* One Stripe form per page
 
-## Known Conflicts
+## Reported Conflicts
 
-* Shortcodes Ultimate
-* poorly coded Themeforest themes
+* plugin: Shortcodes Ultimate
+* plugin: PHP Shortcode Version 1.3
+* theme: Themeforest themes that strip shortcodes
+* plugin: Root Relative URLs
 
 ## Installation
 
@@ -52,6 +56,47 @@ This [Gravity Forms](http://naomicbush.com/getgravityforms) add-on integrates St
 6. Under Forms->Stripe, add a Stripe feed for your new form.
 
 ## Changelog
+### 1.7.10.1 (October 3, 2013)
+* Ensure GF1.7.10 compatibility
+* Bump version number
+
+### 1.7.9.1 (September 30, 2013)
+* Add hook for customer description: gfp_stripe_customer_description
+* Add hook for charge description: gfp_stripe_customer_charge_description
+* Add hook for live mode error messages: gfp_stripe_error_message
+* Add charge creation override
+* Add check for curl when plugin activated
+* Add filter 'gfp_stripe_display_billing_info'
+* Add action 'gfp_stripe_set_validation_result'
+* Add PSR-0 autoloader
+* Add UI improvements
+* Add PHPDoc to all the things!
+* Add PressTrends
+* Add check for Gravity Forms when plugin activated
+* Add Gravity Forms deactivation prevention if Stripe Add-On is still activated
+* Add support for Stripe accounts with multiple currencies
+* Add Gravity Forms Logging Tool integration
+* Update Stripe PHP API library to 1.8.4
+* Update 'gfp_stripe_customer_description' hook to pass all of the submitted form data, and not just the name
+* Update 'gfp_stripe_create_error_message' to show actual card error in live mode, since they are safe to show per Stripe API
+* Update 'gfp_stripe_customer_description' hook parameters to replace $form_data with $form
+* Refactor & reorganize code
+* Rename hook 'gform_stripe_action_fields' to 'gfp_stripe_feed_options'
+* Rename hook 'gform_stripe_add_option_group' to 'gfp_stripe_feed_setting'
+* Rename hook 'gfp_stripe_after_submission_update_lead' to 'gfp_stripe_entry_created_update_lead'
+* Rename hook 'gfp_stripe_gform_after_submission' to 'gfp_stripe_entry_created_subscriber_id'
+* Rename hook 'gfp_stripe_after_submission_insert_transaction_type' to 'gfp_stripe_entry_created_insert_transaction_type'
+* Fix hook 'gfp_stripe_gform_after_submission' to include correct return value
+* Fix undefined variable notice on stats page
+* Fix PHP warnings
+* Fix Stripe JS to get correct address fields from feed
+* Fix Stripe condition not properly handling checkboxes and dropdowns
+* Fix double form submissions if AJAX and 2+ forms on a page
+* Move after submission processing from gform_after_submission to gform_entry_created
+* Remove KLogger
+* Remove currency disable
+* Remove Stripe JS check for address_field_required
+
 ### 1.7.2.3 (May 14, 2013)
 * Fix IE9 JS issue preventing card number submission
 * Prevent Stripe API key whitespace error by stripping whitespace from API keys

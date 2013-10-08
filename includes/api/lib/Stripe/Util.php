@@ -19,7 +19,7 @@ abstract class Stripe_Util
     $results = array();
     foreach ($values as $k => $v) {
       // FIXME: this is an encapsulation violation
-      if (Stripe_Object::$_permanentAttributes->includes($k)) {
+      if ($k[0] == '_') {
         continue;
       }
       if ($v instanceof Stripe_Object) {
@@ -38,13 +38,14 @@ abstract class Stripe_Util
   public static function convertToStripeObject($resp, $apiKey)
   {
     $types = array(
+      'card' => 'Stripe_Card',
       'charge' => 'Stripe_Charge',
-		  'customer' => 'Stripe_Customer',
+      'customer' => 'Stripe_Customer',
       'list' => 'Stripe_List',
-		  'invoice' => 'Stripe_Invoice',
-		  'invoiceitem' => 'Stripe_InvoiceItem',
+      'invoice' => 'Stripe_Invoice',
+      'invoiceitem' => 'Stripe_InvoiceItem',
       'event' => 'Stripe_Event',
-		  'transfer' => 'Stripe_Transfer',
+      'transfer' => 'Stripe_Transfer',
       'plan' => 'Stripe_Plan',
       'recipient' => 'Stripe_Recipient'
     );

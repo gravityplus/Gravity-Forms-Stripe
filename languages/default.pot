@@ -1,0 +1,692 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Gravity Forms + Stripe\n"
+"POT-Creation-Date: 2013-09-30 06:21-0500\n"
+"PO-Revision-Date: 2013-09-30 06:22-0500\n"
+"Last-Translator: Naomi C. Bush <hello@naomicbush.com>\n"
+"Language-Team: gravity+ <support@gravityplus.pro>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.5.7\n"
+"X-Poedit-KeywordsList: __;_e;esc_attr__;esc_attr_e;esc_html__;esc_html_e;_x;"
+"_ex;esc_attr_x;esc_html_x;_n;_nx;_n_noop;_nx_noop\n"
+"X-Poedit-Basepath: ../\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"X-Poedit-SearchPath-0: .\n"
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:82
+#, php-format
+msgid "There is already an instance of %s."
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:160
+msgid "You must install and activate Gravity Forms first."
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:183
+msgid ""
+"Gravity Forms + Stripe needs curl to be installed on your server. Please "
+"contact your host."
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:457
+msgid "Settings"
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:485
+#, php-format
+msgid "You must deactivate %s first."
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:642
+msgid "Your Stripe account allows these currencies."
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:645
+#, php-format
+msgid "Your %sStripe settings%s are not filled in -- using default currency."
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:672
+#: includes/GFP/Stripe/class-gfp-stripe.php:1401
+#: includes/GFP/Stripe/class-gfp-stripe.php:2150
+msgid "Stripe"
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:833
+msgid "Stripe Settings"
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:838
+#: includes/GFP/Stripe/class-gfp-stripe.php:1099
+msgid "gravity+ Support License Key"
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:859
+msgid "Stripe Account Information"
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:868
+msgid "API Mode"
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:873
+msgid "Live"
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:876
+msgid "Test"
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:886
+msgid "Test Secret Key"
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:900
+msgid "Test Publishable Key"
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:915
+msgid "Live Secret Key"
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:936
+msgid "Live Publishable Key"
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:961
+msgid "Broken and difficult to use plugins suck! "
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:964
+msgid "But that doesn't have to be your experience. "
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:970
+#, php-format
+msgid "Enable %1$sPressTrends%2$s,"
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:975
+msgid ""
+"a third-party analytics service just for WordPress sites,\n"
+"\t\t\t\tplugins, and themes, that aggregates completely anonymous usage "
+"stats so I know which themes, plugins,\n"
+"\t\t\t\tand configurations to test with to keep your site working!"
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:981
+msgid ""
+"(You can even access all of the data through benchmarks by creating your own "
+"PressTrends account on their website)"
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:991
+msgid "Yes I want to make sure this plugin works on my site."
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:1007
+msgid "Save Settings"
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:1021
+#: includes/GFP/Stripe/class-gfp-stripe.php:1024
+msgid "Uninstall Stripe Add-On"
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:1022
+msgid "Warning! This operation deletes ALL Stripe Feeds."
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:1024
+msgid ""
+"Warning! ALL Stripe Feeds will be deleted. This cannot be undone. \\'OK\\' "
+"to delete, \\'Cancel\\' to stop"
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:1057
+msgid "You don't have adequate permission to uninstall the Stripe Add-On."
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:1094
+#: includes/GFP/Stripe/class-gfp-stripe.php:1185
+#: includes/GFP/Stripe/class-gfp-stripe.php:1195
+msgid "Transaction Type"
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:1094
+msgid ""
+"Select which Stripe transaction type should be used. Products and Services, "
+"Subscription, or Billing Info Update."
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:1095
+#: includes/GFP/Stripe/class-gfp-stripe.php:1488
+msgid "Gravity Form"
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:1095
+msgid "Select which Gravity Forms you would like to integrate with Stripe."
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:1096
+msgid "Customer"
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:1096
+msgid ""
+"Map your Form Fields to the available Stripe customer information fields."
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:1097
+#: includes/GFP/Stripe/class-gfp-stripe.php:1542
+msgid "Options"
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:1097
+msgid "Turn on or off the available Stripe checkout options."
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:1099
+msgid ""
+"Your gravity+ support license key is used to enable automatic updates for "
+"+(More) Stripe and receive support."
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:1100
+msgid "API"
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:1100
+msgid ""
+"Select the Stripe API you would like to use. Select 'Live' to use your Live "
+"API keys. Select 'Test' to use your Test API keys."
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:1101
+msgid "API Test Secret Key"
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:1101
+msgid "Enter the API Test Secret Key for your Stripe account."
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:1102
+msgid "API Test Publishable Key"
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:1102
+msgid "Enter the API Test Publishable Key for your Stripe account."
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:1103
+msgid "API Live Secret Key"
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:1103
+msgid "Enter the API Live Secret Key for your Stripe account."
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:1104
+msgid "API Live Publishable Key"
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:1104
+msgid "Enter the API Live Publishable Key for your Stripe account."
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:1105
+#: includes/GFP/Stripe/class-gfp-stripe.php:1574
+msgid "Stripe Condition"
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:1105
+msgid ""
+"When the Stripe condition is enabled, form submissions will only be sent to "
+"Stripe when the condition is met. When disabled all form submissions will be "
+"sent to Stripe."
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:1131
+msgid "Feed deleted."
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:1143
+msgid "Feeds deleted."
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:1149
+msgid "Stripe Transactions"
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:1154
+msgid "Stripe Forms"
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:1157
+msgid "Add New"
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:1168
+#: includes/GFP/Stripe/class-gfp-stripe.php:1170
+msgid "Bulk action"
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:1171
+#: includes/GFP/Stripe/class-gfp-stripe.php:1251
+#: includes/GFP/Stripe/class-gfp-stripe.php:1252
+msgid "Delete"
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:1174
+msgid "Apply"
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:1174
+msgid "Delete selected feeds? "
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:1174
+msgid "'Cancel' to stop, 'OK' to delete."
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:1184
+#: includes/GFP/Stripe/class-gfp-stripe.php:1194
+msgid "Form"
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:1211
+#, php-format
+msgid "To get started, please configure your %sStripe Settings%s."
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:1224
+#: includes/GFP/Stripe/class-gfp-stripe.php:1225
+#: includes/GFP/Stripe/class-gfp-stripe.php:1306
+msgid "Active"
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:1224
+#: includes/GFP/Stripe/class-gfp-stripe.php:1225
+#: includes/GFP/Stripe/class-gfp-stripe.php:1302
+msgid "Inactive"
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:1229
+#: includes/GFP/Stripe/class-gfp-stripe.php:1233
+#: includes/GFP/Stripe/class-gfp-stripe.php:1235
+msgid "Edit"
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:1239
+#: includes/GFP/Stripe/class-gfp-stripe.php:1241
+msgid "View Stats"
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:1241
+msgid "Stats"
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:1245
+#: includes/GFP/Stripe/class-gfp-stripe.php:1247
+msgid "View Entries"
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:1247
+msgid "Entries"
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:1252
+msgid "Delete this feed? "
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:1252
+msgid "\\'Cancel\\' to stop, \\'OK\\' to delete."
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:1264
+msgid "Product and Services"
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:1282
+#, php-format
+msgid "You don't have any Stripe feeds configured. Let's go %screate one%s!"
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:1318
+msgid "Ajax error while updating feed"
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:1404
+msgid "Stripe Transaction Settings"
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:1444
+#, php-format
+msgid "Feed Updated. %sback to list%s"
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:1462
+msgid ""
+"There was an issue saving your feed. Please address the errors below and try "
+"again."
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:1492
+msgid "Select a form"
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:1512
+msgid ""
+"The form selected does not have any Product fields. Please add a Product "
+"field to the form and try again."
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:1515
+msgid ""
+"The form selected does not have a credit card field. Please add a credit "
+"card field to the form and try again."
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:1526
+msgid "Billing Information"
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:1555
+msgid "Update Post when subscription is cancelled."
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:1560
+msgid "Mark Post as Draft"
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:1562
+msgid "Delete Post"
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:1583
+msgid "Enable"
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:1593
+msgid "Send to Stripe if "
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:1601
+msgid "is"
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:1603
+msgid "is not"
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:1611
+msgid ""
+"To create a registration condition, your form must have a drop down, "
+"checkbox or multiple choice field"
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:1625
+msgid "  Save  "
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:1625
+msgid "Update"
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:1626
+msgid "Cancel"
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:1672
+msgid "Ajax error while selecting a form"
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:1922
+msgid "Stripe Fields"
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:1922
+msgid "Form Fields"
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:1941
+msgid "First Name"
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:1944
+msgid "Last Name"
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:1947
+msgid "Email"
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:1950
+msgid "Address"
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:1953
+msgid "Address 2"
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:1956
+msgid "City"
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:1959
+msgid "State"
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:1962
+msgid "Zip"
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:1965
+msgid "Country"
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:1998
+msgid "Select a field"
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:2010
+msgid "Form Total"
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:2153
+msgid "Stripe Stats"
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:2158
+msgid "Daily"
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:2162
+msgid "Weekly"
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:2166
+msgid "Monthly"
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:2189
+msgid "No payments have been made yet."
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:2248
+msgid "Week "
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:2269
+msgid "Total Orders"
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:2274
+msgid "Total Donations"
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:2279
+msgid "Active Subscriptions"
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:2287
+msgid "Total Revenue"
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:2307
+msgid ""
+"** Free trial transactions will only be reflected in the graph after the "
+"first payment is made (i.e. after trial period ends)"
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:2380
+#: includes/GFP/Stripe/class-gfp-stripe.php:2459
+#: includes/GFP/Stripe/class-gfp-stripe.php:2541
+msgid "New Subscriptions"
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:2380
+#: includes/GFP/Stripe/class-gfp-stripe.php:2459
+#: includes/GFP/Stripe/class-gfp-stripe.php:2541
+msgid "Renewals"
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:2383
+#: includes/GFP/Stripe/class-gfp-stripe.php:2462
+#: includes/GFP/Stripe/class-gfp-stripe.php:2544
+msgid "Orders"
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:2386
+#: includes/GFP/Stripe/class-gfp-stripe.php:2465
+#: includes/GFP/Stripe/class-gfp-stripe.php:2547
+msgid "Revenue"
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:2405
+msgid "Orders Today"
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:2409
+msgid "Donations Today"
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:2413
+msgid "Subscriptions Today"
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:2422
+msgid "Revenue Today"
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:2465
+msgid "Week"
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:2485
+msgid "Orders this Week"
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:2489
+msgid "Donations this Week"
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:2493
+msgid "Subscriptions this Week"
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:2502
+msgid "Revenue this Week"
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:2566
+msgid "Orders this Month"
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:2570
+msgid "Donations this Month"
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:2574
+msgid "Subscriptions this Month"
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:2583
+msgid "Revenue this Month"
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:2606
+msgid "Jan"
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:2606
+msgid "Feb"
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:2606
+msgid "Mar"
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:2606
+msgid "Apr"
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:2606
+msgid "May"
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:2606
+msgid "Jun"
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:2606
+msgid "Jul"
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:2606
+msgid "Aug"
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:2606
+msgid "Sep"
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:2606
+msgid "Oct"
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:2606
+msgid "Nov"
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:2606
+msgid "Dec"
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:3432
+msgid "Invalid credit card number."
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:3433
+msgid " Invalid expiration date."
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:3434
+msgid " Invalid security code."
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:3435
+msgid " Invalid cardholder name."
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:3436
+#: includes/GFP/Stripe/class-gfp-stripe.php:3440
+#, php-format
+msgid "%s"
+msgstr ""
+
+#: includes/GFP/Stripe/class-gfp-stripe.php:3781
+msgid "options: "
+msgstr ""

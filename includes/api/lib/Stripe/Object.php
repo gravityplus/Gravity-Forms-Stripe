@@ -38,6 +38,12 @@ class Stripe_Object implements ArrayAccess
   // Standard accessor magic methods
   public function __set($k, $v)
   {
+    if ($v === ""){
+      throw new InvalidArgumentException(
+        'You cannot set \''.$k.'\'to an empty string. '
+        .'We interpret empty strings as NULL in requests. '
+        .'You may set obj->'.$k.' = NULL to delete the property');
+    }
     // TODO: may want to clear from $_transientValues.  (Won't be user-visible.)
     $this->_values[$k] = $v;
     if (!self::$_permanentAttributes->includes($k))
@@ -89,6 +95,11 @@ class Stripe_Object implements ArrayAccess
     return array_key_exists($k, $this->_values) ? $this->_values[$k] : null;
   }
 
+  public function keys()
+  {
+    return array_keys($this->_values);
+  }
+
   // This unfortunately needs to be public to be used in Util.php
   public static function scopedConstructFrom($class, $values, $apiKey=null)
   {
@@ -127,6 +138,19 @@ class Stripe_Object implements ArrayAccess
       $this->_transientValues->discard($k);
       $this->_unsavedValues->discard($k);
     }
+  }
+
+  // Pretend to have late static bindings, even in PHP 5.2
+  protected function _lsb($method)
+  {
+    $class = get_class($this);
+    $args = array_slice(func_get_args(), 1);
+    return call_user_func_array(array($class, $method), $args);
+  }
+  protected static function _scopedLsb($class, $method)
+  {
+    $args = array_slice(func_get_args(), 2);
+    return call_user_func_array(array($class, $method), $args);
   }
 
   public function __toJSON()
