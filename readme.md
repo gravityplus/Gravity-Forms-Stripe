@@ -24,9 +24,9 @@ This [Gravity Forms](http://naomicbush.com/getgravityforms) add-on integrates St
 *available only with [More Stripe here](https://gravityplus.pro/gravity-forms-stripe)
 
 ## Requirements
-* WordPress 3.6, tested up to 3.6.1, Multisite as well
+* WordPress 3.6, tested up to 3.7.1, Multisite as well
 * PHP 5.3
-* Gravity Forms 1.7.9 - [Grab a license](http://naomicbush.com/getgravityforms "purchase Gravity Forms!") if you don't already have one
+* Gravity Forms 1.7.11 - [Grab a license](http://naomicbush.com/getgravityforms "purchase Gravity Forms!") if you don't already have one
 * [Stripe](https://stripe.com) account
 
 ## Support
@@ -56,6 +56,14 @@ This [Gravity Forms](http://naomicbush.com/getgravityforms) add-on integrates St
 6. Under Forms->Stripe, add a Stripe feed for your new form.
 
 ## Changelog
+### 1.7.11.1 (October 31, 2013)
+* Add new conditional logic options and fields for Stripe feed
+* Add notice for incorrect version of Gravity Forms
+* Update Stripe PHP library to 1.8.3 since 1.9.0 has issues
+* Update for GF1.7.11
+* Update for WordPress 3.7
+* Bump version number
+
 ### 1.7.10.1 (October 3, 2013)
 * Ensure GF1.7.10 compatibility
 * Bump version number

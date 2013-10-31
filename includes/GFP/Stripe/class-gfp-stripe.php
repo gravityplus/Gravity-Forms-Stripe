@@ -44,7 +44,7 @@ class GFP_Stripe {
 	 *
 	 * @var string
 	 */
-	public static $version = '1.7.10.1';
+	public static $version = '1.7.11.1';
 
 	/**
 	 *
@@ -53,7 +53,7 @@ class GFP_Stripe {
 	 *
 	 * @var string
 	 */
-	private static $min_gravityforms_version = '1.7.9';
+	private static $min_gravityforms_version = '1.7.11';
 
 	/**
 	 *
@@ -233,8 +233,13 @@ class GFP_Stripe {
 	 */
 	public function init () {
 
-		if ( ! $this->is_gravityforms_supported() )
+		if ( ! $this->is_gravityforms_supported() ) {
+			$message = __( 'Gravity Forms + Stripe requires Gravity Forms ' . self::$min_gravityforms_version . '.', 'gfp-stripe' );
+			$this->set_admin_notice( $message );
+			add_action( 'admin_notices', array( $this, 'admin_notices' ) );
+
 			return;
+		}
 
 		add_action( 'admin_notices', array( $this, 'admin_notices' ) );
 		add_action( 'admin_menu', array( $this, 'admin_menu' ) );
@@ -444,6 +449,36 @@ class GFP_Stripe {
 	}
 
 	/**
+	 * Create an admin notice
+	 *
+	 * @since 1.7.11.1
+	 *
+	 * @uses  get_site_transient()
+	 * @uses  get_transient()
+	 * @uses  set_site_transient()
+	 * @uses  set_transient()
+	 *
+	 * @param $notice
+	 *
+	 * @return void
+	 */
+	private function set_admin_notice ( $notice ) {
+		if ( function_exists( 'get_site_transient' ) ) {
+			$notices = get_site_transient( 'gfp-stripe-admin_notices' );
+		}
+		else {
+			$notices = get_transient( 'gfp-stripe-admin_notices' );
+		}
+		$notices[] = $notice;
+		if ( function_exists( 'set_site_transient' ) ) {
+			set_site_transient( 'gfp-stripe-admin_notices', $notices );
+		}
+		else {
+			set_transient( 'gfp-stripe-admin_notices', $notices );
+		}
+	}
+
+	/**
 	 * Add a link to this plugin's settings page
 	 *
 	 * @uses self_admin_url()
@@ -485,19 +520,7 @@ class GFP_Stripe {
 		$plugin = plugin_basename( trim( GFP_STRIPE_FILE ) );
 		if ( is_plugin_active( $plugin ) ) {
 			$message = sprintf( __( "You must deactivate %s first.", 'gfp-stripe' ), basename( GFP_STRIPE_FILE ) );
-			if ( function_exists( 'get_site_transient' ) ) {
-				$notices = get_site_transient( 'gfp-stripe-admin_notices' );
-			}
-			else {
-				$notices = get_transient( 'gfp-stripe-admin_notices' );
-			}
-			$notices[] = $message;
-			if ( function_exists( 'set_site_transient' ) ) {
-				set_site_transient( 'gfp-stripe-admin_notices', $notices );
-			}
-			else {
-				set_transient( 'gfp-stripe-admin_notices', $notices );
-			}
+			self::$_this->set_admin_notice( $message );
 			wp_redirect( self_admin_url( 'plugins.php' ) );
 			exit;
 		}
@@ -828,184 +851,186 @@ class GFP_Stripe {
 		</style>
 
 		<form method="post" action="">
-		<?php wp_nonce_field( 'update', 'gfp_stripe_update' ) ?>
+			<?php wp_nonce_field( 'update', 'gfp_stripe_update' ) ?>
 
-		<h3><?php _e( 'Stripe Settings', 'gfp-stripe' ); ?></h3>
-		<table class="form-table">
-			<tr valign="top">
-				<th scope="row">
-					<label
-						for="gfp_support_key"><?php _e( "gravity+ Support License Key", "gfp-stripe" ); ?></label><?php gform_tooltip( 'stripe_support_license_key' ) ?>
-				</th>
-				<td>
-					<?php
+			<h3><?php _e( 'Stripe Settings', 'gfp-stripe' ); ?></h3>
+			<table class="form-table">
+				<tr valign="top">
+					<th scope="row">
+						<label
+							for="gfp_support_key"><?php _e( "gravity+ Support License Key", "gfp-stripe" ); ?></label><?php gform_tooltip( 'stripe_support_license_key' ) ?>
+					</th>
+					<td>
+						<?php
 
-					$key_field = '<input type="password" ' . ( class_exists( 'GFPMoreStripeUpgrade' ) ? '' : 'disabled' ) . ' name="gfp_support_key" id="gfp_support_key" style="width:350px;" value="' . ( empty( $gfp_support_key ) ? '' : $gfp_support_key ) . '" />';
-					if ( class_exists( 'GFPMoreStripeUpgrade' ) ) {
-						$version_info = GFPMoreStripeUpgrade::get_version_info( GFPMoreStripe::get_slug(), $gfp_support_key, GFPMoreStripe::get_version(), ( isset( $_POST["gfp_stripe_submit"] ) ? false : true ) );
-						if ( $version_info['is_valid_key'] )
-							$key_field .= "&nbsp;<img src='" . GFCommon::get_base_url() . "/images/tick.png' class='gf_keystatus_valid' alt='valid key' title='valid key'/>";
-						else if ( ! empty( $gfp_support_key ) )
-							$key_field .= "&nbsp;<img src='" . GFCommon::get_base_url() . "/images/cross.png' class='gf_keystatus_invalid' alt='invalid key' title='invalid key'/>";
-					}
-					echo $key_field;
-					?>
-					<br/>
-					<?php _e( sprintf( "The license key is used for access to %s+(More) Stripe%s automatic upgrades and support. Activate +(More) Stripe to enter your license key.", "<a href='https://gravityplus.pro' target='_blank'>", "</a>" ), 'gfp-stripe' ); ?>
-				</td>
-			</tr>
-		</table>
-		<div class="hr-divider"></div>
-		<h3><?php _e( 'Stripe Account Information', 'gfp-stripe' ) ?></h3>
-
-		<p style="text-align: left;">
-			<?php _e( sprintf( "Stripe is a payment gateway for merchants. Use Gravity Forms to collect payment information and automatically integrate to your client's Stripe account. If you don't have a Stripe account, you can %ssign up for one here%s", "<a href='http://www.stripe.com' target='_blank'>", "</a>" ), 'gfp-stripe' ) ?>
-		</p>
-		<table class="form-table">
-
-			<tr>
-				<th scope="row" nowrap="nowrap"><label
-						for="gfp_stripe_mode"><?php _e( 'API Mode', 'gfp-stripe' ); ?> <?php gform_tooltip( 'stripe_api' ) ?></label>
-				</th>
-				<td width="88%">
-					<input type="radio" name="gfp_stripe_mode" id="gfp_stripe_mode_live"
-								 value="live" <?php echo rgar( $settings, 'mode' ) != 'test' ? "checked='checked'" : '' ?>/> <label
-						class="inline" for="gfp_stripe_mode_live"><?php _e( 'Live', 'gfp-stripe' ); ?></label> &nbsp;&nbsp;&nbsp;
-					<input type="radio" name="gfp_stripe_mode" id="gfp_stripe_mode_test"
-								 value="test" <?php echo 'test' == rgar( $settings, 'mode' ) ? "checked='checked'" : '' ?>/> <label
-						class="inline" for="gfp_stripe_mode_test"><?php _e( 'Test', 'gfp-stripe' ); ?></label>
-				</td>
-			</tr>
-			<tr>
-				<td colspan='2'>
-					<p><?php _e( sprintf( "You can find your <strong>Stripe API keys</strong> needed below in your Stripe dashboard 'Account Settings' %shere%s", "<a href='https://manage.stripe.com/account/apikeys' target='_blank'>", "</a>" ), 'gfp-stripe' ); ?></p>
-				</td>
-			</tr>
-			<tr>
-				<th scope="row" nowrap="nowrap"><label
-						for="gfp_stripe_test_secret_key"><?php _e( 'Test Secret Key', 'gfp-stripe' ); ?> <?php gform_tooltip( 'stripe_test_secret_key' ) ?></label>
-				</th>
-				<td width="88%">
-					<input class="size-1" id="gfp_stripe_test_secret_key" name="gfp_stripe_test_secret_key"
-								 value="<?php echo trim( esc_attr( rgar( $settings, 'test_secret_key' ) ) ) ?>"/> <img
-						src="<?php echo self::$_this->get_base_url() ?>/images/<?php echo $is_valid[1]['test_secret_key'] ? 'tick.png' : 'stop.png' ?>"
-						border="0" alt="<?php array_key_exists( 0, $message ) ? $message[0] : $message[1]['test_secret_key'] ?>"
-						title="<?php echo array_key_exists( 0, $message ) ? $message[0] : $message[1]['test_secret_key'] ?>"
-						style="display:<?php echo ( empty( $message[0] ) && empty( $message[1]['test_secret_key'] ) ) ? 'none;' : 'inline;' ?>"/>
-					<br/>
-				</td>
-			</tr>
-			<tr>
-				<th scope="row" nowrap="nowrap"><label
-						for="gfp_stripe_test_publishable_key"><?php _e( 'Test Publishable Key', 'gfp-stripe' ); ?> <?php gform_tooltip( 'stripe_test_publishable_key' ) ?></label>
-				</th>
-				<td width="88%">
-					<input class="size-1" id="gfp_stripe_test_publishable_key" name="gfp_stripe_test_publishable_key"
-								 value="<?php echo trim( esc_attr( rgar( $settings, 'test_publishable_key' ) ) ) ?>"/> <img
-						src="<?php echo self::$_this->get_base_url() ?>/images/<?php echo $is_valid[1]['test_publishable_key'] ? 'tick.png' : 'stop.png' ?>"
-						border="0"
-						alt="<?php array_key_exists( 0, $message ) ? $message[0] : $message[1]['test_publishable_key'] ?>"
-						title="<?php echo array_key_exists( 0, $message ) ? $message[0] : $message[1]['test_publishable_key'] ?>"
-						style="display:<?php echo ( empty( $message[0] ) && empty( $message[1]['test_publishable_key'] ) ) ? 'none;' : 'inline;' ?>"/>
-					<br/>
-				</td>
-			</tr>
-			<tr>
-				<th scope="row" nowrap="nowrap"><label
-						for="gfp_stripe_live_secret_key"><?php _e( 'Live Secret Key', 'gfp-stripe' ); ?> <?php gform_tooltip( 'stripe_live_secret_key' ) ?></label>
-				</th>
-				<td width="88%">
-					<input class="size-1" id="gfp_stripe_live_secret_key" name="gfp_stripe_live_secret_key"
-								 value="<?php echo trim( esc_attr( rgar( $settings, 'live_secret_key' ) ) ) ?>"/> <img
-						src="<?php echo self::$_this->get_base_url() ?>/images/<?php echo $is_valid[1]['live_secret_key'] ? 'tick.png' : 'stop.png' ?>"
-						border="0" alt="<?php array_key_exists( 0, $message ) ? $message[0] : $message[1]['live_secret_key'] ?>"
-						title="<?php echo array_key_exists( 0, $message ) ? $message[0] : $message[1]['live_secret_key'] ?>"
-						style="display:<?php echo ( empty( $message[0] ) && empty( $message[1]['live_secret_key'] ) ) ? 'none;' : 'inline;' ?>"/>
-					<?php
-					if ( array_key_exists( 2, $is_valid ) && ( 'Stripe_InvalidRequestError' == $is_valid[2]['live_secret_key'] ) ) {
+						$key_field = '<input type="password" ' . ( class_exists( 'GFPMoreStripeUpgrade' ) ? '' : 'disabled' ) . ' name="gfp_support_key" id="gfp_support_key" style="width:350px;" value="' . ( empty( $gfp_support_key ) ? '' : $gfp_support_key ) . '" />';
+						if ( class_exists( 'GFPMoreStripeUpgrade' ) ) {
+							$version_info = GFPMoreStripeUpgrade::get_version_info( GFPMoreStripe::get_slug(), $gfp_support_key, GFPMoreStripe::get_version(), ( isset( $_POST["gfp_stripe_submit"] ) ? false : true ) );
+							if ( $version_info['is_valid_key'] )
+								$key_field .= "&nbsp;<img src='" . GFCommon::get_base_url() . "/images/tick.png' class='gf_keystatus_valid' alt='valid key' title='valid key'/>";
+							else if ( ! empty( $gfp_support_key ) )
+								$key_field .= "&nbsp;<img src='" . GFCommon::get_base_url() . "/images/cross.png' class='gf_keystatus_invalid' alt='invalid key' title='invalid key'/>";
+						}
+						echo $key_field;
 						?>
-						<span class="invalid_credentials">*You must activate your Stripe account to use this key</span>
-					<?php
-					}
-					?>
-					<br/>
-				</td>
-			</tr>
-			<tr>
-				<th scope="row" nowrap="nowrap"><label
-						for="gfp_stripe_live_publishable_key"><?php _e( 'Live Publishable Key', 'gfp-stripe' ); ?> <?php gform_tooltip( 'stripe_live_publishable_key' ) ?></label>
-				</th>
-				<td width="88%">
-					<input class="size-1" id="gfp_stripe_live_publishable_key" name="gfp_stripe_live_publishable_key"
-								 value="<?php echo trim( esc_attr( rgar( $settings, 'live_publishable_key' ) ) ) ?>"/> <img
-						src="<?php echo self::$_this->get_base_url() ?>/images/<?php echo $is_valid[1]['live_publishable_key'] ? 'tick.png' : 'stop.png' ?>"
-						border="0"
-						alt="<?php array_key_exists( 0, $message ) ? $message[0] : $message[1]['live_publishable_key'] ?>"
-						title="<?php echo array_key_exists( 0, $message ) ? $message[0] : $message[1]['live_publishable_key'] ?>"
-						style="display:<?php echo ( empty( $message[0] ) && empty( $message[1]['live_publishable_key'] ) ) ? 'none;' : 'inline;' ?>"/>
-					<?php
-					if ( array_key_exists( 2, $is_valid ) && ( 'Stripe_InvalidRequestError' == $is_valid[2]['live_publishable_key'] ) ) {
+						<br/>
+						<?php _e( sprintf( "The license key is used for access to %s+(More) Stripe%s automatic upgrades and support. Activate +(More) Stripe to enter your license key.", "<a href='https://gravityplus.pro' target='_blank'>", "</a>" ), 'gfp-stripe' ); ?>
+					</td>
+				</tr>
+			</table>
+			<div class="hr-divider"></div>
+			<h3><?php _e( 'Stripe Account Information', 'gfp-stripe' ) ?></h3>
+
+			<p style="text-align: left;">
+				<?php _e( sprintf( "Stripe is a payment gateway for merchants. Use Gravity Forms to collect payment information and automatically integrate to your client's Stripe account. If you don't have a Stripe account, you can %ssign up for one here%s", "<a href='http://www.stripe.com' target='_blank'>", "</a>" ), 'gfp-stripe' ) ?>
+			</p>
+			<table class="form-table">
+
+				<tr>
+					<th scope="row" nowrap="nowrap"><label
+							for="gfp_stripe_mode"><?php _e( 'API Mode', 'gfp-stripe' ); ?> <?php gform_tooltip( 'stripe_api' ) ?></label>
+					</th>
+					<td width="88%">
+						<input type="radio" name="gfp_stripe_mode" id="gfp_stripe_mode_live"
+									 value="live" <?php echo rgar( $settings, 'mode' ) != 'test' ? "checked='checked'" : '' ?>/> <label
+							class="inline" for="gfp_stripe_mode_live"><?php _e( 'Live', 'gfp-stripe' ); ?></label> &nbsp;&nbsp;&nbsp;
+						<input type="radio" name="gfp_stripe_mode" id="gfp_stripe_mode_test"
+									 value="test" <?php echo 'test' == rgar( $settings, 'mode' ) ? "checked='checked'" : '' ?>/> <label
+							class="inline" for="gfp_stripe_mode_test"><?php _e( 'Test', 'gfp-stripe' ); ?></label>
+					</td>
+				</tr>
+				<tr>
+					<td colspan='2'>
+						<p><?php _e( sprintf( "You can find your <strong>Stripe API keys</strong> needed below in your Stripe dashboard 'Account Settings' %shere%s", "<a href='https://manage.stripe.com/account/apikeys' target='_blank'>", "</a>" ), 'gfp-stripe' ); ?></p>
+					</td>
+				</tr>
+				<tr>
+					<th scope="row" nowrap="nowrap"><label
+							for="gfp_stripe_test_secret_key"><?php _e( 'Test Secret Key', 'gfp-stripe' ); ?> <?php gform_tooltip( 'stripe_test_secret_key' ) ?></label>
+					</th>
+					<td width="88%">
+						<input class="size-1" id="gfp_stripe_test_secret_key" name="gfp_stripe_test_secret_key"
+									 value="<?php echo trim( esc_attr( rgar( $settings, 'test_secret_key' ) ) ) ?>"/> <img
+							src="<?php echo self::$_this->get_base_url() ?>/images/<?php echo $is_valid[1]['test_secret_key'] ? 'tick.png' : 'stop.png' ?>"
+							border="0" alt="<?php array_key_exists( 0, $message ) ? $message[0] : $message[1]['test_secret_key'] ?>"
+							title="<?php echo array_key_exists( 0, $message ) ? $message[0] : $message[1]['test_secret_key'] ?>"
+							style="display:<?php echo ( empty( $message[0] ) && empty( $message[1]['test_secret_key'] ) ) ? 'none;' : 'inline;' ?>"/>
+						<br/>
+					</td>
+				</tr>
+				<tr>
+					<th scope="row" nowrap="nowrap"><label
+							for="gfp_stripe_test_publishable_key"><?php _e( 'Test Publishable Key', 'gfp-stripe' ); ?> <?php gform_tooltip( 'stripe_test_publishable_key' ) ?></label>
+					</th>
+					<td width="88%">
+						<input class="size-1" id="gfp_stripe_test_publishable_key" name="gfp_stripe_test_publishable_key"
+									 value="<?php echo trim( esc_attr( rgar( $settings, 'test_publishable_key' ) ) ) ?>"/> <img
+							src="<?php echo self::$_this->get_base_url() ?>/images/<?php echo $is_valid[1]['test_publishable_key'] ? 'tick.png' : 'stop.png' ?>"
+							border="0"
+							alt="<?php array_key_exists( 0, $message ) ? $message[0] : $message[1]['test_publishable_key'] ?>"
+							title="<?php echo array_key_exists( 0, $message ) ? $message[0] : $message[1]['test_publishable_key'] ?>"
+							style="display:<?php echo ( empty( $message[0] ) && empty( $message[1]['test_publishable_key'] ) ) ? 'none;' : 'inline;' ?>"/>
+						<br/>
+					</td>
+				</tr>
+				<tr>
+					<th scope="row" nowrap="nowrap"><label
+							for="gfp_stripe_live_secret_key"><?php _e( 'Live Secret Key', 'gfp-stripe' ); ?> <?php gform_tooltip( 'stripe_live_secret_key' ) ?></label>
+					</th>
+					<td width="88%">
+						<input class="size-1" id="gfp_stripe_live_secret_key" name="gfp_stripe_live_secret_key"
+									 value="<?php echo trim( esc_attr( rgar( $settings, 'live_secret_key' ) ) ) ?>"/> <img
+							src="<?php echo self::$_this->get_base_url() ?>/images/<?php echo $is_valid[1]['live_secret_key'] ? 'tick.png' : 'stop.png' ?>"
+							border="0" alt="<?php array_key_exists( 0, $message ) ? $message[0] : $message[1]['live_secret_key'] ?>"
+							title="<?php echo array_key_exists( 0, $message ) ? $message[0] : $message[1]['live_secret_key'] ?>"
+							style="display:<?php echo ( empty( $message[0] ) && empty( $message[1]['live_secret_key'] ) ) ? 'none;' : 'inline;' ?>"/>
+						<?php
+						if ( array_key_exists( 2, $is_valid ) && ( 'Stripe_InvalidRequestError' == $is_valid[2]['live_secret_key'] ) ) {
+							?>
+							<span class="invalid_credentials">*You must activate your Stripe account to use this key</span>
+						<?php
+						}
 						?>
-						<span class="invalid_credentials">*You must activate your Stripe account to use this key</span>
-					<?php
-					}
-					?>
-					<br/>
-				</td>
-			</tr>
-		</table>
-		<br/>
-		<div class="push-alert-green" style="text-align: left; padding: 10px 26px;">
-			<p>
+						<br/>
+					</td>
+				</tr>
+				<tr>
+					<th scope="row" nowrap="nowrap"><label
+							for="gfp_stripe_live_publishable_key"><?php _e( 'Live Publishable Key', 'gfp-stripe' ); ?> <?php gform_tooltip( 'stripe_live_publishable_key' ) ?></label>
+					</th>
+					<td width="88%">
+						<input class="size-1" id="gfp_stripe_live_publishable_key" name="gfp_stripe_live_publishable_key"
+									 value="<?php echo trim( esc_attr( rgar( $settings, 'live_publishable_key' ) ) ) ?>"/> <img
+							src="<?php echo self::$_this->get_base_url() ?>/images/<?php echo $is_valid[1]['live_publishable_key'] ? 'tick.png' : 'stop.png' ?>"
+							border="0"
+							alt="<?php array_key_exists( 0, $message ) ? $message[0] : $message[1]['live_publishable_key'] ?>"
+							title="<?php echo array_key_exists( 0, $message ) ? $message[0] : $message[1]['live_publishable_key'] ?>"
+							style="display:<?php echo ( empty( $message[0] ) && empty( $message[1]['live_publishable_key'] ) ) ? 'none;' : 'inline;' ?>"/>
+						<?php
+						if ( array_key_exists( 2, $is_valid ) && ( 'Stripe_InvalidRequestError' == $is_valid[2]['live_publishable_key'] ) ) {
+							?>
+							<span class="invalid_credentials">*You must activate your Stripe account to use this key</span>
+						<?php
+						}
+						?>
+						<br/>
+					</td>
+				</tr>
+			</table>
+			<br/>
+
+			<div class="push-alert-green" style="text-align: left; padding: 10px 26px;">
+				<p>
 					<span class="strong">
 						<?php _e( "Broken and difficult to use plugins suck! ", 'gfp-stripe' );
 						?>
 					</span>
-				<?php _e( "But that doesn't have to be your experience. ", 'gfp-stripe' );
-				?>
-			</p>
+					<?php _e( "But that doesn't have to be your experience. ", 'gfp-stripe' );
+					?>
+				</p>
 
-			<p>
+				<p>
 					<span class="strong">
 						<?php printf( __( 'Enable %1$sPressTrends%2$s,', 'gfp-stripe' ),
 													'<a href="http://presstrends.io/" target="_blank">',
 													'</a>' );
 						?>
 					</span>
-				<?php _e( "a third-party analytics service just for WordPress sites,
+					<?php _e( "a third-party analytics service just for WordPress sites,
 				plugins, and themes, that aggregates completely anonymous usage stats so I know which themes, plugins,
 				and configurations to test with to keep your site working!", 'gfp-stripe' );
-				?>
-			</p>
-			<p>
-				<?php _e( "(You can even access all of the data through benchmarks by creating your own PressTrends account on their website)", 'gfp-stripe' );
-				?>
-			</p>
-		</div>
+					?>
+				</p>
+
+				<p>
+					<?php _e( "(You can even access all of the data through benchmarks by creating your own PressTrends account on their website)", 'gfp-stripe' );
+					?>
+				</p>
+			</div>
 			<table class="form-table">
-						<tr>
-							<td width="88%">
-								<input type="checkbox" name="gfp_stripe_do_presstrends" id="gfp_stripe_do_presstrends"
-											 value="true" <?php checked( 'true', rgar( $settings, 'do_presstrends' ), true ) ?>/> <label
-									class="inline"
-									for="gfp_stripe_do_presstrends"><?php _e( 'Yes I want to make sure this plugin works on my site.', 'gfp-stripe' ); ?></label>
-								&nbsp;&nbsp;&nbsp;
-							</td>
-						</tr>
-					</table>
+				<tr>
+					<td width="88%">
+						<input type="checkbox" name="gfp_stripe_do_presstrends" id="gfp_stripe_do_presstrends"
+									 value="true" <?php checked( 'true', rgar( $settings, 'do_presstrends' ), true ) ?>/> <label
+							class="inline"
+							for="gfp_stripe_do_presstrends"><?php _e( 'Yes I want to make sure this plugin works on my site.', 'gfp-stripe' ); ?></label>
+						&nbsp;&nbsp;&nbsp;
+					</td>
+				</tr>
+			</table>
 
-		<?php
-		do_action( 'gfp_stripe_settings_page', $settings );
-		?>
+			<?php
+			do_action( 'gfp_stripe_settings_page', $settings );
+			?>
 
 
 
-		<br/><br/>
+			<br/><br/>
 
-		<p class="submit" style="text-align: left;">
-			<input type="submit" name="gfp_stripe_submit" class="button-primary"
-						 value="<?php _e( 'Save Settings', 'gfp-stripe' ) ?>"/>
-		</p>
+			<p class="submit" style="text-align: left;">
+				<input type="submit" name="gfp_stripe_submit" class="button-primary"
+							 value="<?php _e( 'Save Settings', 'gfp-stripe' ) ?>"/>
+			</p>
 
 		</form>
 		<?php
@@ -1396,6 +1421,7 @@ class GFP_Stripe {
 		</style>
 
 		<script type="text/javascript" src="<?php echo GFCommon::get_base_url() ?>/js/gravityforms.js"></script>
+		<script type="text/javascript">var form = Array();</script>
 
 		<div class="wrap">
 		<img alt="<?php _e( 'Stripe', 'gfp-stripe' ) ?>" style="margin: 15px 7px 0pt 0pt; float: left;"
@@ -1406,7 +1432,7 @@ class GFP_Stripe {
 		<?php
 
 		//getting setting id (0 when creating a new one)
-		$id = ! empty( $_POST["stripe_setting_id"] ) ? $_POST["stripe_setting_id"] : absint( $_GET["id"] );
+		$id = ! empty( $_POST['stripe_setting_id'] ) ? $_POST['stripe_setting_id'] : absint( $_GET['id'] );
 		$feed = empty( $id ) ? array(
 			'meta'      => array(),
 			'is_active' => true ) : GFP_Stripe_Data::get_feed( $id );
@@ -1415,22 +1441,22 @@ class GFP_Stripe {
 		//updating meta information
 		if ( rgpost( 'gfp_stripe_submit' ) ) {
 
-			$feed["form_id"]                    = absint( rgpost( 'gfp_stripe_form' ) );
-			$feed["meta"]["type"]               = rgpost( 'gfp_stripe_type' );
-			$feed["meta"]["update_post_action"] = rgpost( 'gfp_stripe_update_action' );
+			$feed['form_id']                    = absint( rgpost( 'gfp_stripe_form' ) );
+			$feed['meta']['type']               = rgpost( 'gfp_stripe_type' );
+			$feed['meta']['update_post_action'] = rgpost( 'gfp_stripe_update_action' );
 
 			// stripe conditional
-			$feed["meta"]["stripe_conditional_enabled"]  = rgpost( 'gfp_stripe_conditional_enabled' );
-			$feed["meta"]["stripe_conditional_field_id"] = rgpost( 'gfp_stripe_conditional_field_id' );
-			$feed["meta"]["stripe_conditional_operator"] = rgpost( 'gfp_stripe_conditional_operator' );
-			$feed["meta"]["stripe_conditional_value"]    = rgpost( 'gfp_stripe_conditional_value' );
+			$feed['meta']['stripe_conditional_enabled']  = rgpost( 'gfp_stripe_conditional_enabled' );
+			$feed['meta']['stripe_conditional_field_id'] = rgpost( 'gfp_stripe_conditional_field_id' );
+			$feed['meta']['stripe_conditional_operator'] = rgpost( 'gfp_stripe_conditional_operator' );
+			$feed['meta']['stripe_conditional_value']    = rgpost( 'gfp_stripe_conditional_value' );
 
 			//-----------------
 
 			$customer_fields                 = $this->get_customer_fields();
-			$feed["meta"]["customer_fields"] = array();
+			$feed['meta']['customer_fields'] = array();
 			foreach ( $customer_fields as $field ) {
-				$feed["meta"]["customer_fields"][$field["name"]] = $_POST["stripe_customer_field_{$field["name"]}"];
+				$feed['meta']['customer_fields'][$field['name']] = $_POST["stripe_customer_field_{$field["name"]}"];
 			}
 
 			$feed = apply_filters( 'gfp_stripe_save_feed', $feed );
@@ -1449,7 +1475,7 @@ class GFP_Stripe {
 			}
 		}
 
-		$form = isset( $feed["form_id"] ) && $feed["form_id"] ? $form = RGFormsModel::get_form_meta( $feed["form_id"] ) : array();
+		$form = isset( $feed['form_id'] ) && $feed['form_id'] ? $form = RGFormsModel::get_form_meta( $feed['form_id'] ) : array();
 		$settings = get_option( 'gfp_stripe_settings' );
 		?>
 		<form method="post" action="">
@@ -1544,15 +1570,15 @@ class GFP_Stripe {
 					<ul style="overflow:hidden;">
 
 						<?php
-						$display_post_fields = ! empty( $form ) ? GFCommon::has_post_field( $form["fields"] ) : false;
+						$display_post_fields = ! empty( $form ) ? GFCommon::has_post_field( $form['fields'] ) : false;
 						?>
 						<li
-							id="stripe_post_update_action" <?php echo $display_post_fields && 'subscription' == $feed["meta"]["type"] ? '' : "style='display:none;'" ?>>
+							id="stripe_post_update_action" <?php echo $display_post_fields && 'subscription' == $feed['meta']['type'] ? '' : "style='display:none;'" ?>>
 							<input type="checkbox" name="gfp_stripe_update_post" id="gfp_stripe_update_post"
-										 value="1" <?php echo rgar( $feed["meta"], 'update_post_action' ) ? "checked='checked'" : "" ?>
+										 value="1" <?php echo rgar( $feed['meta'], 'update_post_action' ) ? "checked='checked'" : "" ?>
 										 onclick="var action = this.checked ? 'draft' : ''; jQuery('#gfp_stripe_update_action').val(action);"/>
 							<label class="inline"
-										 for="gfp_stripe_update_post"><?php _e( 'Update Post when subscription is cancelled.', 'gfp-stripe' ); ?> <?php gform_tooltip( 'stripe_update_post' ) ?></label>
+										 for="gfp_stripe_update_post"><?php _e( 'Update Post when subscription is canceled.', 'gfp-stripe' ); ?> <?php gform_tooltip( 'stripe_update_post' ) ?></label>
 							<select id="gfp_stripe_update_action" name="gfp_stripe_update_action"
 											onchange="var checked = jQuery(this).val() ? 'checked' : false; jQuery('#gfp_stripe_update_post').attr('checked', checked);">
 								<option value=""></option>
@@ -1588,27 +1614,50 @@ class GFP_Stripe {
 									<div
 										id="gfp_stripe_conditional_container" <?php echo ! rgar( $feed['meta'], 'stripe_conditional_enabled' ) ? "style='display:none'" : '' ?>>
 
-										<div
-											id="gfp_stripe_conditional_fields" <?php echo empty( $selection_fields ) ? "style='display:none'" : "" ?>>
+										<div id="gfp_stripe_conditional_fields" style="display:none">
 											<?php _e( 'Send to Stripe if ', 'gfp-stripe' ) ?>
 
 											<select id="gfp_stripe_conditional_field_id" name="gfp_stripe_conditional_field_id"
 															class="optin_select"
-															onchange='jQuery("#gfp_stripe_conditional_value").html(GetFieldValues(jQuery(this).val(), "", 20));'>
-												<?php echo $selection_fields ?>
-											</select> <select id="gfp_stripe_conditional_operator" name="gfp_stripe_conditional_operator">
+															onchange='jQuery("#gfp_stripe_conditional_value_container").html(GetFieldValues(jQuery(this).val(), "", 20));'> </select>
+											<select id="gfp_stripe_conditional_operator" name="gfp_stripe_conditional_operator">
 												<option
-													value="is" <?php echo rgar( $feed['meta'], 'stripe_conditional_operator' ) == 'is' ? "selected='selected'" : '' ?>><?php _e( 'is', 'gfp-stripe' ) ?></option>
+													value="is" <?php selected( 'is', rgar( $feed['meta'], 'stripe_conditional_operator' ), true ); ?>>
+													<?php _e( 'is', 'gfp-stripe' ) ?>
+												</option>
 												<option
-													value="isnot" <?php echo rgar( $feed['meta'], 'stripe_conditional_operator' ) == 'isnot' ? "selected='selected'" : '' ?>><?php _e( 'is not', 'gfp-stripe' ) ?></option>
-											</select> <select id="gfp_stripe_conditional_value" name="gfp_stripe_conditional_value"
-																				class='optin_select'></select>
+													value="isnot" <?php selected( 'isnot', rgar( $feed['meta'], 'stripe_conditional_operator' ), true ); ?>>
+													<?php _e( 'is not', 'gfp-stripe' ) ?>
+												</option>
+												<option
+													value=">" <?php selected( '>', rgar( $feed['meta'], 'stripe_conditional_operator' ), true ); ?>>
+													<?php _e( 'greater than', 'gfp-stripe' ) ?>
+												</option>
+												<option
+													value="<" <?php selected( '<', rgar( $feed['meta'], 'stripe_conditional_operator' ), true ); ?>>
+													<?php _e( 'less than', 'gfp-stripe' ) ?>
+												</option>
+												<option
+													value="contains" <?php selected( 'contains', rgar( $feed['meta'], 'stripe_conditional_operator' ), true ); ?>>
+													<?php _e( 'contains', 'gfp-stripe' ) ?>
+												</option>
+												<option
+													value="starts_with" <?php selected( 'starts_with', rgar( $feed['meta'], 'stripe_conditional_operator' ), true ); ?>>
+													<?php _e( 'starts with', 'gfp-stripe' ) ?>
+												</option>
+												<option
+													value="ends_with" <?php selected( 'ends_with', rgar( $feed['meta'], 'stripe_conditional_operator' ), true ); ?>>
+													<?php _e( 'ends with', 'gfp-stripe' ) ?>
+												</option>
+											</select>
+
+											<div id="gfp_stripe_conditional_value_container" name="gfp_stripe_conditional_value_container"
+													 style="display:inline"></div>
 
 										</div>
 
-										<div
-											id="gfp_stripe_conditional_message" <?php echo ! empty( $selection_fields ) ? "style='display:none'" : "" ?>>
-											<?php _e( 'To create a registration condition, your form must have a drop down, checkbox or multiple choice field', 'gravityform' ) ?>
+										<div id="gfp_stripe_conditional_message" style="display:none">
+											<?php _e( 'To create a registration condition, your form must have a field supported by conditional logic', 'gfp-stripe' ) ?>
 										</div>
 
 									</div>
@@ -1658,7 +1707,7 @@ class GFP_Stripe {
 				jQuery( "#stripe_wait" ).show();
 				jQuery( "#stripe_field_group" ).slideUp();
 
-				var mysack = new sack( "<?php bloginfo( 'wpurl' ); ?>/wp-admin/admin-ajax.php" );
+				var mysack = new sack( ajaxurl );
 				mysack.execute = 1;
 				mysack.method = 'POST';
 				mysack.setVar( "action", "gfp_select_stripe_form" );
@@ -1694,12 +1743,12 @@ class GFP_Stripe {
 				var type = jQuery( "#gfp_stripe_type" ).val();
 
 				jQuery( ".gfp_stripe_invalid_form" ).hide();
-				if ( (type == "product" || type == "subscription") && GetFieldsByType( ["product"] ).length == 0 ) {
+				if ( ( 'product' == type || 'subscription' == type || 'update-subscription' == type ) && GetFieldsByType( ['product'] ).length == 0 ) {
 					jQuery( "#gfp_stripe_invalid_product_form" ).show();
 					jQuery( "#stripe_wait" ).hide();
 					return;
 				}
-				else if ( (type == "product" || type == "subscription") && GetFieldsByType( ["creditcard"] ).length == 0 ) {
+				else if ( ( 'product' == type || 'subscription' == type || 'update-billing' == type ) && GetFieldsByType( ['creditcard'] ).length == 0 ) {
 					jQuery( "#gfp_stripe_invalid_creditcard_form" ).show();
 					jQuery( "#stripe_wait" ).hide();
 					return;
@@ -1773,7 +1822,7 @@ class GFP_Stripe {
 			// Stripe Conditional Functions
 
 			<?php
-				if ( ! empty( $feed[ "form_id" ] ) ) {
+				if ( ! empty( $feed['form_id'] ) ) {
 					?>
 
 			// initialize form object
@@ -1781,8 +1830,8 @@ class GFP_Stripe {
 
 			// initializing registration condition drop downs
 			jQuery( document ).ready( function () {
-				var selectedField = "<?php echo str_replace( '"', '\"', $feed[ "meta" ][ "stripe_conditional_field_id" ] )?>";
-				var selectedValue = "<?php echo str_replace( '"', '\"', $feed[ "meta" ][ "stripe_conditional_value" ] )?>";
+				var selectedField = "<?php echo str_replace( '"', '\"', $feed[ 'meta' ][ 'stripe_conditional_field_id' ] )?>";
+				var selectedValue = "<?php echo str_replace( '"', '\"', $feed[ 'meta' ][ 'stripe_conditional_value' ] )?>";
 				SetStripeCondition( selectedField, selectedValue );
 			} );
 
@@ -1800,14 +1849,17 @@ class GFP_Stripe {
 				if ( optinConditionField ) {
 					jQuery( "#gfp_stripe_conditional_message" ).hide();
 					jQuery( "#gfp_stripe_conditional_fields" ).show();
-					jQuery( "#gfp_stripe_conditional_value" ).html( GetFieldValues( optinConditionField, selectedValue, 20 ) );
+					jQuery( "#gfp_stripe_conditional_value_container" ).html( GetFieldValues( optinConditionField, selectedValue, 20 ) );
+					jQuery( "#gfp_stripe_conditional_value" ).val( selectedValue );
 				}
 				else {
 					jQuery( "#gfp_stripe_conditional_message" ).show();
 					jQuery( "#gfp_stripe_conditional_fields" ).hide();
 				}
 
-				if ( !checked ) jQuery( "#gfp_stripe_conditional_container" ).hide();
+				if ( !checked ) {
+					jQuery( "#gfp_stripe_conditional_container" ).hide();
+				}
 
 			}
 
@@ -1817,23 +1869,44 @@ class GFP_Stripe {
 
 				var str = "";
 				var field = GetFieldById( fieldId );
-				if ( !field || !field.choices )
+				if ( !field )
 					return "";
 
 				var isAnySelected = false;
 
-				for ( var i = 0; i < field.choices.length; i++ ) {
-					var fieldValue = field.choices[i].value ? field.choices[i].value : field.choices[i].text;
-					var isSelected = fieldValue == selectedValue;
-					var selected = isSelected ? "selected='selected'" : "";
-					if ( isSelected )
-						isAnySelected = true;
-
-					str += "<option value='" + fieldValue.replace( /'/g, "&#039;" ) + "' " + selected + ">" + TruncateMiddle( field.choices[i].text, labelMaxCharacters ) + "</option>";
+				if ( ( 'post_category' == field['type'] ) && field['displayAllCategories'] ) {
+					str += '<?php $select = wp_dropdown_categories( array(
+					'orderby' => 'name',
+					'hide_empty' => 0,
+					'echo' => false,
+					'hierarchical' => true,
+					'name' => 'gfp_stripe_conditional_value',
+					'id' => 'gfp_stripe_conditional_value',
+					'class' => 'optin_select'
+					));
+					echo str_replace( "\n","", str_replace( "'","\\'",$select ) ); ?>';
 				}
+				else if ( field.choices ) {
+					str += '<select id="gfp_stripe_conditional_value" name="gfp_stripe_conditional_value" class="optin_select">'
 
-				if ( !isAnySelected && selectedValue ) {
-					str += "<option value='" + selectedValue.replace( /'/g, "&#039;" ) + "' selected='selected'>" + TruncateMiddle( selectedValue, labelMaxCharacters ) + "</option>";
+					for ( var i = 0; i < field.choices.length; i++ ) {
+						var fieldValue = field.choices[i].value ? field.choices[i].value : field.choices[i].text;
+						var isSelected = fieldValue == selectedValue;
+						var selected = isSelected ? "selected='selected'" : "";
+						if ( isSelected )
+							isAnySelected = true;
+
+						str += "<option value='" + fieldValue.replace( /'/g, "&#039;" ) + "' " + selected + ">" + TruncateMiddle( field.choices[i].text, labelMaxCharacters ) + "</option>";
+					}
+
+					if ( !isAnySelected && selectedValue ) {
+						str += "<option value='" + selectedValue.replace( /'/g, "&#039;" ) + "' selected='selected'>" + TruncateMiddle( selectedValue, labelMaxCharacters ) + "</option>";
+					}
+					str += "</select>";
+				}
+				else {
+					selectedValue = selectedValue ? selectedValue.replace( /'/g, "&#039;" ) : "";
+					str += "<input type='text' placeholder='<?php _e( 'Enter value', 'gfp-stripe' ); ?>' id='gfp_stripe_conditional_value' name='gfp_stripe_conditional_value' value='" + selectedValue.replace( /'/g, "&#039;" ) + "'>";
 				}
 
 				return str;
@@ -1859,13 +1932,24 @@ class GFP_Stripe {
 				var inputType;
 				for ( var i = 0; i < form.fields.length; i++ ) {
 					fieldLabel = form.fields[i].adminLabel ? form.fields[i].adminLabel : form.fields[i].label;
+					fieldLabel = typeof fieldLabel == 'undefined' ? '' : fieldLabel;
 					inputType = form.fields[i].inputType ? form.fields[i].inputType : form.fields[i].type;
-					if ( inputType == "checkbox" || inputType == "radio" || inputType == "select" ) {
+					if ( IsConditionalLogicField( form.fields[i] ) ) {
 						var selected = form.fields[i].id == selectedFieldId ? "selected='selected'" : "";
 						str += "<option value='" + form.fields[i].id + "' " + selected + ">" + TruncateMiddle( fieldLabel, labelMaxCharacters ) + "</option>";
 					}
 				}
 				return str;
+			}
+
+			function IsConditionalLogicField( field ) {
+				inputType = field.inputType ? field.inputType : field.type;
+				var supported_fields = ["checkbox", "radio", "select", "text", "website", "textarea", "email", "hidden", "number", "phone", "multiselect", "post_title",
+																"post_tags", "post_custom_field", "post_content", "post_excerpt", "total"];
+
+				var index = jQuery.inArray( inputType, supported_fields );
+
+				return index >= 0;
 			}
 
 		</script>
@@ -2688,6 +2772,7 @@ class GFP_Stripe {
 	 * @uses  GFCommon::has_credit_card_field()
 	 * @uses  GFP_Stripe_Data::get_feed_by_form()
 	 * @uses  wp_enqueue_script()
+	 * @uses  GFCommon::get_base_url()
 	 *
 	 * @param null $form
 	 * @param null $ajax
@@ -2704,6 +2789,13 @@ class GFP_Stripe {
 
 				if ( ! empty( $form_feeds ) ) {
 					wp_enqueue_script( 'stripe-js', 'https://js.stripe.com/v1/', array( 'jquery' ) );
+				}
+
+				if ( 1 <= count( $form_feeds ) ) {
+					$has_condition = $form_feeds[0]['meta']['stripe_conditional_enabled'] && $form_feeds[0]['meta']['stripe_conditional_field_id'];
+					if ( $has_condition ) {
+						wp_enqueue_script( 'gforms_conditional_logic_lib', GFCommon::get_base_url() . '/js/conditional_logic.js', array( 'jquery', 'gforms_gravityforms' ), GFCommon::$version );
+					}
 				}
 			}
 
@@ -2966,95 +3058,6 @@ class GFP_Stripe {
 	}
 
 	/**
-	 * Does form field have conditional logic
-	 *
-	 * @since 1.7.9.1
-	 *
-	 * @param $field
-	 *
-	 * @return bool
-	 */
-	private function field_has_condition ( $field ) {
-		$has_condition = array_key_exists( 'conditionalLogic', $field );
-
-		return $has_condition;
-	}
-
-	/**
-	 * Does form field condition match feed condition
-	 *
-	 * @sine 1.7.9.1
-	 *
-	 * @param $field
-	 * @param $conditional_field_id
-	 *
-	 * @return bool
-	 */
-	private function field_condition_matches_feed_condition ( $field, $conditional_field_id ) {
-		$matches = false;
-		foreach ( $field['conditionalLogic']['rules'] as $rule ) {
-			while ( false == $matches ) {
-				if ( $conditional_field_id == $rule['fieldId'] ) {
-					$matches = true;
-				}
-			}
-		}
-
-		return $matches;
-	}
-
-	/**
-	 *
-	 *
-	 * @since 1.7.9.1
-	 *
-	 * @param $form
-	 * @param $feed_fields
-	 * @param $conditional_field_id
-	 *
-	 * @return bool
-	 */
-	private function need_conditional_js ( $form, $feed_fields, $conditional_field_id ) {
-		$need_conditional_js = false;
-
-		foreach ( $feed_fields as $feed_field ) {
-
-			if ( false == $need_conditional_js ) {
-
-				$address1_field_id = $city_field_id = $state_field_id = $zip_field_id = $country_field_id = '';
-				extract( $this->get_field_ids( $feed_field ) );
-
-				foreach ( $form['fields'] as $field ) {
-
-					/*switch ( $field['id'] ) {
-							case $address1_field_id:
-							case $city_field_id:
-							case $state_field_id:
-							case $zip_field_id:
-							case $country_field_id:
-								if ( $this->field_has_condition( $field ) ) {
-									$need_conditional_js = $this->field_condition_matches_feed_condition( $field, $conditional_field_id );
-								}
-								if ( $need_conditional_js ) {
-									continue 2;
-								}
-						}*/
-					if ( ( $address1_field_id == $field['id'] ) || ( $city_field_id == $field['id'] ) || ( $state_field_id == $field['id'] ) || ( $zip_field_id == $field['id'] ) || ( $country_field_id == $field['id'] ) ) {
-						if ( $this->field_has_condition( $field ) ) {
-							$need_conditional_js = $this->field_condition_matches_feed_condition( $field, $conditional_field_id );
-						}
-						if ( $need_conditional_js ) {
-							continue 2;
-						}
-					}
-				}
-			}
-		}
-
-		return $need_conditional_js;
-	}
-
-	/**
 	 * @param $feed
 	 *
 	 * @return array
@@ -3069,39 +3072,22 @@ class GFP_Stripe {
 	}
 
 	/**
-	 * @param $field_info
-	 * @param $form_id
-	 *
-	 * @return string
-	 */
-	private function address_fields_js ( $field_info, $form_id ) {
-		$street_input_id  = $field_info['street_input_id'];
-		$city_input_id    = $field_info['city_input_id'];
-		$state_input_id   = $field_info['state_input_id'];
-		$zip_input_id     = $field_info['zip_input_id'];
-		$country_input_id = $field_info['country_input_id'];
-
-		$js = ( ! empty( $street_input_id ) ) ? "card_info['address_line1'] = jQuery('#gform_{$form_id} #input_{$street_input_id}').val();" : "card_info['address_line1'] = '';";
-		$js .= ( ! empty( $city_input_id ) ) ? "card_info['address_city'] = jQuery('#gform_{$form_id} #input_{$city_input_id}').val();" : "card_info['address_city'] = '';";
-		$js .= ( ! empty( $state_input_id ) ) ? "card_info['address_state'] = jQuery('#gform_{$form_id} #input_{$state_input_id}').val();" : "card_info['address_state'] = '';";
-		$js .= ( ! empty( $zip_input_id ) ) ? "card_info['address_zip'] = jQuery('#gform_{$form_id} #input_{$zip_input_id}').val();" : "card_info['address_zip'] = '';";
-		$js .= ( ! empty( $country_input_id ) ) ? "card_info['address_country'] = jQuery('#gform_{$form_id} #input_{$country_input_id}').val();" : "card_info['address_country'] = '';";
-
-		return $js;
-	}
-
-	/**
 	 * Add Stripe JS
 	 *
 	 * @since 0.1.0
 	 *
+	 * @uses  GFP_Stripe::get_form_id_from_form_string()
 	 * @uses  RGFormsModel::get_form_meta()
 	 * @uses  GFCommon::has_credit_card_field()
 	 * @uses  GFP_Stripe_Data::get_feed_by_form()
-	 * @uses  get_option()
-	 * @uses  rgar()
-	 * @uses  esc_attr()
+	 * @uses  GFP_Stripe::feed_has_condition()
+	 * @uses  GFP_Stripe::get_api_key()
+	 * @uses  GFP_Stripe::get_feed_fields()
+	 * @uses  GFP_Stripe::get_field_ids()
+	 * @uses  GFP_Stripe::get_form_input_ids()
+	 * @uses  GFP_Stripe::get_feed_condition()
 	 * @uses  apply_filters()
+	 * @uses  GFCommon::json_encode()
 	 *
 	 * @param $form_string
 	 *
@@ -3119,8 +3105,7 @@ class GFP_Stripe {
 			$form_feeds = GFP_Stripe_Data::get_feed_by_form( $form_id );
 
 			//if there is more than one feed, check if there is a conditional, otherwise use the 1st feed
-			//assumes the conditional field is the same for multiple feeds since the Stripe condition can only be...
-			//...a selectable field — radio, select, or checkbox
+			//assumes the conditional field is the same for multiple feeds
 			$conditional_field_id = 0;
 			if ( 1 == count( $form_feeds ) ) {
 				$form_feeds           = $form_feeds[0];
@@ -3143,22 +3128,15 @@ class GFP_Stripe {
 
 			if ( ! empty( $form_feeds ) ) {
 
+				$stripe_form_id = $form_id;
 				//Get Stripe API key
 				$publishable_key = self::$_this->get_api_key( 'publishable' );
 
 				//if more than one feed, find out if conditional logic affects Stripe token fields (address)
 				$multiple_feeds = isset( $valid_feeds ) && ( 1 < $valid_feeds );
 				if ( $multiple_feeds ) {
-					//$need_conditional_js = 0;
-					$feed_fields = $field_info = array();
-					foreach ( $form_feeds as $feed ) {
-						$feed_fields[] = $this->get_feed_fields( $feed );
-					}
-					//if ( ! empty ( $feed_fields ) && ( 1 < count( $feed_fields ) ) ) {
-					//$need_conditional_js = $this->need_conditional_js( $form, $feed_fields, $conditional_field_id );
-					//}
-					//if ( $need_conditional_js ) {
 					$field_info = array();
+
 					foreach ( $form_feeds as $feed ) {
 						$feed_fields    = $this->get_feed_fields( $feed );
 						$feed_field_ids = $this->get_field_ids( $feed_fields );
@@ -3167,11 +3145,10 @@ class GFP_Stripe {
 						$field_info[]   = array_merge( $form_input_ids, $feed_condition );
 					}
 					$creditcard_field_id = $field_info[0]['creditcard_field_id'];
-					//}
+
 				}
 				else {
 					//insert JS
-					//if ( empty( $field_info ) ) {
 					$field_info          = array();
 					$feed_fields         = $this->get_feed_fields( $form_feeds );
 					$feed_field_ids      = $this->get_field_ids( $feed_fields );
@@ -3192,7 +3169,7 @@ class GFP_Stripe {
 
 				//Make sure JS gets added for multi-page forms
 				$is_postback     = false;
-				$submission_info = isset( GFFormDisplay::$submission[$form_id] ) ? GFFormDisplay::$submission[$form_id] : false;
+				$submission_info = isset( GFFormDisplay::$submission[$stripe_form_id] ) ? GFFormDisplay::$submission[$stripe_form_id] : false;
 				if ( $submission_info ) {
 					if ( $submission_info['is_valid'] ) {
 						$is_postback = true;
@@ -3207,7 +3184,7 @@ class GFP_Stripe {
 					//add JS to create token
 					$js_start .= "<script type='text/javascript'>" .
 						"function stripeResponseHandler(status, response) {" .
-						"var form$ = jQuery('#gform_{$form_id}');" .
+						"var form$ = jQuery('#gform_{$stripe_form_id}');" .
 						"if (response.error) {" .
 						"var param = response.error.param;" .
 						"form$.append(\"<input type='hidden' name='create_token_error' value='\" + response.error.message + \"' />\");" .
@@ -3221,14 +3198,21 @@ class GFP_Stripe {
 						"}" .
 						"form$.get(0).submit();" .
 						"}";
-					$js_start .= "function gfp_stripe_set_stripe_info() {" .
+					$js_start .= "function gfp_stripe_set_stripe_info( stripe_feed ) {" .
 						"Stripe.setPublishableKey('" . $publishable_key . "');" .
-						"var card_number = jQuery('#gform_{$form_id} #input_{$form_id}_{$creditcard_field_id}_1').val();" .
-						"var exp_month = jQuery('#gform_{$form_id} .ginput_card_expiration_month').val();" .
-						"var exp_year = jQuery('#gform_{$form_id} .ginput_card_expiration_year').val();" .
-						"var cvc = jQuery('#gform_{$form_id} .ginput_card_security_code').val();" .
-						"var cardholder_name = jQuery('#gform_{$form_id} #input_{$form_id}_{$creditcard_field_id}_5').val();" .
-						"return { card_number: card_number, exp_month: exp_month, exp_year: exp_year, cvc: cvc, cardholder_name: cardholder_name };" .
+						"var card_number = jQuery('#gform_{$stripe_form_id} #input_{$stripe_form_id}_{$creditcard_field_id}_1').val();" .
+						"var exp_month = jQuery('#gform_{$stripe_form_id} .ginput_card_expiration_month').val();" .
+						"var exp_year = jQuery('#gform_{$stripe_form_id} .ginput_card_expiration_year').val();" .
+						"var cvc = jQuery('#gform_{$stripe_form_id} .ginput_card_security_code').val();" .
+						"var cardholder_name = jQuery('#gform_{$stripe_form_id} #input_{$stripe_form_id}_{$creditcard_field_id}_5').val();" .
+						"if ( ! ( 'undefined' === typeof stripe_feed ) ) {" .
+						"var address_line1 = ( ! ( 'undefined' === typeof stripe_feed['street'] ) ) ? jQuery('#gform_{$stripe_form_id} #input_' + stripe_feed['street']).val() : '';" .
+						"var address_city = ( ! ( 'undefined' === typeof stripe_feed['city'] ) ) ? jQuery('#gform_{$stripe_form_id} #input_' + stripe_feed['city']).val() : '';" .
+						"var address_state = ( ! ( 'undefined' === typeof stripe_feed['state'] ) ) ? jQuery('#gform_{$stripe_form_id} #input_' + stripe_feed['state']).val() : '';" .
+						"var address_zip = ( ! ( 'undefined' === typeof stripe_feed['zip'] ) ) ? jQuery('#gform_{$stripe_form_id} #input_' + stripe_feed['zip']).val() : '';" .
+						"var address_country = ( ! ( 'undefined' === typeof stripe_feed['country'] ) ) ? jQuery('#gform_{$stripe_form_id} #input_' + stripe_feed['country']).val() : '';" .
+						"}" .
+						"return { card_number: card_number, exp_month: exp_month, exp_year: exp_year, cvc: cvc, cardholder_name: cardholder_name, address_line1: address_line1, address_city: address_city, address_state: address_state, address_zip: address_zip, address_country: address_country };" .
 						"}";
 					$js_start .= "function gfp_stripe_validate_card( card_info ) {" .
 						"var card_number_valid = Stripe.validateCardNumber( card_info.card_number );" .
@@ -3238,11 +3222,11 @@ class GFP_Stripe {
 						"return { card_number: card_number_valid, exp_date: exp_date_valid, cvc: cvc_valid, cardholder_name: cardholder_name_valid};" .
 						"}";
 					$js_start .= "jQuery(document).bind('gform_post_render', function(event, formId, currentPage) {" .
-						"if( formId !== {$form_id} ) { return; }" .
-						"jQuery('#gform_{$form_id}').submit(function(){" .
-						"var last_page = jQuery('#gform_target_page_number_{$form_id}').val();" .
+						"if( formId !== {$stripe_form_id} ) { return; }" .
+						"jQuery('#gform_{$stripe_form_id}').submit(function(){" .
+						"var last_page = jQuery('#gform_target_page_number_{$stripe_form_id}').val();" .
 						"if ( last_page === '0' ){" .
-						"var form$ = jQuery('#gform_{$form_id}');" .
+						"var form$ = jQuery('#gform_{$stripe_form_id}');" .
 						"var card_info = '';" .
 						"var card_valid = '';";
 					$js_token = "if ( card_info ) {" .
@@ -3273,130 +3257,70 @@ class GFP_Stripe {
 					$js .= $js_start;
 
 					if ( array_key_exists( 0, $field_info ) && ( is_array( $field_info[0] ) ) ) {
-						$condition_field = RGFormsModel::get_field( $form, $conditional_field_id );
-						$start           = 0;
-						switch ( $condition_field['type'] ) {
-							case 'checkbox':
-								$js .= "var address_condition = jQuery('input[type=checkbox][name^=\"input_{$conditional_field_id}\"]:checked');";
-								$js .= "jQuery(address_condition).each( function() {";
-								$js .= "var address_condition_value = jQuery(this).val();";
-								break;
-							case 'select':
-								$js .= "var address_condition = jQuery('select[name=\"input_{$conditional_field_id}\"] option:selected').val();";
-								break;
-							case 'radio':
-								$js .= "var address_condition = jQuery('input[type=radio][name=input_{$conditional_field_id}]:checked').val();";
-								break;
+						$js_condition .= "var stripe_condition = [];";
+						foreach ( $field_info as $info ) {
+							$js_condition .= "stripe_condition.push(" . GFCommon::json_encode( array( 'operator' => $info['operator'],
+																																												'fieldId'  => $conditional_field_id,
+																																												'value'    => $info['value'],
+																																												'street'   => $info['street_input_id'],
+																																												'city'     => $info['city_input_id'],
+																																												'state'    => $info['state_input_id'],
+																																												'zip'      => $info['zip_input_id'],
+																																												'country'  => $info['country_input_id']
+																																								 ) ) . ");";
 						}
-						foreach ( $field_info as $address_field_info ) {
-							if ( array_key_exists( 'operator', $address_field_info ) ) {
-								$conditional_value = $address_field_info['value'];
+						$js_condition .= 'for( var i = 0; i < stripe_condition.length; i++ ) {' .
+							'var rule = stripe_condition[i];' .
+							'if ( gf_is_match( formId, rule ) ) {' .
+							"card_info = gfp_stripe_set_stripe_info( rule );" .
+							"card_valid = gfp_stripe_validate_card( card_info );" .
+							'}' .
+							'}';
 
-								if ( 'checkbox' == $condition_field['type'] ) {
-									if ( $start > 0 ) {
-										$js .= "else ";
-									}
-									if ( 'is' == $address_field_info['operator'] ) {
-										$js .= "if ( ( '{$conditional_value}' === address_condition_value ) ) {";
-									}
-									if ( 'is not' == $address_field_info['operator'] ) {
-										$js .= "if ( '{$conditional_value}' !=== address_condition_value ) {";
-									}
-									//$js .= $js_condition;
-									$js .= "card_info = gfp_stripe_set_stripe_info();";
-									$js .= $this->address_fields_js( $address_field_info, $form_id );
-									$js .= "card_valid = gfp_stripe_validate_card( card_info );";
-									$js .= "return false;";
-									$js .= "}";
-									$start ++;
-								}
-								else {
-									if ( $start > 0 ) {
-										$js .= "else ";
-									}
-									if ( 'is' == $address_field_info['operator'] ) {
-										$js_condition .= "if ( '{$conditional_value}' === address_condition ) {";
-									}
-									else if ( 'is not' == $address_field_info['operator'] ) {
-										$js_condition .= "if ( '{$conditional_value}' !=== address_condition ) {";
-									}
-									$js .= $js_condition;
-									$js .= "card_info = gfp_stripe_set_stripe_info();";
-									$js .= $this->address_fields_js( $address_field_info, $form_id );
-									$js .= "card_valid = gfp_stripe_validate_card( card_info );";
-									$js .= "}";
-									$start ++;
-									$js_condition = '';
-								}
-							}
-						}
-						if ( $conditional_value && ( 'checkbox' == $condition_field['type'] ) ) {
-							$js .= "} );";
-						}
-						$js .= $js_token;
+						$js .= $js_condition . $js_token;
 					}
 					else if ( ( $conditional_field_id ) && ( $this->feed_has_condition( $form_feeds, $conditional_field_id ) ) ) {
-						$condition_field = RGFormsModel::get_field( $form, $conditional_field_id );
-						switch ( $condition_field['type'] ) {
-							case 'checkbox':
-								$js_condition .= "var address_condition = jQuery('input[type=checkbox][name^=\"input_{$conditional_field_id}\"]:checked');";
-								break;
-							case 'select':
-								$js_condition .= "var address_condition = jQuery('select[name=\"input_{$conditional_field_id}\"] option:selected').val();";
-								break;
-							case 'radio':
-								$js_condition .= "var address_condition = jQuery('input[type=radio][name=input_{$conditional_field_id}]:checked').val();";
-								break;
-						}
-
 						$field_info = array_merge( $field_info, $this->get_feed_condition( $form_feeds ) );
+
 						if ( array_key_exists( 'operator', $field_info ) ) {
-							$conditional_value = $field_info['value'];
+							$js_condition .= "var stripe_condition = [];" .
+								"stripe_condition.push(" . GFCommon::json_encode( array( 'operator' => $field_info['operator'],
+																																				 'fieldId'  => $conditional_field_id,
+																																				 'value'    => $field_info['value'],
+																																				 'street'   => $field_info['street_input_id'],
+																																				 'city'     => $field_info['city_input_id'],
+																																				 'state'    => $field_info['state_input_id'],
+																																				 'zip'      => $field_info['zip_input_id'],
+																																				 'country'  => $field_info['country_input_id'] ) ) . ");";
+							$js_condition .= 'for( var i = 0; i < stripe_condition.length; i++ ) {' .
+								'var rule = stripe_condition[i];' .
+								'if ( gf_is_match( formId, rule ) ) {' .
+								"card_info = gfp_stripe_set_stripe_info( rule );" .
+								"card_valid = gfp_stripe_validate_card( card_info );" .
+								'}' .
+								'}';
 
-							if ( 'checkbox' == $condition_field['type'] ) {
-								$js_condition .= "jQuery(address_condition).each( function() {";
-								$js_condition .= "var address_condition_value = jQuery(this).val();";
-								if ( 'is' == $field_info['operator'] ) {
-									$js_condition .= "if ( ( '{$conditional_value}' === address_condition_value ) ) {";
-								}
-								if ( 'is not' == $field_info['operator'] ) {
-									$js_condition .= "if ( '{$conditional_value}' !=== address_condition_value ) {";
-								}
-								$js .= $js_condition;
-								$js .= "card_info = gfp_stripe_set_stripe_info();";
-								$js .= $this->address_fields_js( $field_info, $form_id );
-								$js .= "card_valid = gfp_stripe_validate_card( card_info );";
-								$js .= "} } );";
-								$js .= $js_token;
-							}
-							else {
+							$js .= $js_condition . $js_token;
 
-								if ( 'is' == $field_info['operator'] ) {
-									$js_condition .= "if ( '{$conditional_value}' === address_condition ) {";
-								}
-								else if ( 'is not' == $field_info['operator'] ) {
-									$js_condition .= "if ( '{$conditional_value}' !=== address_condition ) {";
-								}
-								$js .= $js_condition;
-								$js .= "card_info = gfp_stripe_set_stripe_info();";
-								$js .= $this->address_fields_js( $field_info, $form_id );
-								$js .= "card_valid = gfp_stripe_validate_card( card_info );";
-								$js .= "}";
-								$js .= $js_token;
-							}
 						}
 
 					}
 					else {
-						$js .= "card_info = gfp_stripe_set_stripe_info();";
-						$js .= $this->address_fields_js( $field_info, $form_id );
+						$js .= "var stripe_feed = " .
+							GFCommon::json_encode( array( 'street'  => $field_info['street_input_id'],
+																						'city'    => $field_info['city_input_id'],
+																						'state'   => $field_info['state_input_id'],
+																						'zip'     => $field_info['zip_input_id'],
+																						'country' => $field_info['country_input_id']
+																		 ) ) . ";";
+						$js .= "card_info = gfp_stripe_set_stripe_info( stripe_feed );";
 						$js .= "card_valid = gfp_stripe_validate_card( card_info );";
 						$js .= $js_token;
 					}
 
 					$js .= $js_end;
 
-					$js = apply_filters( 'gfp_stripe_gform_get_form_filter_js', $js, $form, $form_id, $field_info );
+					$js = apply_filters( 'gfp_stripe_gform_get_form_filter_js', $js, $form, $stripe_form_id, $field_info );
 					$form_string .= $js;
 				}
 			}
@@ -3536,25 +3460,24 @@ class GFP_Stripe {
 	 */
 	public function has_stripe_condition ( $form, $feed ) {
 
-		$feed = $feed["meta"];
+		$feed = $feed['meta'];
 
-		$operator = $feed["stripe_conditional_operator"];
-		$field    = RGFormsModel::get_field( $form, $feed["stripe_conditional_field_id"] );
+		$operator = $feed['stripe_conditional_operator'];
+		$field    = RGFormsModel::get_field( $form, $feed['stripe_conditional_field_id'] );
 
-		if ( empty( $field ) || ! $feed["stripe_conditional_enabled"] )
+		if ( empty( $field ) || ! $feed['stripe_conditional_enabled'] )
 			return true;
 
 		// if conditional is enabled, but the field is hidden, ignore conditional
 		$is_visible = ! RGFormsModel::is_field_hidden( $form, $field, array() );
 
+		//TODO: if !is_visible then skip field_value stuff
 		$field_value = RGFormsModel::get_field_value( $field, array() );
 
-		$is_value_match = RGFormsModel::is_value_match( $field_value, $feed["stripe_conditional_value"] );
-		$is_match       = $is_value_match && $is_visible;
+		$is_value_match = RGFormsModel::is_value_match( $field_value, $feed['stripe_conditional_value'], $operator );
+		$do_stripe      = $is_value_match && $is_visible;
 
-		$go_to_stripe = ( 'is' == $operator && $is_match ) || ( 'isnot' == $operator && ! $is_match );
-
-		return $go_to_stripe;
+		return $do_stripe;
 	}
 
 	/**

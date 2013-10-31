@@ -3,8 +3,8 @@ Contributors: naomicbush
 Donate link: https://gravityplus.pro/gravity-forms-stripe
 Tags: form, forms, gravity, gravity form, gravity forms, gravityforms, stripe, payment, payments, subscribe, subscriptions, recurring billing, paypal, authorize.net, credit cards, online payment
 Requires at least: 3.6
-Tested up to: 3.6.1
-Stable tag: 1.7.10.1
+Tested up to: 3.7.1
+Stable tag: 1.7.11.1
 
 Easy and secure credit card payments on your WordPress site with Stripe and Gravity Forms!
 
@@ -17,7 +17,7 @@ Easy and secure credit card payments on your WordPress site with Stripe and Grav
 >
 > You'll also need a [Stripe](https://stripe.com) account.
 
-Requires WordPress 3.5, PHP 5.3, and Gravity Forms 1.7.9. Works with WordPress Multisite.
+Requires WordPress 3.5, PHP 5.3, and Gravity Forms 1.7.11. Works with WordPress Multisite.
 
 **Current Features**
 
@@ -117,6 +117,14 @@ I can assure you that is not the case -- [this should help you find where the pr
 3. Stripe feed
 
 == Changelog ==
+= 1.7.11.1 =
+* Add new conditional logic options and fields for Stripe feed
+* Add notice for incorrect version of Gravity Forms
+* Update Stripe PHP library to 1.8.3 since 1.9.0 has issues
+* Update for GF1.7.11
+* Update for WordPress 3.7
+* Bump version number
+
 = 1.7.10.1 =
 * Ensure GF1.7.10 compatibility
 * Bump version number
@@ -210,6 +218,9 @@ I can assure you that is not the case -- [this should help you find where the pr
 * Initial release. Process charges (one-time payments) only.
 
 == Upgrade Notice ==
+= 1.7.11.1 =
+New version available! Adds new conditional logic options and fields to Stripe feed.
+
 = 1.7.10.1 =
 New version available! Fixes several issues & adds support for Stripe accounts with multiple currencies.
 
