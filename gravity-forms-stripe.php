@@ -4,7 +4,7 @@
 		 * Plugin Name: Gravity Forms + Stripe
 		 * Plugin URI: https://gravityplus.pro/gravity-forms-stripe
 		 * Description: Use Stripe to process credit card payments on your site, easily and securely, with Gravity Forms
-		 * Version: 1.7.11.1
+		 * Version: 1.7.11.2
 		 * Author: gravity+
 		 * Author URI: https://gravityplus.pro
 		 * Text Domain: gfp-stripe
@@ -27,13 +27,13 @@
 		 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 		 *
 		 * @package   GFP_Stripe
-		 * @version   1.7.11.1
+		 * @version   1.7.11.2
 		 * @author    gravity+ <support@gravityplus.pro>
 		 * @license   GPL-2.0+
 		 * @link      https://gravityplus.pro
 		 * @copyright 2013 gravity+
 		 *
-		 * last updated: October 31, 2013
+		 * last updated: November 5, 2013
 		 */
 
 // If this file is called directly, abort.

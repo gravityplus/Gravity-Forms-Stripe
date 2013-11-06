@@ -44,7 +44,7 @@ class GFP_Stripe {
 	 *
 	 * @var string
 	 */
-	public static $version = '1.7.11.1';
+	public static $version = '1.7.11.2';
 
 	/**
 	 *
@@ -588,8 +588,8 @@ class GFP_Stripe {
 			if ( ! empty( $api_key ) ) {
 				Stripe::setApiKey( $api_key );
 				$account                     = Stripe_Account::retrieve();
-				$stripe_default_currency     = $account['default_currency'];
-				$stripe_currencies_supported = $account['currencies_supported'];
+				$stripe_default_currency     = strtoupper( $account['default_currency'] );
+				$stripe_currencies_supported = array_map( 'strtoupper', $account['currencies_supported'] );
 				set_transient( 'gfp_stripe_currency',
 											 array( 'default'   => $stripe_default_currency,
 															'supported' => $stripe_currencies_supported ),
@@ -631,8 +631,8 @@ class GFP_Stripe {
 			if ( ! empty( $api_key ) ) {
 				Stripe::setApiKey( $api_key );
 				$account              = Stripe_Account::retrieve();
-				$default_currency     = $account['default_currency'];
-				$currencies_supported = $account['currencies_supported'];
+				$default_currency     = strtoupper( $account['default_currency'] );
+				$currencies_supported = array_map( 'strtoupper', $account['currencies_supported'] );
 				set_transient( 'gfp_stripe_currency',
 											 array( 'default'   => $default_currency,
 															'supported' => $currencies_supported ),
