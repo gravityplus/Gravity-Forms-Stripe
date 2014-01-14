@@ -44,7 +44,7 @@ class GFP_Stripe {
 	 *
 	 * @var string
 	 */
-	public static $version = '1.7.11.2';
+	public static $version = '1.8.1';
 
 	/**
 	 *
@@ -53,7 +53,7 @@ class GFP_Stripe {
 	 *
 	 * @var string
 	 */
-	private static $min_gravityforms_version = '1.7.11';
+	private static $min_gravityforms_version = '1.8.1';
 
 	/**
 	 *
@@ -157,10 +157,15 @@ class GFP_Stripe {
 	 * @return void
 	 */
 	public function check_for_gravity_forms () {
-		if ( ! class_exists( 'GFForms' ) ) {
-			deactivate_plugins( basename( GFP_STRIPE_FILE ) );
-			$message = __( 'You must install and activate Gravity Forms first.', 'gfp-stripe' );
-			die( $message );
+		if ( ( array_key_exists( 'action', $_POST ) ) && ( 'activate-selected' == $_POST['action'] ) && ( in_array( 'gravityforms/gravityforms.php', $_POST['checked'] ) ) ) {
+			return;
+		}
+		else {
+			if ( ! class_exists( 'GFForms' ) ) {
+				deactivate_plugins( basename( GFP_STRIPE_FILE ) );
+				$message = __( 'You must install and activate Gravity Forms first.', 'gfp-stripe' );
+				die( $message );
+			}
 		}
 	}
 
@@ -233,17 +238,19 @@ class GFP_Stripe {
 	 */
 	public function init () {
 
-		if ( ! $this->is_gravityforms_supported() ) {
-			$message = __( 'Gravity Forms + Stripe requires Gravity Forms ' . self::$min_gravityforms_version . '.', 'gfp-stripe' );
-			$this->set_admin_notice( $message );
-			add_action( 'admin_notices', array( $this, 'admin_notices' ) );
+		if ( ( ! $this->is_gravityforms_supported() ) && ( ! ( isset( $_GET['action'] ) && ( ( 'upgrade-plugin' == $_GET['action'] ) || ( 'update-selected' == $_GET['action'] ) ) ) ) ) {
+			if ( isset( $_GET['action'] ) && ( ! ( 'activate' == $_GET['action'] ) ) ) {
+				$message = __( 'Gravity Forms + Stripe requires Gravity Forms ' . self::$min_gravityforms_version . '.', 'gfp-stripe' );
+				$this->set_admin_notice( $message );
+				add_action( 'admin_notices', array( $this, 'admin_notices' ) );
+			}
 
 			return;
 		}
 
 		add_action( 'admin_notices', array( $this, 'admin_notices' ) );
-		add_action( 'admin_menu', array( $this, 'admin_menu' ) );
-		add_action( 'admin_init', array( self::$_this, 'admin_init' ) );
+		add_action( 'admin_menu', array( $this, 'admin_menu' ), 9 );
+		add_action( 'admin_init', array( $this, 'admin_init' ) );
 
 		//add logging support
 		add_filter( 'gform_logging_supported', array( $this, 'gform_logging_supported' ) );
@@ -305,7 +312,17 @@ class GFP_Stripe {
 	 * @return void
 	 *
 	 */
-	public static function admin_init () {
+	public function admin_init () {
+
+		if ( ( ! GFP_Stripe::is_gravityforms_supported() ) && ( ! ( isset( $_GET['action'] ) && ( ( 'upgrade-plugin' == $_GET['action'] ) || ( 'update-selected' == $_GET['action'] ) ) ) ) ) {
+			if ( isset( $_GET['action'] ) && ( ! ( 'activate' == $_GET['action'] ) ) ) {
+				$message = __( 'Gravity Forms + Stripe requires Gravity Forms ' . self::$min_gravityforms_version . '.', 'gfp-more-stripe' );
+				self::set_admin_notice( $message );
+				add_action( 'admin_notices', array( 'GFPMoreStripe', 'admin_notices' ) );
+			}
+
+			return;
+		}
 
 		add_filter( 'plugin_action_links_' . plugin_basename( GFP_STRIPE_FILE ), array( self::$_this, 'plugin_action_links' ) );
 
@@ -402,7 +419,7 @@ class GFP_Stripe {
 	/**
 	 * @return bool|mixed
 	 */
-	private function is_gravityforms_supported () {
+	public static function is_gravityforms_supported () {
 		if ( class_exists( 'GFCommon' ) ) {
 			$is_correct_version = version_compare( GFCommon::$version, self::$min_gravityforms_version, '>=' );
 
@@ -469,7 +486,14 @@ class GFP_Stripe {
 		else {
 			$notices = get_transient( 'gfp-stripe-admin_notices' );
 		}
-		$notices[] = $notice;
+		if ( is_array( $notices ) ) {
+			if ( ! in_array( $notice, $notices ) ) {
+				$notices[] = $notice;
+			}
+		}
+		else {
+			$notices[] = $notice;
+		}
 		if ( function_exists( 'set_site_transient' ) ) {
 			set_site_transient( 'gfp-stripe-admin_notices', $notices );
 		}
@@ -518,11 +542,16 @@ class GFP_Stripe {
 	 */
 	public static function deactivate_gravityforms () {
 		$plugin = plugin_basename( trim( GFP_STRIPE_FILE ) );
-		if ( is_plugin_active( $plugin ) ) {
-			$message = sprintf( __( "You must deactivate %s first.", 'gfp-stripe' ), basename( GFP_STRIPE_FILE ) );
-			self::$_this->set_admin_notice( $message );
-			wp_redirect( self_admin_url( 'plugins.php' ) );
-			exit;
+		if ( ( array_key_exists( 'action', $_POST ) ) && ( 'deactivate-selected' == $_POST['action'] ) && ( in_array( $plugin, $_POST['checked'] ) ) ) {
+			return;
+		}
+		else {
+			if ( is_plugin_active( $plugin ) ) {
+				$message = sprintf( __( "You must deactivate %s first.", 'gfp-stripe' ), basename( GFP_STRIPE_FILE ) );
+				self::$_this->set_admin_notice( $message );
+				wp_redirect( self_admin_url( 'plugins.php' ) );
+				exit;
+			}
 		}
 	}
 
@@ -594,7 +623,13 @@ class GFP_Stripe {
 											 array( 'default'   => $stripe_default_currency,
 															'supported' => $stripe_currencies_supported ),
 											 24 * HOUR_IN_SECONDS );
-				$currency = $stripe_default_currency;
+				if ( ( $stripe_default_currency !== $currency ) && ( ! in_array( $currency, $stripe_currencies_supported ) ) ) {
+					$currency = $stripe_default_currency;
+				}
+			}
+			else {
+				update_option( 'rg_gforms_currency', 'USD' );
+				$currency = 'USD'; //default Gravity Forms currency
 			}
 		}
 		else {
@@ -640,7 +675,9 @@ class GFP_Stripe {
 			}
 		}
 
-		$currencies = array_intersect_key( $currencies, ( $current_currency ) ? array_flip( $current_currency['supported'] ) : array_flip( $currencies_supported ) );
+		if ( ( ! empty( $current_currency ) ) || ( ! empty( $default_currency ) ) && ( ! empty( $currencies_supported ) ) ) {
+			$currencies = array_intersect_key( $currencies, ( $current_currency ) ? array_flip( $current_currency['supported'] ) : array_flip( $currencies_supported ) );
+		}
 
 		return $currencies;
 	}
@@ -792,6 +829,9 @@ class GFP_Stripe {
 			}
 
 			delete_transient( 'gfp_stripe_currency' );
+			if ( ! empty( $settings['test_secret_key'] ) ) {
+				update_option( 'rg_gforms_currency', $this->gform_currency( get_option( 'rg_gforms_currency' ) ) );
+			}
 		}
 		else if ( has_filter( 'gfp_stripe_settings_page_action' ) ) {
 			$do_return = '';
@@ -3199,7 +3239,7 @@ class GFP_Stripe {
 						"form$.get(0).submit();" .
 						"}";
 					$js_start .= "function gfp_stripe_set_stripe_info( stripe_feed ) {" .
-						"Stripe.setPublishableKey('" . $publishable_key . "');" .
+						"Stripe.setPublishableKey('{$publishable_key}');" .
 						"var card_number = jQuery('#gform_{$stripe_form_id} #input_{$stripe_form_id}_{$creditcard_field_id}_1').val();" .
 						"var exp_month = jQuery('#gform_{$stripe_form_id} .ginput_card_expiration_month').val();" .
 						"var exp_year = jQuery('#gform_{$stripe_form_id} .ginput_card_expiration_year').val();" .
@@ -3552,14 +3592,14 @@ class GFP_Stripe {
 
 		//create charge
 		self::$_this->include_api();
-		Stripe::setApiKey( self::$_this->get_api_key( 'secret' ) );
+		$secret_api_key = self::$_this->get_api_key( 'secret' );
 		self::$_this->log_debug( 'Creating the customer' );
 		try {
 			$customer = Stripe_Customer::create( array(
 																								'description' => apply_filters( 'gfp_stripe_customer_description', $form_data['name'], $form_data, $form ),
 																								'card'        => $form_data['credit_card'],
 																								'email'       => $form_data['email']
-																					 ) );
+																					 ), $secret_api_key );
 		} catch ( Exception $e ) {
 
 			self::$_this->log_error( 'Customer creation failed' );
@@ -3567,6 +3607,37 @@ class GFP_Stripe {
 
 			return self::$_this->set_validation_result( $validation_result, $_POST, $error_message );
 
+		}
+
+		$use_stripe_connect = apply_filters( 'gfp_stripe_use_stripe_connect', false, $feed );
+		if ( $use_stripe_connect ) {
+			$access_token    = $use_stripe_connect['access_token'];
+			$application_fee = $use_stripe_connect['application_fee'];
+			try {
+				$token = Stripe_Token::create(
+					array( 'customer' => $customer['id'] ),
+					$access_token
+				);
+			} catch ( Exception $e ) {
+				self::$_this->log_error( 'Token creation failed' );
+				$error_message = self::$_this->gfp_stripe_create_error_message( $e );
+
+				return self::$_this->set_validation_result( $validation_result, $_POST, $error_message );
+			}
+			try {
+				$customer = Stripe_Customer::create( array(
+																									'description' => apply_filters( 'gfp_stripe_customer_description', $form_data['name'], $form_data, $form ),
+																									'card'        => $token['id'],
+																									'email'       => $form_data['email']
+																						 ), $access_token );
+			} catch ( Exception $e ) {
+
+				self::$_this->log_error( 'Customer creation failed' );
+				$error_message = self::$_this->gfp_stripe_create_error_message( $e );
+
+				return self::$_this->set_validation_result( $validation_result, $_POST, $error_message );
+
+			}
 		}
 
 		//Allows users to cancel charge
@@ -3588,11 +3659,12 @@ class GFP_Stripe {
 			try {
 				self::$_this->log_debug( 'Creating the charge, using the customer ID' );
 				$response = Stripe_Charge::create( array(
-																								'amount'      => ( $form_data['amount'] * 100 ),
-																								'currency'    => GFCommon::get_currency(),
-																								'customer'    => $customer['id'],
-																								'description' => apply_filters( 'gfp_stripe_customer_charge_description', implode( '\n', $form_data['line_items'] ), $form )
-																					 ) );
+																								'amount'          => ( $form_data['amount'] * 100 ),
+																								'currency'        => GFCommon::get_currency(),
+																								'customer'        => $customer['id'],
+																								'description'     => apply_filters( 'gfp_stripe_customer_charge_description', implode( '\n', $form_data['line_items'] ), $form ),
+																								'application_fee' => ( $use_stripe_connect && ( ! empty( $application_fee ) ) ) ? intval( $application_fee ) : null
+																					 ), ( $use_stripe_connect ) ? $access_token : $secret_api_key );
 
 				self::$_this->log_debug( "Charge successful. ID: {$response['id']} - Amount: {$response['amount']}" );
 
@@ -3800,7 +3872,7 @@ class GFP_Stripe {
 
 		GFFormDisplay::set_current_page( $validation_result['form']['id'], $credit_card_page );
 
-		do_action( 'gfp_stripe_set_validation_result', $validation_result, $post, $error_message );
+		$validation_result = apply_filters( 'gfp_stripe_set_validation_result', $validation_result, $post, $error_message );
 
 		return $validation_result;
 	}

@@ -24,15 +24,15 @@ This [Gravity Forms](http://naomicbush.com/getgravityforms) add-on integrates St
 *available only with [More Stripe here](https://gravityplus.pro/gravity-forms-stripe)
 
 ## Requirements
-* WordPress 3.6, tested up to 3.7.1, Multisite as well
+* WordPress 3.6, tested up to 3.8.1, Multisite as well
 * PHP 5.3
-* Gravity Forms 1.7.11 - [Grab a license](http://naomicbush.com/getgravityforms "purchase Gravity Forms!") if you don't already have one
+* Gravity Forms 1.8.1 - [Grab a license](http://naomicbush.com/getgravityforms "purchase Gravity Forms!") if you don't already have one
 * [Stripe](https://stripe.com) account
 
 ## Support
 * Although I am unable to provide free support, **full, paid support is available at [gravity+](https://gravityplus.pro)**. I am very happy to help.
 * Also, neither Gravity Forms nor Stripe provides support for this plugin.
-* If you think you've found a bug, feel free to contact me.
+* If you think you've found a bug, or you're not sure if you need to purchase support, feel free to [contact me](https://gravityplus.pro/).
 
 ## Current Limitations
 * Cannot have Stripe Add-On "activated" at the same time as Authorize.Net or PayPal Pro Add-Ons
@@ -48,14 +48,22 @@ This [Gravity Forms](http://naomicbush.com/getgravityforms) add-on integrates St
 
 ## Installation
 
-1. Upload `gravityforms-stripe` to the `/wp-content/plugins/` directory
-2. Make sure that Gravity Forms is activated
+1. Make sure that Gravity Forms is activated
+2. Upload `gravityforms-stripe` to the `/wp-content/plugins/` directory
 3. Activate the plugin through the 'Plugins' menu in WordPress
 4. Add your Stripe API keys to the Stripe tab on the Settings page (Forms->Settings).
 5. Create a form, adding at least one product field along with the new 'Credit Card' field that appears under 'Pricing Fields.' Keep in mind that Stripe accepts a minimum charge of $0.50 - this means that the total amount of your form must be at least $0.50.
 6. Under Forms->Stripe, add a Stripe feed for your new form.
 
 ## Changelog
+### 1.8.1 (January 14, 2013)
+* Fix menu not showing with Gravity Forms 1.8
+* Fix fatal error when Gravity Forms is deactivated
+* Fix validation result hook
+* Fix duplicate admin notices
+* Automatically set currency
+* Bump version number
+
 ### 1.7.11.2 (November 5, 2013)
 * Fix critical issue resulting from undocumented Stripe API change
 * Bump version number

@@ -3,8 +3,8 @@ Contributors: naomicbush
 Donate link: https://gravityplus.pro/gravity-forms-stripe
 Tags: form, forms, gravity, gravity form, gravity forms, gravityforms, stripe, payment, payments, subscribe, subscriptions, recurring billing, paypal, authorize.net, credit cards, online payment
 Requires at least: 3.6
-Tested up to: 3.7.1
-Stable tag: 1.7.11.2
+Tested up to: 3.8.1
+Stable tag: 1.8.1
 
 Easy and secure credit card payments on your WordPress site with Stripe and Gravity Forms!
 
@@ -13,11 +13,11 @@ Easy and secure credit card payments on your WordPress site with Stripe and Grav
 [Stripe](https://stripe.com) allows you to process credit cards directly on your site, securely and easily, without having to deal with merchant accounts, PCI-compliance, or PayPal. This Gravity Forms add-on integrates Stripe with your forms using [Stripe.js](https://stripe.com/docs/stripe.js) to make sure sensitive card information never hits your server.
 
 > This plugin is an add-on for the [Gravity Forms plugin](http://gravityforms.com "visit the Gravity Forms website").
-> You need to [grab a license](http://gravityforms.com "purchase Gravity Forms!") if you don't already have one - you'll thank me later :-)
+> You need to [purchase your own Gravity Forms license](http://gravityforms.com "purchase Gravity Forms!") if you don't already have one - you'll thank me later :-)
 >
 > You'll also need a [Stripe](https://stripe.com) account.
 
-Requires WordPress 3.5, PHP 5.3, and Gravity Forms 1.7.11. Works with WordPress Multisite.
+Requires WordPress 3.6, PHP 5.3, and Gravity Forms 1.8.1. Works with WordPress Multisite.
 
 **Current Features**
 
@@ -39,7 +39,7 @@ Requires WordPress 3.5, PHP 5.3, and Gravity Forms 1.7.11. Works with WordPress 
 
 * Although I am unable to monitor the forums here or provide free support, **full, paid support is available at [gravity+](https://gravityplus.pro)**. I am very happy to help.
 * Also, neither Gravity Forms nor Stripe provides support for this plugin.
-* If you think you've found a bug, feel free to contact me.
+* If you think you've found a bug or you're not sure if you need to purchase support, feel free to [contact me](https://gravityplus.pro/).
 
 **Current Limitations**
 
@@ -63,23 +63,23 @@ Requires WordPress 3.5, PHP 5.3, and Gravity Forms 1.7.11. Works with WordPress 
 
 This section describes how to install and setup the Gravity Forms Stripe Add-On. Be sure to follow *all* of the instructions in order for the Add-On to work properly.
 
-1. Upload the `gravity-forms-stripe` folder to the `/wp-content/plugins/` directory
-2. Make sure that Gravity Forms is activated
-3. Activate the plugin through the 'Plugins' menu in WordPress
+1. Make sure that Gravity Forms is activated
+2. Upload the `gravity-forms-stripe` folder to the `/wp-content/plugins/` directory
+3. Activate the plugin through the 'Plugins' menu in WordPress.
 4. Add your Stripe API keys to the Stripe tab on the Settings page (Forms->Settings).
 5. Create a form, adding at least one product field along with the new 'Credit Card' field that appears under 'Pricing Fields.' Keep in mind that Stripe accepts a minimum charge of $0.50 - this means that the total amount of your form must be at least $0.50.
 6. Under Forms->Stripe, add a Stripe feed for your new form.
 
 == Frequently Asked Questions ==
 
-= Do I need to have a copy of Gravity Forms for this plugin to work? =
+= Do I need to have my own copy of Gravity Forms for this plugin to work? =
 Yes, you need to install the [Gravity Forms Plugin](http://gravityforms.com "visit the Gravity Forms website") for this plugin to work.
 
 = What is the minimum amount my form can accept? =
 $0.50, [per Stripe](https://stripe.com/help/faq)
 
 = Does this version work with the latest version of Gravity Forms? =
-Just look at the version number! The versioning scheme now follows that of Gravity Forms so if the version number starts with *1.7.9.1*, then the Add-On has been tested up to *Gravity Forms 1.7.9*. An additional number at the end indicates the change number of the Add-On itself.
+Just look at the version number! The versioning scheme now uses the Gravity Forms major release number. If the Add-On version number starts with a Gravity Forms major release number like *1.8*, then it will work with *Gravity Forms 1.8* and all of its minor releases — 1.8.1, 1.8.2, etc.
 
 = Does your plugin use Stripe.js? =
 Yes.
@@ -110,6 +110,9 @@ it only adds features.
 = Your plugin just does not work =
 I can assure you that is not the case -- [this should help you find where the problem is occurring](http://scribu.net/wordpress/wordpress-plugin-troubleshooting-flowchart.html) or [this](http://uproot.us/docs/how-to-troubleshoot-plugin-issues/)
 
+= How do I know if I need to purchase support? =
+You can [contact me](https://gravityplus.pro/)
+
 == Screenshots ==
 
 1. Settings page
@@ -117,6 +120,14 @@ I can assure you that is not the case -- [this should help you find where the pr
 3. Stripe feed
 
 == Changelog ==
+= 1.8.1 =
+* Fix menu not showing with Gravity Forms 1.8
+* Fix fatal error when Gravity Forms is deactivated
+* Fix validation result hook
+* Fix duplicate admin notices
+* Automatically set currency
+* Bump version number
+
 = 1.7.11.2 =
 * Fix critical issue resulting from undocumented Stripe API change
 * Bump version number
@@ -222,6 +233,9 @@ I can assure you that is not the case -- [this should help you find where the pr
 * Initial release. Process charges (one-time payments) only.
 
 == Upgrade Notice ==
+= 1.8.1 =
+Gravity Forms 1.8 compatibility release, as well as a few fixes.
+
 = 1.7.11.2 =
 Critical fix! Please upgrade or your form will not correctly process payments. Also check Stripe dashboard for wrong charge amounts.
 
