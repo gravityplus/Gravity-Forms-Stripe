@@ -306,7 +306,10 @@ class GFP_Stripe {
 	 *
 	 */
 	public static function admin_init () {
-
+		
+		// If Gravity Forms isn't activated, don't run this.
+		if(!class_exists('RGForms')) { return; }
+		
 		add_filter( 'plugin_action_links_' . plugin_basename( GFP_STRIPE_FILE ), array( self::$_this, 'plugin_action_links' ) );
 
 		//run the setup when version changes
