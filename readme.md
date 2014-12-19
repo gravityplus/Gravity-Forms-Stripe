@@ -24,7 +24,7 @@ This [Gravity Forms](http://naomicbush.com/getgravityforms) add-on integrates St
 *available only with [More Stripe here](https://gravityplus.pro/gravity-forms-stripe)
 
 ## Requirements
-* WordPress 3.6, tested up to 3.8.1, Multisite as well
+* WordPress 3.6, tested up to 4.1, Multisite as well
 * PHP 5.3
 * Gravity Forms 1.8.1 - [Grab a license](http://naomicbush.com/getgravityforms "purchase Gravity Forms!") if you don't already have one
 * [Stripe](https://stripe.com) account

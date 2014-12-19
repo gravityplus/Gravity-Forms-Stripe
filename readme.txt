@@ -3,7 +3,7 @@ Contributors: naomicbush
 Donate link: https://gravityplus.pro/gravity-forms-stripe
 Tags: form, forms, gravity, gravity form, gravity forms, gravityforms, stripe, payment, payments, subscribe, subscriptions, recurring billing, paypal, authorize.net, credit cards, online payment
 Requires at least: 3.6
-Tested up to: 3.8.1
+Tested up to: 4.1
 Stable tag: 1.8.1
 
 Easy and secure credit card payments on your WordPress site with Stripe and Gravity Forms!
