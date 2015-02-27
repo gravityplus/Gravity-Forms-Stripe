@@ -56,7 +56,7 @@ This [Gravity Forms](http://naomicbush.com/getgravityforms) add-on integrates St
 6. Under Forms->Stripe, add a Stripe feed for your new form.
 
 ## Changelog
-### 1.8.1 (January 14, 2013)
+### 1.8.1 (January 14, 2014)
 * Fix menu not showing with Gravity Forms 1.8
 * Fix fatal error when Gravity Forms is deactivated
 * Fix validation result hook
