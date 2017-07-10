@@ -2,19 +2,32 @@
 
 if ( ! function_exists( 'rgget' ) ) {
 	/**
-	 * @param      $name
-	 * @param null $array
+	 * Get a specific property of an array without needing to check if that property exists.
 	 *
-	 * @return string
+	 * Provide a default value if you want to return a specific value if the property is not set.
+	 *
+	 * @since  Unknown
+	 * @access public
+	 *
+	 * @param array  $array   Array from which the property's value should be retrieved.
+	 * @param string $prop    Name of the property to be retrieved.
+	 * @param string $default Optional. Value that should be returned if the property is not set or empty. Defaults to null.
+	 *
+	 * @return null|string|mixed The value
 	 */
-	function rgget ( $name, $array = null ) {
-		if ( ! isset( $array ) )
-			$array = $_GET;
+	function rgar( $array, $prop, $default = null ) {
 
-		if ( isset( $array[$name] ) )
-			return $array[$name];
+		if ( ! is_array( $array ) && ! ( is_object( $array ) && $array instanceof ArrayAccess ) ) {
+			return $default;
+		}
 
-		return "";
+		if ( isset( $array[ $prop ] ) ) {
+			$value = $array[ $prop ];
+		} else {
+			$value = '';
+		}
+
+		return empty( $value ) && $default !== null ? $default : $value;
 	}
 }
 
